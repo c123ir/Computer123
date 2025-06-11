@@ -6,7 +6,7 @@ import Layout from './components/layout/Layout';
 import { useTheme } from './contexts/ThemeContext';
 
 // Import صفحات
-import Dashboard from './Dashboardpages/Dashboard';
+import Dashboard from './Dashboard';
 import ComingSoon from './pages/ComingSoon';
 
 // کامپوننت اصلی App که شامل ThemeProvider است
