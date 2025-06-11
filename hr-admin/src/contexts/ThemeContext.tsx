@@ -1,43 +1,53 @@
 // src/contexts/ThemeContext.tsx
-// سیستم مدیریت تم روشن و تاریک
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
+export type Theme = 'light' | 'dark';
 
-// تعریف نوع تم
-type Theme = 'light' | 'dark';
-
-// نوع Context
 interface ThemeContextType {
-  theme: Theme;                    // تم فعلی
-  toggleTheme: () => void;         // تابع تغییر تم
-  isDark: boolean;                 // آیا تم تاریک است؟
+  theme: Theme;
+  isDark: boolean;
+  toggleTheme: () => void;
+  setTheme: (theme: Theme) => void;
 }
 
-// ایجاد Context
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-// نوع Props برای Provider
 interface ThemeProviderProps {
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
-// Provider کامپوننت
 export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
-  // دریافت تم ذخیره شده از localStorage یا پیش‌فرض روشن
   const [theme, setTheme] = useState<Theme>(() => {
+    // بررسی localStorage برای تم ذخیره شده
     const savedTheme = localStorage.getItem('theme') as Theme;
-    return savedTheme || 'light';
+    if (savedTheme && (savedTheme === 'light' || savedTheme === 'dark')) {
+      return savedTheme;
+    }
+    
+    // بررسی تنظیمات سیستم کاربر
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      return 'dark';
+    }
+    
+    return 'light';
   });
 
-  // تابع تغییر تم
+  const isDark = theme === 'dark';
+
   const toggleTheme = () => {
     const newTheme = theme === 'light' ? 'dark' : 'light';
     setTheme(newTheme);
-    localStorage.setItem('theme', newTheme);
   };
 
-  // اعمال تم به html element
+  const handleSetTheme = (newTheme: Theme) => {
+    setTheme(newTheme);
+  };
+
   useEffect(() => {
+    // ذخیره تم در localStorage
+    localStorage.setItem('theme', theme);
+    
+    // اعمال کلاس به root element
     const root = document.documentElement;
     
     if (theme === 'dark') {
@@ -47,10 +57,27 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
     }
   }, [theme]);
 
-  const value = {
+  // گوش دادن به تغییرات سیستم
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    
+    const handleChange = (e: MediaQueryListEvent) => {
+      // فقط در صورتی که کاربر تم خاصی انتخاب نکرده باشد
+      const savedTheme = localStorage.getItem('theme');
+      if (!savedTheme) {
+        setTheme(e.matches ? 'dark' : 'light');
+      }
+    };
+
+    mediaQuery.addEventListener('change', handleChange);
+    return () => mediaQuery.removeEventListener('change', handleChange);
+  }, []);
+
+  const value: ThemeContextType = {
     theme,
+    isDark,
     toggleTheme,
-    isDark: theme === 'dark'
+    setTheme: handleSetTheme,
   };
 
   return (
@@ -60,13 +87,10 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   );
 };
 
-// Custom Hook برای استفاده از Theme
-export const useTheme = () => {
+export const useTheme = (): ThemeContextType => {
   const context = useContext(ThemeContext);
-  
   if (context === undefined) {
-    throw new Error('useTheme باید داخل ThemeProvider استفاده شود');
+    throw new Error('useTheme must be used within a ThemeProvider');
   }
-  
   return context;
 };
