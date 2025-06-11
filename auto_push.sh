@@ -1,7 +1,8 @@
 #!/bin/zsh
-cd "/Users/imac2019/My-Apps/Computer123-Project/Ver02" || exit 1
+PROJECT="/Users/imac2019/My-Apps/Computer123-Project/Ver02"
+cd "$PROJECT" || exit 1
 
-# اگر قبلاً قفل مانده، پاکش کن
+# اگر قفل قدیمی مانده، حذف کن
 [ -f .git/index.lock ] && rm -f .git/index.lock
 
 # اگر تغییری هست، کامیت و پوش
