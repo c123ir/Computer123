@@ -7,7 +7,7 @@ import { useTheme } from './contexts/ThemeContext';
 
 // Import صفحات
 import Dashboard from './Dashboard';
-import ComingSoon from './pages/ComingSoon';
+import ComingSoon from './';
 
 // کامپوننت اصلی App که شامل ThemeProvider است
 const AppContent: React.FC = () => {
