@@ -1,0 +1,9 @@
+{
+  "markdown-preview-enhanced.styleEnabled": true,
+  "markdown.styles": [
+    "./styles/md-preview.css"
+  ],
+  "[markdown]": {
+    "editor.fontFamily": "Vazirmatn, Helvetica, Arial, sans-serif"
+  }
+}

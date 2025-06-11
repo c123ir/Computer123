@@ -1,0 +1,222 @@
+/* File: styles/md-preview.css */
+/* =====================================================================
+   ✦ Ultimate Markdown Preview Theme – «Vazirmatn‑Dark v2»
+   ▸ Author: داش مُشْتَبا & ChatGPT · 2025‑06‑11
+   ▸ Scope : VS Code + Markdown Preview Enhanced (MPE)
+   ---------------------------------------------------------------------
+   ✔ Full Persian RTL layout
+   ✔ Local + Variable Vazirmatn (wght axis) — graceful fallback
+   ✔ Auto Light / Dark  (+ CSS `color-scheme` hint)
+   ✔ GitHub‑style typography with custom accent
+   ✔ Smart code‑block highlighting (hljs) + language label
+   ✔ Zebra tables, stylish blockquotes, smooth scrollbars
+   ✔ **Refined check‑list layout & animated tick (RTL aware!)**
+   =====================================================================*/
+
+/********************  Local Web Fonts  ********************/
+/* Font files live in:  styles/fonts/ */
+@font-face {
+  font-family: "Vazirmatn";
+  src: url("./fonts/Vazirmatn[wght].woff2") format("woff2-variations");
+  font-weight: 100 900;
+  font-display: swap;
+}
+/* Static fallbacks – if variable file absent */
+@font-face {
+  font-family: "Vazirmatn";
+  src: url("./fonts/Vazirmatn-Light.woff2") format("woff2");
+  font-weight: 300;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Vazirmatn";
+  src: url("./fonts/Vazirmatn-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Vazirmatn";
+  src: url("./fonts/Vazirmatn-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-display: swap;
+}
+
+/********************  Root & Global  ********************/
+:root {
+  /* base tokens – light overrides below */
+  --accent        : #ffcc00;
+  --accent-dim    : color-mix(in srgb, var(--accent) 60%, transparent);
+  --radius        : 8px;
+  --maxw          : 860px;
+  --mono          : "JetBrains Mono", Menlo, Consolas, monospace;
+  color-scheme: dark light;
+}
+
+body {
+  direction: rtl;
+  text-align: right;
+  font-family: "Vazirmatn", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-weight: 400;
+  line-height: 1.8;
+  margin: 0 auto;
+  padding: 2rem 1rem 6rem;
+  max-width: var(--maxw);
+  hyphens: auto;
+  -webkit-font-smoothing: antialiased;
+  overflow-wrap: anywhere;
+}
+
+/* Selection */
+::selection { background: var(--accent-dim); color: #000; }
+
+/* Scrollbar (WebKit) */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--accent-dim); border-radius: 4px; }
+
+/********************  Headings  ********************/
+h1, h2, h3, h4, h5, h6 {
+  color: var(--heading);
+  font-weight: 700;
+  margin: 2.4rem 0 1rem;
+  line-height: 1.35;
+}
+
+h1 { font-size: 2.3rem; }
+h2 { font-size: 1.9rem; }
+h3 { font-size: 1.6rem; }
+h4 { font-size: 1.3rem; }
+h5 { font-size: 1.15rem; }
+h6 { font-size: 1rem; }
+
+/********************  Paragraphs & Lists  ********************/
+p, li { margin: 0 0 1.1rem; font-size: 1.02rem; }
+
+ul, ol { padding-right: 2.4rem; margin: 0 0 1.4rem; }
+
+/* === Task List (check‑list) RTL friendly === */
+li.task-list-item {
+  list-style: none;
+  display: flex;
+  flex-direction: row-reverse; /* checkbox در سمت راست، متن در چپ */
+  align-items: flex-start;
+  gap: .6rem;
+  direction: rtl;
+}
+
+input[type="checkbox"] {
+  appearance: none;
+  width: 1.15rem; height: 1.15rem;
+  cursor: pointer;
+  border: 2px solid var(--accent);
+  border-radius: 4px;
+  transition: background .15s ease-in-out, border-color .15s;
+  position: relative;
+  flex-shrink: 0;               /* maintains width in flex layout */
+}
+input[type="checkbox"]:checked {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+input[type="checkbox"]:checked::after {
+  content: "";
+  position: absolute; inset: 0;
+  width: .55rem; height: .3rem; border: 2px solid #000;
+  border-top: 0; border-right: 0; transform: translate(.18rem,.05rem) rotate(-45deg);
+}
+
+/********************  Blockquotes  ********************/
+blockquote {
+  border-right: 4px solid var(--accent);
+  background: var(--quote-bg);
+  margin: 2rem 0; padding: 1rem 1.4rem;
+  border-radius: var(--radius);
+}
+
+/********************  Code  ********************/
+code {
+  background: var(--code-inline-bg);
+  color: var(--code-inline-fg);
+  font-family: var(--mono);
+  font-size: .95rem;
+  padding: .15em .35em; border-radius: 4px;
+}
+pre {
+  background: var(--code-bg);
+  color: var(--code-fg);
+  direction: ltr; text-align: left;
+  overflow-x: auto; padding: 1.2rem 1.6rem;
+  border-radius: var(--radius);
+  font-family: var(--mono);
+  position: relative;
+}
+/* language label extracted by MPE `data-lang` */
+pre[data-lang]::before {
+  content: attr(data-lang);
+  position: absolute; top: .4rem; left: .8rem;
+  font-size: .75rem; font-weight: 700;
+  text-transform: uppercase; color: var(--accent);
+}
+
+/* highlight.js overrides (simplified) */
+.hljs-comment, .hljs-quote { color: #6a9955; }
+.hljs-keyword, .hljs-selector-tag, .hljs-literal { color: #c586c0; }
+.hljs-title, .hljs-section { color: #569cd6; }
+.hljs-string { color: #ce9178; }
+.hljs-built_in, .hljs-builtin-name, .hljs-type { color: #4ec9b0; }
+
+/********************  Tables  ********************/
+.table-wrapper { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; margin: 2rem 0; }
+thead { background: var(--table-head-bg); }
+tr:nth-child(even) td { background: var(--table-zebra); }
+th, td { border: 1px solid var(--table-border); padding: .7rem 1rem; text-align: right; }
+
+/********************  Images & Media  ********************/
+img, video { max-width: 100%; height: auto; display: block; margin: 2rem auto; border-radius: var(--radius); }
+
+/********************  Light & Dark Palettes  ********************/
+@media (prefers-color-scheme: light) {
+  :root {
+    --heading       : #0b3d91;
+    --bg            : #ffffff;
+    --text          : #1a1a1a;
+    --quote-bg      : #f4f6ff;
+    --code-bg       : #f5f5f5;
+    --code-fg       : #1e1e1e;
+    --code-inline-bg: #ececec;
+    --code-inline-fg: #1e1e1e;
+    --table-head-bg : #e9eef6;
+    --table-zebra   : #f9f9f9;
+    --table-border  : #d0d7de;
+  }
+  body { background: var(--bg); color: var(--text); }
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --heading       : var(--accent);
+    --bg            : #1e1e1e;
+    --text          : #e8e8e8;
+    --quote-bg      : #262626;
+    --code-bg       : #2d2d2d;
+    --code-fg       : #eaeaea;
+    --code-inline-bg: #3a3a3a;
+    --code-inline-fg: #f1f1f1;
+    --table-head-bg : #2a2a2a;
+    --table-zebra   : #242424;
+    --table-border  : #444444;
+  }
+  body { background: var(--bg); color: var(--text); }
+}
+
+/********************  Links & Headings Anchor hover  ********************/
+a {
+  color: var(--accent); text-decoration: none; transition: color .15s;
+}
+a:hover { color: var(--heading); text-decoration: underline; }
+
+/********************  Callout Boxes (tip, warn)  ********************/
+/* Usage:  > **tip**     …  */
+blockquote>p:first-child>strong {
+  text-transform: uppercase; margin-left: .5

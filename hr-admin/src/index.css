@@ -1,0 +1,166 @@
+/* src/index.css */
+/* استایل‌های پایه و شیشه‌ای */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* تنظیمات فونت فارسی */
+@import url('https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css');
+
+/* تنظیمات کلی */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Vazirmatn', sans-serif;
+  direction: rtl;
+  text-align: right;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* تنظیمات برای متن‌های انگلیسی */
+.ltr {
+  direction: ltr;
+  text-align: left;
+}
+
+/* استایل‌های شیشه‌ای سفارشی */
+.glass-light {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.glass-dark {
+  background: rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* انیمیشن‌های سفارشی */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* اسکرول بار سفارشی */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(156, 163, 175, 0.5);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(156, 163, 175, 0.7);
+}
+
+/* تم تاریک */
+.dark ::-webkit-scrollbar-thumb {
+  background: rgba(75, 85, 99, 0.5);
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: rgba(75, 85, 99, 0.7);
+}
+
+/* ترانزیشن‌های روان */
+* {
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+/* حذف استایل‌های پیش‌فرض لینک */
+a {
+  text-decoration: none !important;
+  color: inherit;
+}
+
+/* حذف استایل‌های پیش‌فرض لیست */
+ul, ol {
+  list-style: none !important;
+}
+
+li {
+  list-style: none !important;
+}
+
+/* فوکوس برای دسترسی */
+button:focus,
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  ring: 2px;
+  ring-color: rgb(59, 130, 246);
+}
+
+/* کلاس‌های کمکی */
+.text-shadow {
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.border-gradient {
+  border-image: linear-gradient(45deg, #3B82F6, #8B5CF6) 1;
+}
+
+/* انیمیشن بارگذاری */
+.loading-spinner {
+  border: 2px solid rgba(59, 130, 246, 0.3);
+  border-radius: 50%;
+  border-top: 2px solid #3B82F6;
+  width: 20px;
+  height: 20px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* موبایل - تنظیمات responsive */
+@media (max-width: 768px) {
+  body {
+    font-size: 14px;
+  }
+  
+  .container {
+    padding: 0 16px;
+  }
+}
+
+/* تبلت */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .container {
+    padding: 0 24px;
+  }
+}
+
+/* دسکتاپ */
+@media (min-width: 1024px) {
+  .container {
+    padding: 0 32px;
+  }
+}
