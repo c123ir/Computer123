@@ -1,3 +1,4 @@
+// src/components/layout/Sidebar.tsx - نسخه ساده بدون خطا
 import React from 'react';
 import { 
   Home, 
@@ -7,10 +8,10 @@ import {
   DollarSign, 
   Shield, 
   Tag, 
-  FileEdit, 
+  FileText,  // استفاده از FileText بجای FileEdit
   Settings, 
   MessageSquare, 
-  FileText, 
+  FileText as DocumentIcon, 
   Brain, 
   BarChart3, 
   Workflow, 
@@ -91,7 +92,7 @@ const Sidebar: React.FC<SidebarProps> = ({
     { 
       id: 'forms', 
       title: 'مدیریت فرم ها', 
-      icon: FileEdit, 
+      icon: FileText, // تغییر از FileEdit به FileText
       path: '/forms',
       description: 'فرم های سیستم'
     },
@@ -112,7 +113,7 @@ const Sidebar: React.FC<SidebarProps> = ({
     { 
       id: 'documents', 
       title: 'مدیریت اسناد', 
-      icon: FileText, 
+      icon: DocumentIcon, 
       path: '/documents',
       description: 'اسناد و مدارک'
     },
@@ -177,6 +178,10 @@ const Sidebar: React.FC<SidebarProps> = ({
             : 'hover:bg-gray-500/10'
           }
         `}
+        onClick={() => {
+          window.location.href = item.path;
+          if (isMobile) onClose();
+        }}
       >
         <div className={`
           flex items-center gap-3 p-4
