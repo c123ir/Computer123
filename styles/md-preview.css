@@ -220,3 +220,4 @@ a:hover { color: var(--heading); text-decoration: underline; }
 /* Usage:  > **tip**     …  */
 blockquote>p:first-child>strong {
   text-transform: uppercase; margin-left: .5
+  
