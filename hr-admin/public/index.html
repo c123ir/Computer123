@@ -1,46 +1,235 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fa" dir="rtl">
   <head>
     <meta charset="utf-8" />
     <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#000000" />
-    <meta
-      name="description"
-      content="Web site created using create-react-app"
+    <meta name="theme-color" content="#3b82f6" />
+    <meta name="description" content="سیستم مدیریت فرایند مجتمع کامپیوتر یک دو سه - مدیریت جامع فرایندهای اداری و عملیاتی" />
+    <meta name="keywords" content="مدیریت, فرایند, مجتمع کامپیوتر, یک دو سه, فروش, مشتری, پرسنل, گزارش" />
+    <meta name="author" content="مجتمع کامپیوتر یک دو سه" />
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://computer123.ir/" />
+    <meta property="og:title" content="سیستم مدیریت فرایند - مجتمع کامپیوتر یک دو سه" />
+    <meta property="og:description" content="مدیریت جامع فرایندهای اداری و عملیاتی مجتمع کامپیوتر یک دو سه" />
+    <meta property="og:image" content="%PUBLIC_URL%/og-image.png" />
 
-    />
-    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
-    <!--
-      manifest.json provides metadata used when your web app is installed on a
-      user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
-    -->
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content="https://computer123.ir/" />
+    <meta property="twitter:title" content="سیستم مدیریت فرایند - مجتمع کامپیوتر یک دو سه" />
+    <meta property="twitter:description" content="مدیریت جامع فرایندهای اداری و عملیاتی مجتمع کامپیوتر یک دو سه" />
+    <meta property="twitter:image" content="%PUBLIC_URL%/og-image.png" />
+
+    <!-- Apple Touch Icon -->
+    <link rel="apple-touch-icon" href="%PUBLIC_URL%/apple-touch-icon.png" />
+    
+    <!-- Manifest -->
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
-    <!--
-      Notice the use of %PUBLIC_URL% in the tags above.
-      It will be replaced with the URL of the `public` folder during the build.
-      Only files inside the `public` folder can be referenced from the HTML.
+    
+    <!-- Preconnect to Google Fonts -->
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    
+    <!-- Vazirmatn Font -->
+    <link rel="preload" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css"></noscript>
+    
+    <!-- Fallback for older browsers -->
+    <style>
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+      }
+    </style>
 
-      Unlike "/favicon.ico" or "favicon.ico", "%PUBLIC_URL%/favicon.ico" will
-      work correctly both with client-side routing and a non-root public URL.
-      Learn how to configure a non-root public URL by running `npm run build`.
-    -->
-    <title>React App</title>
+    <!-- Prevent FOUC (Flash of Unstyled Content) -->
+    <style>
+      html {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        height: 100%;
+      }
+      
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        direction: rtl;
+        overflow-x: hidden;
+      }
+      
+      #root {
+        height: 100%;
+        min-height: 100vh;
+      }
+      
+      /* Loading Animation */
+      .initial-loader {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        opacity: 1;
+        transition: opacity 0.5s ease-out;
+      }
+      
+      .initial-loader.fade-out {
+        opacity: 0;
+        pointer-events: none;
+      }
+      
+      .loader-content {
+        text-align: center;
+        color: white;
+      }
+      
+      .loader-logo {
+        width: 80px;
+        height: 80px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 20px;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        font-size: 24px;
+        font-weight: bold;
+      }
+      
+      .loader-text {
+        font-size: 18px;
+        font-weight: 600;
+        margin-bottom: 10px;
+      }
+      
+      .loader-subtext {
+        font-size: 14px;
+        opacity: 0.8;
+        margin-bottom: 30px;
+      }
+      
+      .loader-dots {
+        display: flex;
+        justify-content: center;
+        gap: 4px;
+      }
+      
+      .loader-dot {
+        width: 8px;
+        height: 8px;
+        background: white;
+        border-radius: 50%;
+        animation: bounce 1.4s ease-in-out infinite both;
+      }
+      
+      .loader-dot:nth-child(1) { animation-delay: -0.32s; }
+      .loader-dot:nth-child(2) { animation-delay: -0.16s; }
+      .loader-dot:nth-child(3) { animation-delay: 0s; }
+      
+      @keyframes bounce {
+        0%, 80%, 100% {
+          transform: scale(0);
+        }
+        40% {
+          transform: scale(1);
+        }
+      }
+      
+      /* Dark mode detection */
+      @media (prefers-color-scheme: dark) {
+        html {
+          background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+        }
+      }
+    </style>
 
-      <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet">
+    <title>سیستم مدیریت فرایند - مجتمع کامپیوتر یک دو سه</title>
   </head>
   <body>
-    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <noscript>
+      <div style="display: flex; align-items: center; justify-content: center; height: 100vh; text-align: center; font-family: Arial, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+        <div>
+          <h1>JavaScript مورد نیاز است</h1>
+          <p>برای استفاده از این برنامه، لطفاً JavaScript را در مرورگر خود فعال کنید.</p>
+        </div>
+      </div>
+    </noscript>
+
+    <!-- Initial Loading Screen -->
+    <div id="initial-loader" class="initial-loader">
+      <div class="loader-content">
+        <div class="loader-logo">۱۲۳</div>
+        <div class="loader-text">مجتمع کامپیوتر یک دو سه</div>
+        <div class="loader-subtext">سیستم مدیریت فرایند در حال بارگذاری...</div>
+        <div class="loader-dots">
+          <div class="loader-dot"></div>
+          <div class="loader-dot"></div>
+          <div class="loader-dot"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- React App Mount Point -->
     <div id="root"></div>
-    <!--
-      This HTML file is a template.
-      If you open it directly in the browser, you will see an empty page.
 
-      You can add webfonts, meta tags, or analytics to this file.
-      The build step will place the bundled scripts into the <body> tag.
+    <!-- Remove initial loader when React app loads -->
+    <script>
+      // تنظیم تم بر اساس تنظیمات کاربر یا سیستم
+      (function() {
+        const theme = localStorage.getItem('theme') || 
+                     (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        
+        if (theme === 'dark') {
+          document.documentElement.classList.add('dark');
+        }
+        
+        // حذف لودر اولیه بعد از بارگذاری کامل
+        window.addEventListener('load', function() {
+          setTimeout(function() {
+            const loader = document.getElementById('initial-loader');
+            if (loader) {
+              loader.classList.add('fade-out');
+              setTimeout(function() {
+                loader.remove();
+              }, 500);
+            }
+          }, 1000);
+        });
 
-      To begin the development, run `npm start` or `yarn start`.
-      To create a production bundle, use `npm run build` or `yarn build`.
-    -->
+        // مدیریت خطاهای JavaScript
+        window.addEventListener('error', function(e) {
+          console.error('JavaScript Error:', e.error);
+          // در production میتوانید خطاها را به سرویس لاگینگ ارسال کنید
+        });
+
+        // مدیریت Promise های رد شده
+        window.addEventListener('unhandledrejection', function(e) {
+          console.error('Unhandled Promise Rejection:', e.reason);
+          // در production میتوانید خطاها را به سرویس لاگینگ ارسال کنید
+        });
+      })();
+    </script>
+
+    <!-- Performance and Analytics (اختیاری) -->
+    <script>
+      // Web Vitals measurement
+      if ('performance' in window) {
+        window.addEventListener('load', function() {
+          // اندازه‌گیری عملکرد صفحه
+          const perfData = performance.getEntriesByType('navigation')[0];
+          if (perfData) {
+            console.log('Page Load Time:', perfData.loadEventEnd - perfData.loadEventStart, 'ms');
+          }
+        });
+      }
+    </script>
   </body>
 </html>
