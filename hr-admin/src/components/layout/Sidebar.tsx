@@ -7,7 +7,7 @@ import {
   DollarSign, 
   Shield, 
   Tag, 
-  FileForm, 
+  FileEdit, 
   Settings, 
   MessageSquare, 
   FileText, 
@@ -91,7 +91,7 @@ const Sidebar: React.FC<SidebarProps> = ({
     { 
       id: 'forms', 
       title: 'مدیریت فرم ها', 
-      icon: FileForm, 
+      icon: FileEdit, 
       path: '/forms',
       description: 'فرم های سیستم'
     },
