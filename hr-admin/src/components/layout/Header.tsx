@@ -352,9 +352,12 @@ const Header: React.FC<HeaderProps> = ({ onMenuToggle, isMobile, isSidebarOpen }
             <div className="flex-1">
               <input
                 type="text"
+                id="mobile-search"
+                name="mobile-search"
                 placeholder="جستجو..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
+                autoComplete="off"
                 className={`
                   w-full p-3 rounded-lg border
                   ${isDark 
