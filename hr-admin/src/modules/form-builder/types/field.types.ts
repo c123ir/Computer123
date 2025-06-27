@@ -1,5 +1,7 @@
 // src/modules/form-builder/types/field.types.ts
 
+import type { FieldType, FormField } from './form.types';
+
 // Re-export everything from form.types for convenience
 export * from './form.types';
 

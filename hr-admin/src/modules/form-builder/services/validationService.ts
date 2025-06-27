@@ -898,7 +898,7 @@ import {
         type: field.type,
         required: field.required,
         validation: field.validation,
-        customValidators: field.customValidators?.map(v => ({
+        customValidators: (field as any).customValidators?.map((v: any) => ({
           name: v.name,
           errorMessage: v.errorMessage
           // توجه: تابع validator قابل serialize نیست
