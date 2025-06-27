@@ -47,14 +47,19 @@ export const FirebaseConnectionTest: React.FC = () => {
         throw new Error('Firebase services not initialized');
       }
 
-      // Test actual connection
-      const isConnected = await checkFirebaseConnection();
+      // Test actual connection with timeout
+      const connectionPromise = checkFirebaseConnection();
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Connection timeout')), 10000);
+      });
+
+      const isConnected = await Promise.race([connectionPromise, timeoutPromise]) as boolean;
       
       if (isConnected) {
         setConnectionStatus({
           status: 'connected',
           message: 'اتصال Firebase موفقیت‌آمیز است',
-          details: `Project ID: ${firebaseEnv.projectId}`
+          details: `Project: ${firebaseEnv.projectId}`
         });
       } else {
         setConnectionStatus({
@@ -64,10 +69,27 @@ export const FirebaseConnectionTest: React.FC = () => {
         });
       }
     } catch (error: any) {
+      console.error('Firebase connection test error:', error);
+      
+      // More specific error messages
+      let errorMessage = 'خطا در اتصال Firebase';
+      let errorDetails = error.message;
+      
+      if (error.message.includes('timeout')) {
+        errorMessage = 'خطا: زمان اتصال به Firebase تمام شد';
+        errorDetails = 'لطفاً اتصال اینترنت خود را بررسی کنید';
+      } else if (error.message.includes('permission')) {
+        errorMessage = 'خطا: دسترسی Firebase';
+        errorDetails = 'Rules یا Authentication تنظیم نشده است';
+      } else if (error.message.includes('network')) {
+        errorMessage = 'خطا: مشکل شبکه';
+        errorDetails = 'لطفاً VPN یا اتصال اینترنت را بررسی کنید';
+      }
+      
       setConnectionStatus({
         status: 'failed',
-        message: 'خطا در اتصال Firebase',
-        details: error.message
+        message: errorMessage,
+        details: errorDetails
       });
     }
   };

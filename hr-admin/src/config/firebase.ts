@@ -188,11 +188,22 @@ export function getFirebaseStorage(): FirebaseStorage | null {
 export async function checkFirebaseConnection(): Promise<boolean> {
   try {
     const db = getDB();
-    // Try to perform a simple operation to test connection
-    await db._delegate._databaseId;
+    
+    // Test connection with a simple Firestore operation
+    // Try to get a non-existent document (minimal network call)
+    const { doc, getDoc } = await import('firebase/firestore');
+    const testDoc = doc(db, 'test', 'connection');
+    await getDoc(testDoc);
+    
     console.log('✅ Firebase connection is healthy');
     return true;
-  } catch (error) {
+  } catch (error: any) {
+    // If it's a permission error, connection is actually working
+    if (error?.code === 'permission-denied') {
+      console.log('✅ Firebase connection is healthy (permission check)');
+      return true;
+    }
+    
     console.error('❌ Firebase connection failed:', error);
     return false;
   }
