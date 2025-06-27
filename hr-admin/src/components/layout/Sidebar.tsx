@@ -8,7 +8,7 @@ import {
   DollarSign, 
   Shield, 
   Tag, 
-  FileText,  // استفاده از FileText بجای FileEdit
+  FileEdit,  // آیکون مناسب برای فرم‌ساز
   Settings, 
   MessageSquare, 
   FileText as DocumentIcon, 
@@ -91,10 +91,10 @@ const Sidebar: React.FC<SidebarProps> = ({
     },
     { 
       id: 'forms', 
-      title: 'مدیریت فرم ها', 
-      icon: FileText, // تغییر از FileEdit به FileText
+      title: 'فرم‌ساز و مدیریت فرم‌ها', 
+      icon: FileEdit, // آیکون فرم‌ساز
       path: '/forms',
-      description: 'فرم های سیستم'
+      description: 'ایجاد و مدیریت فرم‌ها'
     },
     { 
       id: 'settings', 

@@ -5,6 +5,8 @@ import { ThemeProvider } from './contexts/ThemeContext';
 import Layout from './components/layout/Layout';
 import Dashboard from './pages/Dashboard';
 import ComingSoon from './pages/ComingSoon';
+import FormsList from './pages/FormsList';
+import FormBuilderPage from './pages/FormBuilderPage';
 
 // Firebase Connection Test (فقط در development)
 import FirebaseConnectionTest from './components/common/FirebaseConnectionTest';
@@ -19,10 +21,11 @@ function App() {
               <Route path="/" element={<Dashboard />} />
               <Route path="/dashboard" element={<Dashboard />} />
               
-              {/* صفحات فرم‌ساز - فعلاً Coming Soon */}
-              <Route path="/forms" element={<ComingSoon title="فرم‌ساز" />} />
-              <Route path="/forms/create" element={<ComingSoon title="ایجاد فرم جدید" />} />
-              <Route path="/forms/:id/edit" element={<ComingSoon title="ویرایش فرم" />} />
+              {/* صفحات فرم‌ساز */}
+              <Route path="/forms" element={<FormsList />} />
+              <Route path="/forms/create" element={<FormBuilderPage />} />
+              <Route path="/forms/:id/edit" element={<FormBuilderPage />} />
+              <Route path="/forms/:id/preview" element={<ComingSoon title="پیش‌نمایش فرم" />} />
               <Route path="/forms/:id/data" element={<ComingSoon title="داده‌های فرم" />} />
               
               {/* سایر صفحات */}
