@@ -707,8 +707,8 @@ export class FormService {
       ...field,
       id: field.id || this.generateFieldId(),
       styling: {
-        width: '100%',
-        ...field.styling
+        ...field.styling,
+        width: field.styling.width || '100%'
       },
       validation: {
         ...field.validation

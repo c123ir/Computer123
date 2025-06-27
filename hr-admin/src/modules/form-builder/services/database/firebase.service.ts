@@ -452,13 +452,15 @@ import {
   
     async getTemplates(category?: string): Promise<FormTemplate[]> {
       try {
-        let q = collection(this.db, this.COLLECTIONS.TEMPLATES);
+        const constraints: QueryConstraint[] = [];
         
         if (category) {
-          q = query(q, where('category', '==', category));
+          constraints.push(where('category', '==', category));
         }
         
+        const q = query(collection(this.db, this.COLLECTIONS.TEMPLATES), ...constraints);
         const querySnapshot = await getDocs(q);
+        
         return querySnapshot.docs.map(doc => ({
           id: doc.id,
           ...doc.data()
@@ -511,11 +513,11 @@ import {
     // Helper Methods
     // =================================
   
-    private async updateStats(field: string, increment: number): Promise<void> {
+    private async updateStats(field: string, incrementValue: number): Promise<void> {
       try {
         const statsRef = doc(this.db, this.COLLECTIONS.STATS, 'global');
         await updateDoc(statsRef, {
-          [field]: increment(increment),
+          [field]: increment(incrementValue),
           lastUpdated: serverTimestamp()
         });
       } catch (error) {
