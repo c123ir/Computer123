@@ -1,391 +1,358 @@
-#!/bin/bash
-# 🔧 اسکریپت رفع خطاهای TypeScript
-# این اسکریپت تمام فایل‌های خالی را با محتوای پایه پر می‌کند
+// src/modules/form-builder/types/form.types.ts
 
-echo "🔧 شروع رفع خطاهای TypeScript..."
-
-# ===============================
-# Types
-# ===============================
-
-cat > "src/modules/form-builder/types/form.types.ts" << 'EOF'
-export interface Form {
-  id: string;
-  name: string;
-  description?: string;
-  fields: FormField[];
-  settings: FormSettings;
-  styling: FormStyling;
-  metadata: FormMetadata;
-}
-
-export interface FormField {
-  id: string;
-  type: FieldType;
-  label: string;
-  placeholder?: string;
-  helpText?: string;
-  required: boolean;
-  validation: ValidationRules;
-  styling: FieldStyling;
-  options?: FieldOption[];
-}
-
-export interface FormSettings {
-  submitButtonText: string;
-  showProgressBar: boolean;
-  allowSaveDraft: boolean;
-  redirectAfterSubmit?: string;
-}
-
-export interface FormStyling {
-  theme: 'default' | 'modern' | 'dark' | 'minimal';
-  backgroundColor: string;
-  textColor: string;
-  primaryColor: string;
-}
-
-export interface FormMetadata {
-  createdBy: string;
-  createdAt: string;
-  updatedAt: string;
-  status: 'draft' | 'published' | 'archived';
-}
-
-export interface ValidationRules {
-  minLength?: number;
-  maxLength?: number;
-  pattern?: string;
-  min?: number;
-  max?: number;
-}
-
-export interface FieldStyling {
-  width: string;
-  className?: string;
-}
-
-export interface FieldOption {
-  label: string;
-  value: string;
-}
-
+/**
+ * انواع فیلد‌های قابل استفاده در فرم‌ساز
+ */
 export type FieldType = 
-  | 'text' | 'textarea' | 'number' | 'email' 
-  | 'select' | 'radio' | 'checkbox' 
-  | 'date' | 'file';
-EOF
+  | 'text'          // متن ساده
+  | 'textarea'      // متن چندخطی
+  | 'number'        // عدد
+  | 'email'         // ایمیل
+  | 'tel'           // شماره تلفن
+  | 'url'           // آدرس وبسایت
+  | 'select'        // انتخاب از لیست
+  | 'radio'         // انتخاب یکی از چند
+  | 'checkbox'      // چک باکس
+  | 'date'          // تاریخ
+  | 'time'          // زمان
+  | 'datetime'      // تاریخ و زمان
+  | 'file'          // آپلود فایل
+  | 'signature'     // امضا
+  | 'rating'        // امتیازدهی
+  | 'slider';       // اسلایدر
 
-cat > "src/modules/form-builder/types/field.types.ts" << 'EOF'
-export * from './form.types';
-EOF
-
-cat > "src/modules/form-builder/types/database.types.ts" << 'EOF'
-export interface DatabaseConfig {
-  type: 'firebase' | 'postgresql' | 'mongodb';
-  connectionString?: string;
-  options?: Record<string, any>;
+/**
+ * گزینه‌های فیلد (برای select, radio, checkbox)
+ */
+export interface FieldOption {
+  /** شناسه یکتا */
+  id: string;
+  /** برچسب نمایشی */
+  label: string;
+  /** مقدار */
+  value: string;
+  /** آیا پیش‌فرض انتخاب شده باشد؟ */
+  selected?: boolean;
+  /** غیرفعال */
+  disabled?: boolean;
 }
 
-export interface QueryFilters {
-  [key: string]: any;
+/**
+ * قوانین اعتبارسنجی فیلد
+ */
+export interface ValidationRules {
+  /** حداقل طول */
+  minLength?: number;
+  /** حداکثر طول */
+  maxLength?: number;
+  /** الگوی regex */
+  pattern?: string;
+  /** پیام خطای سفارشی برای pattern */
+  patternMessage?: string;
+  /** حداقل مقدار (برای number) */
+  min?: number;
+  /** حداکثر مقدار (برای number) */
+  max?: number;
+  /** انواع فایل مجاز */
+  fileTypes?: string[];
+  /** حداکثر اندازه فایل (بایت) */
+  maxFileSize?: number;
+  /** اعتبارسنجی سفارشی */
+  customValidation?: {
+    rule: string;
+    message: string;
+  };
 }
 
-export interface PaginationOptions {
-  page: number;
-  limit: number;
+/**
+ * تنظیمات ظاهری فیلد
+ */
+export interface FieldStyling {
+  /** عرض فیلد */
+  width: '25%' | '50%' | '75%' | '100%';
+  /** کلاس CSS سفارشی */
+  className?: string;
+  /** رنگ پس‌زمینه */
+  backgroundColor?: string;
+  /** رنگ متن */
+  textColor?: string;
+  /** رنگ border */
+  borderColor?: string;
+  /** نوع border */
+  borderStyle?: 'solid' | 'dashed' | 'dotted' | 'none';
+  /** ضخامت border */
+  borderWidth?: number;
+  /** شعاع گوشه‌ها */
+  borderRadius?: number;
+  /** فاصله داخلی */
+  padding?: number;
+  /** فاصله خارجی */
+  margin?: number;
 }
-EOF
 
-cat > "src/modules/form-builder/types/index.ts" << 'EOF'
-export * from './form.types';
-export * from './field.types';
-export * from './database.types';
-EOF
-
-# ===============================
-# Services
-# ===============================
-
-cat > "src/modules/form-builder/services/database/interface.ts" << 'EOF'
-import { Form, QueryFilters, PaginationOptions } from '../../types';
-
-export interface DatabaseService {
-  createForm(form: Omit<Form, 'id'>): Promise<string>;
-  getForm(id: string): Promise<Form | null>;
-  updateForm(id: string, updates: Partial<Form>): Promise<void>;
-  deleteForm(id: string): Promise<void>;
-  listForms(filters?: QueryFilters, pagination?: PaginationOptions): Promise<Form[]>;
-  createResponse(formId: string, response: Record<string, any>): Promise<string>;
-  getResponses(formId: string): Promise<any[]>;
+/**
+ * فیلد فرم
+ */
+export interface FormField {
+  /** شناسه یکتا */
+  id: string;
+  /** نوع فیلد */
+  type: FieldType;
+  /** برچسب فیلد */
+  label: string;
+  /** متن راهنما */
+  placeholder?: string;
+  /** توضیح کمکی */
+  helpText?: string;
+  /** آیا اجباری است؟ */
+  required: boolean;
+  /** مقدار پیش‌فرض */
+  defaultValue?: any;
+  /** آیا غیرفعال است؟ */
+  disabled?: boolean;
+  /** آیا فقط‌خواندنی است؟ */
+  readonly?: boolean;
+  /** قوانین اعتبارسنجی */
+  validation: ValidationRules;
+  /** تنظیمات ظاهری */
+  styling: FieldStyling;
+  /** گزینه‌ها (برای select, radio, checkbox) */
+  options?: FieldOption[];
+  /** تنظیمات خاص نوع فیلد */
+  fieldSettings?: {
+    /** برای file: multiple selection */
+    multiple?: boolean;
+    /** برای rating: تعداد ستاره */
+    maxRating?: number;
+    /** برای slider: مقدار min/max/step */
+    min?: number;
+    max?: number;
+    step?: number;
+    /** برای textarea: تعداد خط */
+    rows?: number;
+    /** برای date: format */
+    dateFormat?: string;
+  };
+  /** شرط نمایش (Conditional Logic) */
+  conditions?: {
+    /** فیلد مرجع */
+    dependsOn: string;
+    /** مقدار مورد انتظار */
+    value: any;
+    /** نوع شرط */
+    operator: 'equals' | 'not_equals' | 'contains' | 'greater_than' | 'less_than';
+  }[];
 }
-EOF
 
-cat > "src/modules/form-builder/services/database/firebase.service.ts" << 'EOF'
-import { DatabaseService } from './interface';
-import { Form, QueryFilters, PaginationOptions } from '../../types';
-
-export class FirebaseService implements DatabaseService {
-  async createForm(form: Omit<Form, 'id'>): Promise<string> {
-    throw new Error('Not implemented yet');
-  }
-
-  async getForm(id: string): Promise<Form | null> {
-    return null;
-  }
-
-  async updateForm(id: string, updates: Partial<Form>): Promise<void> {
-    throw new Error('Not implemented yet');
-  }
-
-  async deleteForm(id: string): Promise<void> {
-    throw new Error('Not implemented yet');
-  }
-
-  async listForms(filters?: QueryFilters, pagination?: PaginationOptions): Promise<Form[]> {
-    return [];
-  }
-
-  async createResponse(formId: string, response: Record<string, any>): Promise<string> {
-    throw new Error('Not implemented yet');
-  }
-
-  async getResponses(formId: string): Promise<any[]> {
-    return [];
-  }
+/**
+ * تنظیمات فرم
+ */
+export interface FormSettings {
+  /** متن دکمه ارسال */
+  submitButtonText: string;
+  /** نمایش نوار پیشرفت */
+  showProgressBar: boolean;
+  /** امکان ذخیره پیش‌نویس */
+  allowSaveDraft: boolean;
+  /** هدایت پس از ارسال */
+  redirectAfterSubmit?: string;
+  /** نمایش شماره فیلد */
+  showFieldNumbers: boolean;
+  /** عرض فرم */
+  formWidth: 'small' | 'medium' | 'large' | 'full';
+  /** محدودیت زمانی */
+  timeLimit?: {
+    enabled: boolean;
+    minutes: number;
+    showTimer: boolean;
+  };
+  /** محدودیت تعداد ارسال */
+  submissionLimit?: {
+    enabled: boolean;
+    maxSubmissions: number;
+    perUser: boolean;
+  };
+  /** تنظیمات ایمیل */
+  emailSettings?: {
+    sendConfirmation: boolean;
+    confirmationTemplate?: string;
+    notifyAdmin: boolean;
+    adminEmail?: string;
+  };
 }
-EOF
 
-cat > "src/modules/form-builder/services/database/factory.ts" << 'EOF'
-import { DatabaseService } from './interface';
-import { FirebaseService } from './firebase.service';
-
-export class DatabaseServiceFactory {
-  static create(type: string): DatabaseService {
-    switch (type) {
-      case 'firebase':
-        return new FirebaseService();
-      default:
-        throw new Error(`Unsupported database type: ${type}`);
-    }
-  }
+/**
+ * تنظیمات ظاهری فرم
+ */
+export interface FormStyling {
+  /** تم اصلی */
+  theme: 'default' | 'modern' | 'dark' | 'minimal' | 'colorful';
+  /** رنگ پس‌زمینه */
+  backgroundColor: string;
+  /** رنگ متن */
+  textColor: string;
+  /** رنگ اصلی */
+  primaryColor: string;
+  /** رنگ ثانویه */
+  secondaryColor?: string;
+  /** فونت */
+  fontFamily: string;
+  /** اندازه فونت */
+  fontSize: number;
+  /** شعاع گوشه‌ها */
+  borderRadius: number;
+  /** فاصله‌گذاری */
+  spacing: 'compact' | 'normal' | 'relaxed';
+  /** تصویر پس‌زمینه */
+  backgroundImage?: string;
+  /** لوگو */
+  logo?: {
+    url: string;
+    position: 'top' | 'center' | 'bottom';
+    size: 'small' | 'medium' | 'large';
+  };
+  /** CSS سفارشی */
+  customCSS?: string;
 }
-EOF
 
-cat > "src/modules/form-builder/services/formService.ts" << 'EOF'
-import { Form } from '../types';
-
-export class FormService {
-  static async createForm(formData: Omit<Form, 'id'>): Promise<string> {
-    throw new Error('Not implemented yet');
-  }
-
-  static async getForm(id: string): Promise<Form | null> {
-    return null;
-  }
+/**
+ * اطلاعات meta فرم
+ */
+export interface FormMetadata {
+  /** شناسه ایجادکننده */
+  createdBy: string;
+  /** تاریخ ایجاد */
+  createdAt: string;
+  /** آخرین ویرایش */
+  updatedAt: string;
+  /** آخرین ویرایش‌کننده */
+  updatedBy?: string;
+  /** وضعیت فرم */
+  status: 'draft' | 'published' | 'archived' | 'paused';
+  /** نسخه فرم */
+  version: number;
+  /** تگ‌ها */
+  tags?: string[];
+  /** دسته‌بندی */
+  category?: string;
+  /** آمار */
+  stats?: {
+    totalViews: number;
+    totalSubmissions: number;
+    completionRate: number;
+    averageTime: number;
+  };
 }
-EOF
 
-cat > "src/modules/form-builder/services/validationService.ts" << 'EOF'
-import { FormField } from '../types';
-
-export class ValidationService {
-  static validateField(field: FormField, value: any): string[] {
-    return [];
-  }
-
-  static validateForm(fields: FormField[], data: Record<string, any>): Record<string, string[]> {
-    return {};
-  }
+/**
+ * تنظیمات فرم چندمرحله‌ای
+ */
+export interface MultiStepConfig {
+  /** فعال/غیرفعال */
+  enabled: boolean;
+  /** مراحل */
+  steps: {
+    /** شناسه مرحله */
+    id: string;
+    /** نام مرحله */
+    title: string;
+    /** توضیح مرحله */
+    description?: string;
+    /** فیلدهای این مرحله */
+    fieldIds: string[];
+  }[];
+  /** نمایش نوار پیشرفت */
+  showProgress: boolean;
+  /** امکان برگشت به مرحله قبل */
+  allowPreviousStep: boolean;
+  /** اعتبارسنجی در هر مرحله */
+  validateOnStep: boolean;
 }
-EOF
 
-# ===============================
-# Components
-# ===============================
+/**
+ * فرم کامل
+ */
+export interface Form {
+  /** شناسه یکتا */
+  id: string;
+  /** نام فرم */
+  name: string;
+  /** توضیح فرم */
+  description?: string;
+  /** فیلدهای فرم */
+  fields: FormField[];
+  /** تنظیمات فرم */
+  settings: FormSettings;
+  /** تنظیمات ظاهری */
+  styling: FormStyling;
+  /** اطلاعات meta */
+  metadata: FormMetadata;
+  /** تنظیمات چندمرحله‌ای */
+  multiStep?: MultiStepConfig;
+}
 
-cat > "src/modules/form-builder/components/FormBuilder/FormBuilder.tsx" << 'EOF'
-import React from 'react';
-
-export const FormBuilder: React.FC = () => {
-  return <div>FormBuilder - Coming Soon</div>;
+/**
+ * DTO برای ایجاد فرم جدید
+ */
+export type CreateFormDto = Omit<Form, 'id' | 'metadata'> & {
+  metadata?: Partial<FormMetadata>;
 };
-EOF
 
-cat > "src/modules/form-builder/components/FormBuilder/FieldsPanel.tsx" << 'EOF'
-import React from 'react';
-
-export const FieldsPanel: React.FC = () => {
-  return <div>FieldsPanel - Coming Soon</div>;
+/**
+ * DTO برای ویرایش فرم
+ */
+export type UpdateFormDto = Partial<Omit<Form, 'id' | 'metadata'>> & {
+  metadata?: Partial<FormMetadata>;
 };
-EOF
 
-cat > "src/modules/form-builder/components/FormBuilder/PreviewPanel.tsx" << 'EOF'
-import React from 'react';
+/**
+ * پاسخ کاربر به فرم
+ */
+export interface FormResponse {
+  /** شناسه یکتا */
+  id: string;
+  /** شناسه فرم */
+  formId: string;
+  /** پاسخ‌ها */
+  answers: Record<string, any>;
+  /** اطلاعات ارسال‌کننده */
+  submitter?: {
+    name?: string;
+    email?: string;
+    ip?: string;
+    userAgent?: string;
+  };
+  /** اطلاعات meta */
+  metadata: {
+    /** تاریخ ارسال */
+    submittedAt: string;
+    /** مدت زمان پر کردن (ثانیه) */
+    duration?: number;
+    /** وضعیت */
+    status: 'completed' | 'draft' | 'partial';
+    /** نسخه فرم */
+    formVersion: number;
+  };
+}
 
-export const PreviewPanel: React.FC = () => {
-  return <div>PreviewPanel - Coming Soon</div>;
-};
-EOF
-
-cat > "src/modules/form-builder/components/FormBuilder/SettingsPanel.tsx" << 'EOF'
-import React from 'react';
-
-export const SettingsPanel: React.FC = () => {
-  return <div>SettingsPanel - Coming Soon</div>;
-};
-EOF
-
-cat > "src/modules/form-builder/components/FormsList/FormsList.tsx" << 'EOF'
-import React from 'react';
-
-export const FormsList: React.FC = () => {
-  return <div>FormsList - Coming Soon</div>;
-};
-EOF
-
-cat > "src/modules/form-builder/components/FormsList/FormCard.tsx" << 'EOF'
-import React from 'react';
-
-export const FormCard: React.FC = () => {
-  return <div>FormCard - Coming Soon</div>;
-};
-EOF
-
-cat > "src/modules/form-builder/components/FormsList/CreateFormModal.tsx" << 'EOF'
-import React from 'react';
-
-export const CreateFormModal: React.FC = () => {
-  return <div>CreateFormModal - Coming Soon</div>;
-};
-EOF
-
-# ===============================
-# Hooks
-# ===============================
-
-cat > "src/modules/form-builder/hooks/useFormBuilder.ts" << 'EOF'
-export const useFormBuilder = () => {
-  return {};
-};
-EOF
-
-cat > "src/modules/form-builder/hooks/useDragDrop.ts" << 'EOF'
-export const useDragDrop = () => {
-  return {};
-};
-EOF
-
-cat > "src/modules/form-builder/hooks/useFormValidation.ts" << 'EOF'
-export const useFormValidation = () => {
-  return {};
-};
-EOF
-
-# ===============================
-# Contexts
-# ===============================
-
-cat > "src/modules/form-builder/contexts/FormBuilderContext.tsx" << 'EOF'
-import React, { createContext } from 'react';
-
-export const FormBuilderContext = createContext({});
-
-export const FormBuilderProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  return (
-    <FormBuilderContext.Provider value={{}}>
-      {children}
-    </FormBuilderContext.Provider>
-  );
-};
-EOF
-
-cat > "src/modules/form-builder/contexts/FormDataContext.tsx" << 'EOF'
-import React, { createContext } from 'react';
-
-export const FormDataContext = createContext({});
-
-export const FormDataProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  return (
-    <FormDataContext.Provider value={{}}>
-      {children}
-    </FormDataContext.Provider>
-  );
-};
-EOF
-
-# ===============================
-# Pages
-# ===============================
-
-cat > "src/pages/forms/FormsList.tsx" << 'EOF'
-import React from 'react';
-
-export const FormsList: React.FC = () => {
-  return <div>Forms List Page - Coming Soon</div>;
-};
-EOF
-
-cat > "src/pages/forms/CreateForm.tsx" << 'EOF'
-import React from 'react';
-
-export const CreateForm: React.FC = () => {
-  return <div>Create Form Page - Coming Soon</div>;
-};
-EOF
-
-cat > "src/pages/forms/EditForm.tsx" << 'EOF'
-import React from 'react';
-
-export const EditForm: React.FC = () => {
-  return <div>Edit Form Page - Coming Soon</div>;
-};
-EOF
-
-cat > "src/pages/forms/FormData.tsx" << 'EOF'
-import React from 'react';
-
-export const FormData: React.FC = () => {
-  return <div>Form Data Page - Coming Soon</div>;
-};
-EOF
-
-cat > "src/pages/forms/FormSubmission.tsx" << 'EOF'
-import React from 'react';
-
-export const FormSubmission: React.FC = () => {
-  return <div>Form Submission Page - Coming Soon</div>;
-};
-EOF
-
-# ===============================
-# Index Files
-# ===============================
-
-cat > "src/modules/form-builder/index.ts" << 'EOF'
-export * from './components';
-export * from './types';
-export * from './services/formService';
-EOF
-
-cat > "src/modules/form-builder/components/index.ts" << 'EOF'
-export * from './FormBuilder/FormBuilder';
-export * from './FormsList/FormsList';
-EOF
-
-cat > "src/modules/form-builder/hooks/index.ts" << 'EOF'
-export * from './useFormBuilder';
-export * from './useDragDrop';
-export * from './useFormValidation';
-EOF
-
-cat > "src/pages/forms/index.ts" << 'EOF'
-export * from './FormsList';
-export * from './CreateForm';
-export * from './EditForm';
-export * from './FormData';
-export * from './FormSubmission';
-EOF
-
-echo "✅ تمام فایل‌ها با موفقیت تکمیل شدند!"
-echo "🚀 حالا npm start کنید..."
+/**
+ * Template فرم آماده
+ */
+export interface FormTemplate {
+  /** شناسه یکتا */
+  id: string;
+  /** نام template */
+  name: string;
+  /** توضیح */
+  description: string;
+  /** دسته‌بندی */
+  category: string;
+  /** تصویر پیش‌نمایش */
+  preview: string;
+  /** فرم template */
+  form: Omit<Form, 'id' | 'metadata'>;
+  /** محبوبیت */
+  popularity: number;
+  /** تگ‌ها */
+  tags: string[];
+}
