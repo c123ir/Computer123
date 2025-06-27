@@ -5,7 +5,6 @@ import {
   Construction, 
   Clock, 
   CheckCircle, 
-  AlertCircle,
   ArrowRight,
   Calendar,
   Users,

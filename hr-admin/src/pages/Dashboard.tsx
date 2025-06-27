@@ -4,9 +4,7 @@ import { useTheme } from '../contexts/ThemeContext';
 import {
   Users,
   ShoppingCart,
-  TrendingUp,
   DollarSign,
-  Calendar,
   Bell,
   FileText,
   ArrowUpRight,
