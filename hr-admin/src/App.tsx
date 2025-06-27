@@ -3,7 +3,6 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ThemeProvider } from './contexts/ThemeContext';
 import Layout from './components/layout/Layout';
-import { useTheme } from './contexts/ThemeContext';
 
 // Import صفحات
 import Dashboard from './pages/Dashboard';
