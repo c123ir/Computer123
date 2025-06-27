@@ -10,10 +10,6 @@ import { FieldType } from '../../types';
 
 /**
  * کامپوننت اصلی Form Builder
- * این کامپوننت شامل سه پنل اصلی است:
- * 1. FieldsPanel - پنل فیلدهای قابل استفاده (سمت چپ)
- * 2. PreviewPanel - پنل پیش‌نمایش فرم (وسط)
- * 3. SettingsPanel - پنل تنظیمات فیلد انتخاب شده (سمت راست)
  */
 
 interface FormBuilderProps {
@@ -68,7 +64,6 @@ export const FormBuilder: React.FC<FormBuilderProps> = ({
     },
     onError: (error) => {
       console.error('Form builder error:', error);
-      // TODO: نمایش toast notification
     }
   });
 
@@ -95,7 +90,6 @@ export const FormBuilder: React.FC<FormBuilderProps> = ({
       }
     },
     paste: () => {
-      // TODO: Implement clipboard paste
       console.log('Paste functionality coming soon');
     },
     delete: () => {
@@ -174,62 +168,22 @@ export const FormBuilder: React.FC<FormBuilderProps> = ({
                     {form.name || 'فرم بدون نام'}
                   </h1>
                   <div className="flex items-center space-x-2 space-x-reverse text-sm text-gray-500 dark:text-gray-400 mt-1">
-                    <span>
-                      {fields.length} فیلد
-                    </span>
+                    <span>{fields.length} فیلد</span>
                     <span>•</span>
-                    <span>
-                      وضعیت: {form.metadata.status === 'draft' ? 'پیش‌نویس' : 'منتشر شده'}
-                    </span>
+                    <span>وضعیت: {form.metadata.status === 'draft' ? 'پیش‌نویس' : 'منتشر شده'}</span>
                     {lastSaved && (
                       <>
                         <span>•</span>
-                        <span>
-                          آخرین ذخیره: {lastSaved.toLocaleTimeString('fa-IR')}
-                        </span>
+                        <span>آخرین ذخیره: {lastSaved.toLocaleTimeString('fa-IR')}</span>
                       </>
                     )}
                     {isAutoSaving && (
                       <>
                         <span>•</span>
-                        <span className="text-blue-600 dark:text-blue-400">
-                          در حال ذخیره...
-                        </span>
+                        <span className="text-blue-600 dark:text-blue-400">در حال ذخیره...</span>
                       </>
                     )}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Settings Panel - سمت راست */}
-        <div className="w-80 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 overflow-y-auto">
-          <div className="p-4">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-              تنظیمات فیلد
-            </h3>
-            
-            {/* TODO: SettingsPanel component */}
-            <div className="space-y-4">
-              <div className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600 text-center">
-                <p className="text-gray-500 dark:text-gray-400 text-sm">
-                  Settings Panel
-                  <br />
-                  تنظیمات فیلد انتخاب شده
-                  <br />
-                  (در حال توسعه)
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-export default FormBuilder;
+                  </div>
                 </div>
 
                 {/* Validation Errors Indicator */}
@@ -316,7 +270,7 @@ export default FormBuilder;
 
       {/* Main Content */}
       <div className="flex h-[calc(100vh-80px)]">
-        {/* Fields Panel - سمت چپ */}
+        {/* Fields Panel */}
         <div className="w-80 bg-white dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700 overflow-hidden">
           <FieldsPanel
             onFieldSelect={handleFieldSelect}
@@ -324,7 +278,7 @@ export default FormBuilder;
           />
         </div>
 
-        {/* Preview Panel - وسط */}
+        {/* Preview Panel */}
         <div className="flex-1 bg-gray-100 dark:bg-gray-900 overflow-hidden">
           <PreviewPanel
             form={form}
@@ -340,7 +294,7 @@ export default FormBuilder;
           />
         </div>
 
-        {/* Settings Panel - سمت راست */}
+        {/* Settings Panel */}
         <div className="w-80 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 overflow-hidden">
           <SettingsPanel
             selectedField={selectedField}
@@ -366,39 +320,6 @@ export default FormBuilder;
           
           <div className="text-green-600 dark:text-green-400">
             Ctrl+S ذخیره • Ctrl+Z بازگردانی
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-export default FormBuilder;
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Settings Panel - سمت راست */}
-        <div className="w-80 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 overflow-y-auto">
-          <div className="p-4">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-              تنظیمات فیلد
-            </h3>
-            
-            {/* TODO: SettingsPanel component */}
-            <div className="space-y-4">
-              <div className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600 text-center">
-                <p className="text-gray-500 dark:text-gray-400 text-sm">
-                  Settings Panel
-                  <br />
-                  تنظیمات فیلد انتخاب شده
-                  <br />
-                  (در حال توسعه)
-                </p>
-              </div>
-            </div>
           </div>
         </div>
       </div>
