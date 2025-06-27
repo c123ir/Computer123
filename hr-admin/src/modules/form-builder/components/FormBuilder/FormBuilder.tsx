@@ -29,6 +29,8 @@ export const FormBuilder: React.FC<FormBuilderProps> = ({
   onCancel,
   readonly = false
 }) => {
+  const [showResetConfirm, setShowResetConfirm] = useState(false);
+  
   // استفاده از hook اصلی
   const {
     form,
@@ -123,9 +125,14 @@ export const FormBuilder: React.FC<FormBuilderProps> = ({
 
   // Handle reset
   const handleReset = () => {
-    if (!readonly && confirm('آیا از بازنشانی فرم اطمینان دارید؟')) {
-      resetForm();
+    if (!readonly) {
+      setShowResetConfirm(true);
     }
+  };
+  
+  const confirmReset = () => {
+    resetForm();
+    setShowResetConfirm(false);
   };
 
   if (isLoading) {
@@ -297,7 +304,7 @@ export const FormBuilder: React.FC<FormBuilderProps> = ({
         {/* Settings Panel */}
         <div className="w-80 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 overflow-hidden">
           <SettingsPanel
-            selectedField={selectedField}
+            selectedField={selectedField || undefined}
             onFieldUpdate={updateField}
             readonly={readonly}
           />
@@ -323,6 +330,34 @@ export const FormBuilder: React.FC<FormBuilderProps> = ({
           </div>
         </div>
       </div>
+
+      {/* Reset Confirmation Modal */}
+      {showResetConfirm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md mx-4">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+              تأیید بازنشانی
+            </h3>
+            <p className="text-gray-600 dark:text-gray-400 mb-6">
+              آیا از بازنشانی فرم اطمینان دارید؟ تمام تغییرات از دست خواهد رفت.
+            </p>
+            <div className="flex justify-end space-x-3 space-x-reverse">
+              <button
+                onClick={() => setShowResetConfirm(false)}
+                className="px-4 py-2 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg"
+              >
+                لغو
+              </button>
+              <button
+                onClick={confirmReset}
+                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg"
+              >
+                بازنشانی
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

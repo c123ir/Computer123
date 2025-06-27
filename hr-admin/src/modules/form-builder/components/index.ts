@@ -12,11 +12,3 @@ export { default as SettingsPanel } from './FormBuilder/SettingsPanel';
 
 // Form Builder Component Types
 export type { default as FormBuilderProps } from './FormBuilder/FormBuilder';
-
-// Re-export for convenience
-export {
-  FormBuilder as FormBuilderComponent,
-  FieldsPanel as FormBuilderFieldsPanel,
-  PreviewPanel as FormBuilderPreviewPanel,
-  SettingsPanel as FormBuilderSettingsPanel
-};

@@ -799,12 +799,12 @@ export class FormService {
     switch (type) {
       case 'email':
         baseField.placeholder = 'example@email.com';
-        baseField.validation.pattern = '^[^\\s@]+@[^\\s@]+\\.[^\\s@]+;
+        baseField.validation.pattern = '^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$';
         break;
         
       case 'tel':
         baseField.placeholder = '09123456789';
-        baseField.validation.pattern = '^09\\d{9};
+        baseField.validation.pattern = '^09\\d{9}$';
         break;
         
       case 'url':
