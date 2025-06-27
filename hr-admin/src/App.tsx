@@ -11,7 +11,12 @@ import ComingSoon from './pages/ComingSoon';
 // کامپوننت اصلی App که شامل ThemeProvider است
 const AppContent: React.FC = () => {
   return (
-    <Router>
+    <Router 
+      future={{
+        v7_startTransition: true,
+        v7_relativeSplatPath: true
+      }}
+    >
       <Layout>
         <Routes>
           {/* صفحه اصلی - داشبورد */}
