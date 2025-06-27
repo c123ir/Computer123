@@ -113,9 +113,12 @@ const Header: React.FC<HeaderProps> = ({ onMenuToggle, isMobile, isSidebarOpen }
                 </div>
                 <input
                   type="text"
+                  id="desktop-search"
+                  name="desktop-search"
                   placeholder="جستجو در سیستم..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
+                  autoComplete="off"
                   className={`
                     w-full pl-4 pr-10 py-2 rounded-xl border-0 
                     ${isDark ? 'bg-transparent text-white placeholder-gray-400' : 'bg-transparent text-gray-900 placeholder-gray-500'}
