@@ -10,7 +10,7 @@ import { ValidationService } from '../services/validationService';
  * شامل مدیریت state، CRUD operations، و validation
  */
 
-interface UseFormBuilderOptions {
+export interface UseFormBuilderOptions {
   /** شناسه فرم برای ویرایش */
   formId?: string;
   /** فرم پیش‌فرض */
@@ -25,7 +25,7 @@ interface UseFormBuilderOptions {
   onError?: (error: string) => void;
 }
 
-interface UseFormBuilderReturn {
+export interface UseFormBuilderReturn {
   // Form State
   form: Form | null;
   fields: FormField[];

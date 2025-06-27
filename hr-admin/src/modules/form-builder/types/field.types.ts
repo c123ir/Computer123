@@ -44,7 +44,7 @@ export interface CustomValidator {
   /** نام validator */
   name: string;
   /** تابع validation */
-  validator: (value: any, field: FormField, formData: Record<string, any>) => boolean | string;
+  validator: (value: any, field: any, formData: Record<string, any>) => boolean | string;
   /** پیام خطا */
   errorMessage: string;
   /** آیا async است؟ */
