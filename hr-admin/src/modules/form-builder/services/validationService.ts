@@ -61,8 +61,8 @@ import {
       errors.push(...rulesValidation.errors);
   
       // اعتبارسنجی سفارشی
-      if (field.customValidators) {
-        const customValidation = this.validateCustom(field.customValidators, value, field, allFormData);
+      if ((field as any).customValidators) {
+        const customValidation = this.validateCustom((field as any).customValidators, value, field, allFormData);
         errors.push(...customValidation.errors);
       }
   
