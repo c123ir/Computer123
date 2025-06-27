@@ -3,8 +3,8 @@
 @tailwind components;
 @tailwind utilities;
 
-/* تنظیمات فونت فارسی */
-@import url('https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css');
+/* تنظیمات فونت فارسی - فونت‌های محلی */
+@import './styles/fonts.css';
 
 /* تنظیمات پایه */
 * {
