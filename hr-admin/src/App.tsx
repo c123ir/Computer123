@@ -20,17 +20,17 @@ function App() {
               <Route path="/dashboard" element={<Dashboard />} />
               
               {/* صفحات فرم‌ساز - فعلاً Coming Soon */}
-              <Route path="/forms" element={<ComingSoon />} />
-              <Route path="/forms/create" element={<ComingSoon />} />
-              <Route path="/forms/:id/edit" element={<ComingSoon />} />
-              <Route path="/forms/:id/data" element={<ComingSoon />} />
+              <Route path="/forms" element={<ComingSoon title="فرم‌ساز" />} />
+              <Route path="/forms/create" element={<ComingSoon title="ایجاد فرم جدید" />} />
+              <Route path="/forms/:id/edit" element={<ComingSoon title="ویرایش فرم" />} />
+              <Route path="/forms/:id/data" element={<ComingSoon title="داده‌های فرم" />} />
               
               {/* سایر صفحات */}
-              <Route path="/employees" element={<ComingSoon />} />
-              <Route path="/payroll" element={<ComingSoon />} />
-              <Route path="/attendance" element={<ComingSoon />} />
-              <Route path="/reports" element={<ComingSoon />} />
-              <Route path="/settings" element={<ComingSoon />} />
+              <Route path="/employees" element={<ComingSoon title="مدیریت کارمندان" />} />
+              <Route path="/payroll" element={<ComingSoon title="حقوق و دستمزد" />} />
+              <Route path="/attendance" element={<ComingSoon title="حضور و غیاب" />} />
+              <Route path="/reports" element={<ComingSoon title="گزارش‌ها" />} />
+              <Route path="/settings" element={<ComingSoon title="تنظیمات" />} />
             </Routes>
           </Layout>
           
