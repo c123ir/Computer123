@@ -1,6 +1,6 @@
 // src/modules/form-builder/components/FormBuilder/FormBuilder.tsx
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Save, X, RotateCcw, Eye, Settings as SettingsIcon } from 'lucide-react';
 import { useFormBuilder, useFormBuilderShortcuts } from '../../hooks/useFormBuilder';
 import FieldsPanel from './FieldsPanel';
