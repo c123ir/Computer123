@@ -1,0 +1,97 @@
+.
+├── ببب
+├── build
+│   ├── asset-manifest.json
+│   ├── favicon.ico
+│   ├── index.html
+│   ├── logo.svg
+│   ├── logo192.png
+│   ├── logo2.svg
+│   ├── logo512.png
+│   ├── manifest.json
+│   ├── robots.txt
+│   └── static
+│       ├── css
+│       │   ├── main.ec26d010.css
+│       │   └── main.ec26d010.css.map
+│       ├── js
+│       │   ├── main.6845fca5.js
+│       │   ├── main.6845fca5.js.LICENSE.txt
+│       │   └── main.6845fca5.js.map
+│       └── media
+│           ├── Vazirmatn-Bold.0d6a47ce8c185a9436b2.woff2
+│           ├── Vazirmatn-Light.a929468e39d61ead9a4a.woff2
+│           ├── Vazirmatn-Regular.58c84f666915410c0ba8.woff2
+│           └── Vazirmatn-Variable.eeb83dd1581c2f3d4b62.woff2
+├── Docs
+│   ├── مراحل آموزشی
+│   │   ├── آموزش مراحل نصب
+│   │   │   ├── 01-قدم ۱: نصب Node.js.md
+│   │   │   ├── 02-قدم ۲: ایجاد پروژه React با TypeScript.md
+│   │   │   ├── 03-قدم ۳: نصب کتابخانه\20014های مورد نیاز.md
+│   │   │   ├── 04-قدم ۴: تنظیم Tailwind CSS.md
+│   │   │   ├── 05-قدم ۵: اضافه کردن فونت وزیرمتن.md
+│   │   │   ├── 06-قدم ۶: تنظیم فایل CSS اصلی copy.md
+│   │   │   ├── 06-قدم ۶: تنظیم فایل CSS اصلی.md
+│   │   │   └── assets
+│   │   │       └── 20250610_233958_WhatsApp_Image 2025-06-09 at 05.48.21.jpeg
+│   │   └── آموزش تغییر استایلها در Tailwind CSS
+│   │       ├── 01-کلاس\20014های رنگ پس\20014زمینه:.md
+│   │       └── 02-استاندارد استفاده از سیستم تم.md
+│   ├── 00-مستندات ورژنهای مختلف
+│   │   ├── فایل آموزش اتوماتیک کردن گیت هاب.md
+│   │   └── project_documentation_v1.md
+│   └── FONTS.md
+├── package-lock.json
+├── package.json
+├── postcss.config.js
+├── public
+│   ├── favicon.ico
+│   ├── index.html
+│   ├── logo.svg
+│   ├── logo192.png
+│   ├── logo2.svg
+│   ├── logo512.png
+│   ├── manifest.json
+│   └── robots.txt
+├── README.md
+├── src
+│   ├── App.css
+│   ├── App.test.tsx
+│   ├── App.tsx
+│   ├── assets
+│   │   └── fonts
+│   │       ├── Vazirmatn-Bold.woff2
+│   │       ├── Vazirmatn-Light.woff2
+│   │       ├── Vazirmatn-Regular.woff2
+│   │       └── Vazirmatn-Variable.woff2
+│   ├── components
+│   │   ├── common
+│   │   ├── layout
+│   │   │   ├── Header.tsx
+│   │   │   ├── Layout.tsx
+│   │   │   └── Sidebar.tsx
+│   │   └── ui
+│   ├── contexts
+│   │   └── ThemeContext.tsx
+│   ├── hooks
+│   ├── index.css
+│   ├── index.tsx
+│   ├── logo.svg
+│   ├── pages
+│   │   ├── ComingSoon.tsx
+│   │   └── Dashboard.tsx
+│   ├── react-app-env.d.ts
+│   ├── reportWebVitals.ts
+│   ├── setupTests.ts
+│   ├── styles
+│   │   └── fonts.css
+│   ├── types
+│   │   └── index.ts
+│   └── utils
+│       └── iconCheck.ts
+├── structure.txt
+├── tailwind.config.js
+└── tsconfig.json
+
+26 directories, 69 files
