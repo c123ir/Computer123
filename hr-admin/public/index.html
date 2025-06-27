@@ -215,17 +215,15 @@
 
     <!-- Performance and Analytics (اختیاری) -->
     <script>
-      // Web Vitals measurement
-      if ('performance' in window && process.env.NODE_ENV === 'development') {
-        window.addEventListener('load', function() {
-          // اندازه‌گیری عملکرد صفحه فقط در حالت توسعه
-          const perfData = performance.getEntriesByType('navigation')[0];
-          if (perfData) {
-            // فقط در صورت نیاز به debugging عملکرد، کامنت زیر را باز کنید:
-            // console.log('Page Load Time:', perfData.loadEventEnd - perfData.loadEventStart, 'ms');
-          }
-        });
-      }
+      // Web Vitals measurement - فقط برای debugging
+      // if ('performance' in window) {
+      //   window.addEventListener('load', function() {
+      //     const perfData = performance.getEntriesByType('navigation')[0];
+      //     if (perfData) {
+      //       console.log('Page Load Time:', perfData.loadEventEnd - perfData.loadEventStart, 'ms');
+      //     }
+      //   });
+      // }
     </script>
   </body>
 </html>
