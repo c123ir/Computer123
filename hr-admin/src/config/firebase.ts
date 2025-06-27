@@ -24,7 +24,7 @@ export interface FirebaseServices {
   app: FirebaseApp;
   db: Firestore;
   auth: Auth;
-  storage: FirebaseStorage;
+  storage: FirebaseStorage | null;
 }
 
 /**
@@ -100,8 +100,15 @@ function initializeFirebaseServices(app: FirebaseApp): FirebaseServices {
     // Initialize Auth
     const auth = getAuth(app);
     
-    // Initialize Storage
-    const storage = getStorage(app);
+    // Initialize Storage (اختیاری - فقط اگر Blaze Plan داشته باشید)
+    let storage = null;
+    try {
+      if (process.env.REACT_APP_ENABLE_STORAGE === 'true') {
+        storage = getStorage(app);
+      }
+    } catch (error) {
+      console.warn('⚠️  Storage not available - continuing without file upload');
+    }
 
     // Connect to emulators in development mode
     if (process.env.NODE_ENV === 'development' && process.env.REACT_APP_USE_FIREBASE_EMULATOR === 'true') {
@@ -123,12 +130,14 @@ function initializeFirebaseServices(app: FirebaseApp): FirebaseServices {
         console.warn('⚠️  Auth emulator connection failed:', error);
       }
 
-      // Connect Storage emulator
-      try {
-        connectStorageEmulator(storage, 'localhost', 9199);
-        console.log('📁 Connected to Storage emulator');
-      } catch (error) {
-        console.warn('⚠️  Storage emulator connection failed:', error);
+      // Connect Storage emulator (اختیاری)
+      if (storage) {
+        try {
+          connectStorageEmulator(storage, 'localhost', 9199);
+          console.log('📁 Connected to Storage emulator');
+        } catch (error) {
+          console.warn('⚠️  Storage emulator connection failed:', error);
+        }
       }
     }
 
@@ -169,7 +178,7 @@ export function getFirebaseAuth(): Auth {
   return getFirebaseServices().auth;
 }
 
-export function getFirebaseStorage(): FirebaseStorage {
+export function getFirebaseStorage(): FirebaseStorage | null {
   return getFirebaseServices().storage;
 }
 
