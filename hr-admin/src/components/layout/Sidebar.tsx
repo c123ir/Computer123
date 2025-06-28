@@ -1,4 +1,5 @@
-// src/components/layout/Sidebar.tsx - نسخه ساده بدون خطا
+// src/components/layout/Sidebar.tsx
+
 import React from 'react';
 import { 
   Home, 
@@ -8,7 +9,7 @@ import {
   DollarSign, 
   Shield, 
   Tag, 
-  FileEdit,  // آیکون مناسب برای فرم‌ساز
+  FileEdit,  // آیکون فرم‌ساز
   Settings, 
   MessageSquare, 
   FileText as DocumentIcon, 
@@ -46,6 +47,13 @@ const Sidebar: React.FC<SidebarProps> = ({
       icon: Home, 
       path: '/',
       description: 'نمای کلی سیستم'
+    },
+    { 
+      id: 'forms', 
+      title: 'فرم‌ساز و مدیریت فرم‌ها', 
+      icon: FileEdit, 
+      path: '/forms',
+      description: 'ایجاد و مدیریت فرم‌ها'
     },
     { 
       id: 'sales', 
@@ -88,13 +96,6 @@ const Sidebar: React.FC<SidebarProps> = ({
       icon: Tag, 
       path: '/tags',
       description: 'دسته بندی و برچسب ها'
-    },
-    { 
-      id: 'forms', 
-      title: 'فرم‌ساز و مدیریت فرم‌ها', 
-      icon: FileEdit, // آیکون فرم‌ساز
-      path: '/forms',
-      description: 'ایجاد و مدیریت فرم‌ها'
     },
     { 
       id: 'settings', 
@@ -164,7 +165,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 
   const renderMenuItem = (item: typeof menuItems[0]) => {
     const IconComponent = item.icon;
-    const isActive = currentPath === item.path;
+    const isActive = currentPath === item.path || (item.path === '/forms' && currentPath.startsWith('/forms'));
     
     return (
       <div
@@ -211,7 +212,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                   : 'text-blue-600'
                 : isDark 
                   ? 'text-gray-300 group-hover:text-blue-400' 
-                  : 'text-gray-700 group-hover:text-blue-600'
+                  : 'text-gray-600 group-hover:text-blue-600'
               }
             `}>
               {item.title}
@@ -219,17 +220,21 @@ const Sidebar: React.FC<SidebarProps> = ({
           )}
         </div>
 
-        {/* Tooltip for collapsed sidebar */}
+        {/* Tooltip for collapsed state */}
         {isCollapsed && !isMobile && (
-          <div className="
-            absolute left-full top-1/2 -translate-y-1/2 mr-2 px-2 py-1
-            bg-gray-900 text-white text-xs rounded whitespace-nowrap
+          <div className={`
+            absolute right-full top-1/2 transform -translate-y-1/2 mr-2
             opacity-0 group-hover:opacity-100 transition-opacity duration-200
             pointer-events-none z-50
-          ">
-            {item.title}
-            <div className="absolute right-full top-1/2 -translate-y-1/2 
-                          border-4 border-transparent border-l-gray-900"></div>
+            ${isDark ? 'bg-gray-800' : 'bg-white'}
+            px-2 py-1 rounded shadow-lg border text-sm whitespace-nowrap
+          `}>
+            <div className={`${isDark ? 'text-white' : 'text-gray-900'} font-medium`}>
+              {item.title}
+            </div>
+            <div className={`${isDark ? 'text-gray-400' : 'text-gray-500'} text-xs`}>
+              {item.description}
+            </div>
           </div>
         )}
       </div>
@@ -250,71 +255,68 @@ const Sidebar: React.FC<SidebarProps> = ({
       <aside className={sidebarClasses}>
         {/* Header */}
         <div className={`
-          p-4 border-b
+          flex items-center justify-between p-4 border-b
           ${isDark ? 'border-gray-700/30' : 'border-gray-200/30'}
         `}>
-          <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            {/* Logo */}
+            <div className={`
+              w-8 h-8 rounded-lg flex items-center justify-center
+              ${isDark ? 'bg-blue-600' : 'bg-blue-500'}
+            `}>
+              <span className="text-white font-bold text-sm">CS</span>
+            </div>
+            
+            {/* Title */}
             {(!isCollapsed || isMobile) && (
-              <div className="flex items-center gap-3">
-                <div className={`
-                  w-10 h-10 rounded-xl flex items-center justify-center
-                  ${isDark 
-                    ? 'bg-gradient-to-br from-blue-500 to-purple-600' 
-                    : 'bg-gradient-to-br from-blue-400 to-purple-500'
-                  }
-                  shadow-lg
+              <div>
+                <h2 className={`
+                  text-sm font-bold
+                  ${isDark ? 'text-white' : 'text-gray-900'}
                 `}>
-                  <span className="text-white font-bold text-lg">۱۲۳</span>
-                </div>
-                <div>
-                  <h2 className={`
-                    text-sm font-bold
-                    ${isDark ? 'text-white' : 'text-gray-900'}
-                  `}>
-                    مجتمع کامپیوتر
-                  </h2>
-                  <p className={`
-                    text-xs
-                    ${isDark ? 'text-gray-400' : 'text-gray-500'}
-                  `}>
-                    یک دو سه
-                  </p>
-                </div>
+                  مجتمع کامپیوتر
+                </h2>
+                <p className={`
+                  text-xs
+                  ${isDark ? 'text-gray-400' : 'text-gray-500'}
+                `}>
+                  یک دو سه
+                </p>
               </div>
             )}
-            
-            {/* Toggle Button */}
-            {!isMobile && (
-              <button
-                onClick={onToggle}
-                className={`
-                  p-1 rounded-lg transition-colors duration-200
-                  ${isDark 
-                    ? 'hover:bg-gray-700 text-gray-400' 
-                    : 'hover:bg-gray-100 text-gray-600'
-                  }
-                `}
-              >
-                {isCollapsed ? <ChevronLeft size={16} /> : <ChevronRight size={16} />}
-              </button>
-            )}
-
-            {/* Mobile Close Button */}
-            {isMobile && (
-              <button
-                onClick={onClose}
-                className={`
-                  p-1 rounded-lg transition-colors duration-200
-                  ${isDark 
-                    ? 'hover:bg-gray-700 text-gray-400' 
-                    : 'hover:bg-gray-100 text-gray-600'
-                  }
-                `}
-              >
-                <ChevronRight size={16} />
-              </button>
-            )}
           </div>
+          
+          {/* Toggle Button */}
+          {!isMobile && (
+            <button
+              onClick={onToggle}
+              className={`
+                p-1 rounded-lg transition-colors duration-200
+                ${isDark 
+                  ? 'hover:bg-gray-700 text-gray-400' 
+                  : 'hover:bg-gray-100 text-gray-600'
+                }
+              `}
+            >
+              {isCollapsed ? <ChevronLeft size={16} /> : <ChevronRight size={16} />}
+            </button>
+          )}
+
+          {/* Mobile Close Button */}
+          {isMobile && (
+            <button
+              onClick={onClose}
+              className={`
+                p-1 rounded-lg transition-colors duration-200
+                ${isDark 
+                  ? 'hover:bg-gray-700 text-gray-400' 
+                  : 'hover:bg-gray-100 text-gray-600'
+                }
+              `}
+            >
+              <ChevronRight size={16} />
+            </button>
+          )}
         </div>
 
         {/* Menu Items */}
