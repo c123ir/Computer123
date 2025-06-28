@@ -1,13 +1,14 @@
-// src/modules/form-builder/components/FormsList/index.ts
+// src/modules/form-builder/components/index.ts
 
-export { default as FormsList } from './FormsList';
-export { default as FormCard } from './FormCard';
-export { default as CreateFormModal } from './CreateFormModal';
+/**
+ * Export تمام کامپوننت‌های Form Builder
+ */
 
-export type { 
-  FormCardProps 
-} from './FormCard';
+// Main Form Builder Components
+export { default as FormBuilder } from './FormBuilder/FormBuilder';
+export { default as FieldsPanel } from './FormBuilder/FieldsPanel';
+export { default as PreviewPanel } from './FormBuilder/PreviewPanel';
+export { default as SettingsPanel } from './FormBuilder/SettingsPanel';
 
-export type { 
-  CreateFormModalProps 
-} from './CreateFormModal';
+// Form Builder Component Types
+export type { default as FormBuilderProps } from './FormBuilder/FormBuilder';
