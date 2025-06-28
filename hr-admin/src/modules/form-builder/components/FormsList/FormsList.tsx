@@ -1,10 +1,13 @@
+// src/modules/form-builder/components/FormsList/FormsList.tsx
+
 import React, { useState, useEffect } from 'react';
 import { useTheme } from '../../../../contexts/ThemeContext';
 import { 
-  Plus, Search, Filter, Grid, List, Edit, Eye, Copy, 
-  Trash2, MoreVertical, Calendar, Users, BarChart3,
+  Plus, Search, Filter, Grid, List, Calendar, Users, BarChart3,
   Star, Archive, Clock, CheckCircle
 } from 'lucide-react';
+import FormCard from './FormCard';
+import CreateFormModal from './CreateFormModal';
 
 // Type definitions
 interface Form {
@@ -86,6 +89,61 @@ const FormsList: React.FC = () => {
   const [sortBy, setSortBy] = useState<'name' | 'date' | 'submissions'>('date');
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
+  // Handlers for FormCard actions
+  const handleEdit = (formId: string) => {
+    console.log('Edit form:', formId);
+    // Navigate to form builder
+  };
+
+  const handleView = (formId: string) => {
+    console.log('View form:', formId);
+    // Navigate to form preview
+  };
+
+  const handleCopy = (formId: string) => {
+    console.log('Copy form:', formId);
+    // Duplicate form logic
+  };
+
+  const handleDelete = (formId: string) => {
+    console.log('Delete form:', formId);
+    // Delete confirmation and logic
+    setForms(prev => prev.filter(f => f.id !== formId));
+  };
+
+  const handleStatusChange = (formId: string, newStatus: Form['status']) => {
+    console.log('Status change:', formId, newStatus);
+    setForms(prev => prev.map(f => 
+      f.id === formId ? { ...f, status: newStatus } : f
+    ));
+  };
+
+  const handleShare = (formId: string) => {
+    console.log('Share form:', formId);
+    // Share logic
+  };
+
+  const handleFormCreated = (formData: any) => {
+    console.log('Form created:', formData);
+    // Add new form to list
+    const newForm: Form = {
+      id: Date.now().toString(),
+      name: formData.name,
+      description: formData.description,
+      status: 'draft',
+      createdAt: new Date().toLocaleDateString('fa-IR'),
+      updatedAt: new Date().toLocaleDateString('fa-IR'),
+      createdBy: 'کاربر فعلی',
+      category: formData.category,
+      stats: {
+        totalViews: 0,
+        totalSubmissions: 0,
+        completionRate: 0
+      }
+    };
+    setForms(prev => [newForm, ...prev]);
+  };
+
   // فیلتر کردن فرم‌ها
   const filteredForms = forms.filter(form => {
     const matchesSearch = form.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -112,41 +170,8 @@ const FormsList: React.FC = () => {
   // دسته‌های موجود
   const categories = Array.from(new Set(forms.map(form => form.category).filter(Boolean)));
 
-  // Status badge component
-  const StatusBadge = ({ status }: { status: Form['status'] }) => {
-    const statusConfig = {
-      published: { 
-        label: 'منتشر شده', 
-        className: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
-        icon: CheckCircle
-      },
-      draft: { 
-        label: 'پیش‌نویس', 
-        className: 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-400',
-        icon: Clock
-      },
-      archived: { 
-        label: 'آرشیو', 
-        className: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
-        icon: Archive
-      },
-      paused: { 
-        label: 'متوقف', 
-        className: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
-        icon: Clock
-      }
-    };
-
-    const config = statusConfig[status];
-    const Icon = config.icon;
-
-    return (
-      <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${config.className}`}>
-        <Icon className="w-3 h-3" />
-        {config.label}
-      </span>
-    );
-  };
+  // Status badge component (moved to FormCard)
+  // const StatusBadge = ({ status }: { status: Form['status'] }) => { ... }
 
   return (
     <div className="space-y-6">
@@ -314,199 +339,34 @@ const FormsList: React.FC = () => {
       {viewMode === 'grid' ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {sortedForms.map(form => (
-            <div
+            <FormCard
               key={form.id}
-              className={`
-                p-6 rounded-xl backdrop-blur-xl border transition-all hover:scale-105
-                ${isDark 
-                  ? 'bg-gray-800/30 border-gray-700/30 hover:bg-gray-800/50' 
-                  : 'bg-white/30 border-white/30 hover:bg-white/50'
-                }
-              `}
-            >
-              {/* Header */}
-              <div className="flex items-start justify-between mb-4">
-                <div className="flex-1">
-                  <h3 className={`font-medium ${isDark ? 'text-white' : 'text-gray-900'} line-clamp-2`}>
-                    {form.name}
-                  </h3>
-                  {form.description && (
-                    <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'} mt-1 line-clamp-2`}>
-                      {form.description}
-                    </p>
-                  )}
-                </div>
-                
-                <div className="relative mr-2">
-                  <button className={`p-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700`}>
-                    <MoreVertical className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-
-              {/* Status & Category */}
-              <div className="flex items-center gap-2 mb-4">
-                <StatusBadge status={form.status} />
-                {form.category && (
-                  <span className={`px-2 py-1 rounded-full text-xs 
-                    ${isDark ? 'bg-gray-700 text-gray-300' : 'bg-gray-100 text-gray-700'}
-                  `}>
-                    {form.category}
-                  </span>
-                )}
-              </div>
-
-              {/* Stats */}
-              {form.stats && (
-                <div className="grid grid-cols-3 gap-3 mb-4">
-                  <div className="text-center">
-                    <div className={`text-lg font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                      {form.stats.totalViews}
-                    </div>
-                    <div className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
-                      بازدید
-                    </div>
-                  </div>
-                  <div className="text-center">
-                    <div className={`text-lg font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                      {form.stats.totalSubmissions}
-                    </div>
-                    <div className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
-                      پاسخ
-                    </div>
-                  </div>
-                  <div className="text-center">
-                    <div className={`text-lg font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                      {form.stats.completionRate}%
-                    </div>
-                    <div className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
-                      تکمیل
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Meta Info */}
-              <div className="flex items-center text-xs text-gray-500 mb-4">
-                <Calendar className="w-3 h-3 ml-1" />
-                <span>ویرایش: {form.updatedAt}</span>
-                <span className="mx-2">•</span>
-                <Users className="w-3 h-3 ml-1" />
-                <span>{form.createdBy}</span>
-              </div>
-
-              {/* Actions */}
-              <div className="flex gap-2">
-                <button className={`
-                  flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-lg
-                  ${isDark 
-                    ? 'bg-gray-700/50 hover:bg-gray-700 text-gray-300' 
-                    : 'bg-gray-100/50 hover:bg-gray-100 text-gray-700'
-                  }
-                  transition-colors
-                `}>
-                  <Eye className="w-4 h-4" />
-                  <span className="text-sm">مشاهده</span>
-                </button>
-                
-                <button className="flex items-center justify-center gap-2 py-2 px-3 rounded-lg bg-blue-600 hover:bg-blue-700 text-white transition-colors">
-                  <Edit className="w-4 h-4" />
-                  <span className="text-sm">ویرایش</span>
-                </button>
-              </div>
-            </div>
+              form={form}
+              viewMode="grid"
+              onEdit={handleEdit}
+              onView={handleView}
+              onCopy={handleCopy}
+              onDelete={handleDelete}
+              onStatusChange={handleStatusChange}
+              onShare={handleShare}
+            />
           ))}
         </div>
       ) : (
         // List View
         <div className="space-y-3">
           {sortedForms.map(form => (
-            <div
+            <FormCard
               key={form.id}
-              className={`
-                p-4 rounded-lg backdrop-blur-xl border
-                ${isDark 
-                  ? 'bg-gray-800/30 border-gray-700/30' 
-                  : 'bg-white/30 border-white/30'
-                }
-              `}
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex-1">
-                  <div className="flex items-center gap-3">
-                    <h3 className={`font-medium ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                      {form.name}
-                    </h3>
-                    <StatusBadge status={form.status} />
-                    {form.category && (
-                      <span className={`px-2 py-1 rounded-full text-xs 
-                        ${isDark ? 'bg-gray-700 text-gray-300' : 'bg-gray-100 text-gray-700'}
-                      `}>
-                        {form.category}
-                      </span>
-                    )}
-                  </div>
-                  {form.description && (
-                    <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'} mt-1`}>
-                      {form.description}
-                    </p>
-                  )}
-                </div>
-
-                <div className="flex items-center gap-6 ml-4">
-                  {/* Stats */}
-                  {form.stats && (
-                    <div className="flex items-center gap-4 text-sm">
-                      <div className="text-center">
-                        <div className={isDark ? 'text-white' : 'text-gray-900'}>
-                          {form.stats.totalViews}
-                        </div>
-                        <div className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
-                          بازدید
-                        </div>
-                      </div>
-                      <div className="text-center">
-                        <div className={isDark ? 'text-white' : 'text-gray-900'}>
-                          {form.stats.totalSubmissions}
-                        </div>
-                        <div className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
-                          پاسخ
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Actions */}
-                  <div className="flex gap-2">
-                    <button className={`
-                      p-2 rounded-lg
-                      ${isDark 
-                        ? 'bg-gray-700/50 hover:bg-gray-700 text-gray-300' 
-                        : 'bg-gray-100/50 hover:bg-gray-100 text-gray-700'
-                      }
-                      transition-colors
-                    `}>
-                      <Eye className="w-4 h-4" />
-                    </button>
-                    
-                    <button className="p-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white transition-colors">
-                      <Edit className="w-4 h-4" />
-                    </button>
-
-                    <button className={`
-                      p-2 rounded-lg
-                      ${isDark 
-                        ? 'text-gray-400 hover:text-gray-300 hover:bg-gray-700' 
-                        : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
-                      }
-                      transition-colors
-                    `}>
-                      <MoreVertical className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
+              form={form}
+              viewMode="list"
+              onEdit={handleEdit}
+              onView={handleView}
+              onCopy={handleCopy}
+              onDelete={handleDelete}
+              onStatusChange={handleStatusChange}
+              onShare={handleShare}
+            />
           ))}
         </div>
       )}
@@ -543,28 +403,12 @@ const FormsList: React.FC = () => {
         </div>
       )}
 
-      {/* Create Form Modal - فعلاً placeholder */}
-      {isCreateModalOpen && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
-          <div className={`
-            w-full max-w-md p-6 rounded-xl
-            ${isDark ? 'bg-gray-800' : 'bg-white'}
-          `}>
-            <h2 className={`text-lg font-semibold mb-4 ${isDark ? 'text-white' : 'text-gray-900'}`}>
-              ایجاد فرم جدید
-            </h2>
-            <p className={`${isDark ? 'text-gray-400' : 'text-gray-600'} mb-6`}>
-              این بخش در مرحله بعد پیاده‌سازی می‌شود
-            </p>
-            <button
-              onClick={() => setIsCreateModalOpen(false)}
-              className="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
-            >
-              بستن
-            </button>
-          </div>
-        </div>
-      )}
+      {/* Create Form Modal */}
+      <CreateFormModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        onFormCreated={handleFormCreated}
+      />
     </div>
   );
 };
