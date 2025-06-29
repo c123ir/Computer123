@@ -100,7 +100,7 @@ const FormsList: React.FC<FormsListProps> = ({
   const duplicateFormMutation = useMutation({
     mutationFn: (formId: string) => formsAPI.duplicateForm(formId),
     onSuccess: () => {
-      queryClient.invalidateQueries(['forms']);
+      queryClient.invalidateQueries({ queryKey: ['forms'] });
     }
   });
 
