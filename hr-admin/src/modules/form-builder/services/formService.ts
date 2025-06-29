@@ -19,8 +19,13 @@ import {
  * این کلاس layer بالاتری از DatabaseService است و business logic را مدیریت می‌کند
  */
 export class FormService {
-  private static db = DatabaseServiceFactory.create();
-  private static cache = DatabaseServiceFactory.createCacheService();
+  private static db = DatabaseFactory.createService({ type: 'postgresql' });
+  private static cache = {
+    get: async () => null,
+    set: async () => {},
+    delete: async () => {},
+    clear: async () => {}
+  };
 
   // =================================
   // Form CRUD Operations
