@@ -360,11 +360,13 @@ import {
           return null;
         }
 
+        const data = docSnap.data();
         return {
           id: docSnap.id,
-          createdAt: docSnap.data().createdAt || new Date().toISOString(),
-          updatedAt: docSnap.data().updatedAt || new Date().toISOString(),
-          ...docSnap.data()
+          formId: data.formId,
+          answers: data.answers,
+          submitterInfo: data.submitterInfo,
+          metadata: data.metadata
         } as FormResponse;
       } catch (error) {
         console.error('❌ Error getting response:', error);
