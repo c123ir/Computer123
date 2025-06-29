@@ -72,13 +72,13 @@ export class FormService {
   }
 
   /**
-   * دریافت فرم
+   * دریافت فرم بر اساس شناسه
    */
   static async getForm(id: string, useCache: boolean = true): Promise<Form | null> {
     try {
       // بررسی cache
       if (useCache) {
-        const cached = await this.cache.get<Form>(`form_${id}`);
+        const cached = await this.cache.get(`form_${id}`);
         if (cached) {
           console.log('📋 Form loaded from cache:', id);
           return cached;
@@ -102,29 +102,19 @@ export class FormService {
   /**
    * بروزرسانی فرم
    */
-  static async updateForm(id: string, updates: UpdateFormDto): Promise<void> {
+  static async updateForm(id: string, updates: UpdateFormDto): Promise<Form | null> {
     try {
-      // اعتبارسنجی تغییرات
-      if (updates.fields) {
-        const validationResult = this.validateFields(updates.fields);
-        if (!validationResult.isValid) {
-          throw new Error(`Field validation failed: ${validationResult.errors.map(e => e.message).join(', ')}`);
-        }
-      }
-
-      // پردازش فیلدهای جدید
-      const processedUpdates = updates.fields ? {
+      await this.db.updateForm(id, {
         ...updates,
-        fields: this.processFields(updates.fields)
-      } : updates;
-
-      await this.db.updateForm(id, processedUpdates);
+        updatedAt: new Date().toISOString()
+      });
       
       // پاکسازی cache
       await this.cache.delete(`form_${id}`);
       await this.clearFormsCache();
       
       console.log('✅ Form updated successfully:', id);
+      return await this.getForm(id, false); // دریافت مجدد بدون cache
     } catch (error) {
       console.error('❌ Error updating form:', error);
       throw error;
@@ -150,7 +140,7 @@ export class FormService {
   }
 
   /**
-   * لیست فرم‌ها
+   * لیست فرم‌ها با فیلتر و صفحه‌بندی
    */
   static async listForms(
     filters?: QueryFilters,
@@ -158,11 +148,10 @@ export class FormService {
     useCache: boolean = true
   ): Promise<PaginatedResult<Form>> {
     try {
-      // کلید cache بر اساس پارامترها
       const cacheKey = `forms_${JSON.stringify({ filters, pagination })}`;
       
       if (useCache) {
-        const cached = await this.cache.get<PaginatedResult<Form>>(cacheKey);
+        const cached = await this.cache.get(cacheKey);
         if (cached) {
           console.log('📋 Forms list loaded from cache');
           return cached;
@@ -227,45 +216,40 @@ export class FormService {
   // =================================
 
   /**
-   * ثبت پاسخ جدید
+   * ثبت پاسخ فرم
    */
-  static async submitResponse(
+  static async submitFormResponse(
     formId: string,
     answers: Record<string, any>,
     metadata?: Record<string, any>
   ): Promise<string> {
     try {
-      // دریافت فرم برای اعتبارسنجی
-      const form = await this.getForm(formId);
+      const form = await this.getForm(formId, false);
       if (!form) {
         throw new Error('Form not found');
       }
 
-      if (form.metadata.status !== 'published') {
-        throw new Error('Form is not published');
-      }
-
       // اعتبارسنجی پاسخ‌ها
-      const validationResult = this.validateFormResponse(form, answers);
-      if (!validationResult.isValid) {
-        throw new Error(`Response validation failed: ${validationResult.errors.map(e => e.message).join(', ')}`);
+      const validation = ValidationService.validateFormAnswers(form.fields, answers);
+      if (!validation.isValid) {
+        throw new Error(`Validation failed: ${validation.errors.map(e => e.message).join(', ')}`);
       }
 
       // پردازش پاسخ‌ها
       const processedAnswers = this.processAnswers(form.fields, answers);
 
-      const responseId = await this.db.createResponse(formId, processedAnswers, {
+      const responseId = await this.db.createFormResponse(formId, processedAnswers, {
         ...metadata,
         formVersion: form.metadata.version
       });
 
-      // پاکسازی cache responses
+      // پاکسازی cache مربوط به responses
       await this.clearResponsesCache(formId);
       
-      console.log('✅ Response submitted successfully:', responseId);
+      console.log('✅ Form response submitted successfully:', responseId);
       return responseId;
     } catch (error) {
-      console.error('❌ Error submitting response:', error);
+      console.error('❌ Error submitting form response:', error);
       throw error;
     }
   }
@@ -283,14 +267,14 @@ export class FormService {
       const cacheKey = `responses_${formId}_${JSON.stringify({ filters, pagination })}`;
       
       if (useCache) {
-        const cached = await this.cache.get<PaginatedResult<FormResponse>>(cacheKey);
+        const cached = await this.cache.get(cacheKey);
         if (cached) {
           console.log('📋 Responses loaded from cache');
           return cached;
         }
       }
 
-      const result = await this.db.getResponses(formId, filters, pagination);
+      const result = await this.db.getFormResponses(formId, filters, pagination);
       
       if (useCache) {
         // ذخیره در cache برای 5 دقیقه
@@ -299,7 +283,7 @@ export class FormService {
 
       return result;
     } catch (error) {
-      console.error('❌ Error getting responses:', error);
+      console.error('❌ Error getting form responses:', error);
       throw error;
     }
   }
@@ -329,11 +313,11 @@ export class FormService {
   /**
    * دریافت template ها
    */
-  static async getTemplates(category?: string): Promise<any[]> {
+  static async getTemplates(category?: string): Promise<FormTemplate[]> {
     try {
       const cacheKey = `templates_${category || 'all'}`;
       
-      const cached = await this.cache.get<any[]>(cacheKey);
+      const cached = await this.cache.get(cacheKey);
       if (cached) {
         return cached;
       }
@@ -346,7 +330,7 @@ export class FormService {
       return templates;
     } catch (error) {
       console.error('❌ Error getting templates:', error);
-      return [];
+      throw error;
     }
   }
 
@@ -469,11 +453,11 @@ export class FormService {
   /**
    * آمار فرم
    */
-  static async getFormStats(formId: string): Promise<any> {
+  static async getFormStats(formId: string, useCache: boolean = true): Promise<any> {
     try {
       const cacheKey = `stats_${formId}`;
       
-      const cached = await this.cache.get<any>(cacheKey);
+      const cached = await this.cache.get(cacheKey);
       if (cached) {
         return cached;
       }
@@ -486,7 +470,7 @@ export class FormService {
       return stats;
     } catch (error) {
       console.error('❌ Error getting form stats:', error);
-      return null;
+      throw error;
     }
   }
 
