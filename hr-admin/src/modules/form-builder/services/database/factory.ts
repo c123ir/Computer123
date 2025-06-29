@@ -9,6 +9,7 @@ import { PostgreSQLService } from './postgresql.service';
 /**
  * Firebase Service Implementation (Disabled)
  */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 class FirebaseService implements DatabaseService {
   async createForm(): Promise<string> {
     throw new Error('Firebase service disabled - using PostgreSQL instead');
