@@ -6,7 +6,7 @@ import { useFormBuilder, useFormBuilderShortcuts } from '../../hooks';
 import FieldsPanel from './FieldsPanel';
 import PreviewPanel from './PreviewPanel';
 import SettingsPanel from './SettingsPanel';
-import { FieldType } from '../../types';
+import { FieldType, FormField } from '../../types';
 
 /**
  * کامپوننت اصلی Form Builder
@@ -108,6 +108,17 @@ export const FormBuilder: React.FC<FormBuilderProps> = ({
     const newIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
     if (newIndex >= 0 && newIndex < fields.length) {
       moveField(fieldId, newIndex);
+    }
+  };
+
+  // Handle reorder fields - wrapper to convert string array to FormField array
+  const handleReorderFields = (fieldIds: string[]) => {
+    const reorderedFields = fieldIds
+      .map(id => fields.find(f => f.id === id))
+      .filter((field): field is FormField => field !== undefined);
+    
+    if (reorderedFields.length === fields.length) {
+      reorderFields(reorderedFields);
     }
   };
 
