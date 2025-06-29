@@ -3,13 +3,9 @@ import { useTheme } from '../contexts/ThemeContext';
 import { 
   Plus, 
   Search, 
-  Filter, 
   MoreVertical, 
   Eye, 
   Edit, 
-  Trash2, 
-  Download,
-  Copy,
   Users,
   Calendar,
   BarChart3
