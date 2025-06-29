@@ -7,30 +7,6 @@ import { DatabaseService } from './interface';
 import { PostgreSQLService } from './postgresql.service';
 
 /**
- * Database Service Interface
- */
-export interface DatabaseService {
-  // Form Operations
-  getForms(filters?: any): Promise<any>;
-  getForm(id: string): Promise<any>;
-  createForm(data: any): Promise<any>;
-  updateForm(id: string, data: any): Promise<any>;
-  deleteForm(id: string): Promise<void>;
-  
-  // Response Operations
-  getFormResponses(formId: string, filters?: any): Promise<any>;
-  createFormResponse(data: any): Promise<any>;
-  
-  // Stats and Health
-  getStats(): Promise<any>;
-  healthCheck(): Promise<any>;
-  
-  // Connection
-  connect(): Promise<void>;
-  disconnect(): Promise<void>;
-}
-
-/**
  * Firebase Service Implementation (Disabled)
  */
 class FirebaseService implements DatabaseService {
