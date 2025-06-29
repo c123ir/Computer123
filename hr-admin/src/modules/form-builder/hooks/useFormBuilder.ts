@@ -1,6 +1,6 @@
 // src/modules/form-builder/hooks/useFormBuilder.ts
 
-import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
+import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { Form, FormField, FieldType, CreateFormDto } from '../types';
 import { FormService } from '../services/formService';
 import { ValidationService } from '../services/validationService';
@@ -96,20 +96,37 @@ export const useFormBuilder = (options: UseFormBuilderOptions = {}): UseFormBuil
   // Auto Save Timer
   const autoSaveTimer = useRef<NodeJS.Timeout>();
 
-  // Initialize form
-  const initializeForm = useCallback(async () => {
-    if (formId) {
-      await loadForm(formId);
-    } else {
-      const newForm = createDefaultForm(initialForm);
-      setForm(newForm);
-      addToHistory(newForm);
-    }
-  }, [formId, initialForm, loadForm, addToHistory]);
+      // Initialize form
+    useEffect(() => {
+      const initializeForm = async () => {
+        if (formId) {
+          // Load existing form - will be defined later
+          setIsLoading(true);
+          try {
+            const loadedForm = await FormService.getForm(formId);
+            if (loadedForm) {
+              setForm(loadedForm);
+              setHistory([loadedForm]);
+              setHistoryIndex(0);
+              setSelectedFieldId(null);
+              setValidationErrors({});
+            }
+          } catch (error) {
+            console.error('Error loading form:', error);
+          } finally {
+            setIsLoading(false);
+          }
+        } else {
+          const newForm = createDefaultForm(initialForm);
+          setForm(newForm);
+          setHistory([newForm]);
+          setHistoryIndex(0);
+        }
+      };
 
-  useEffect(() => {
-    initializeForm();
-  }, [initializeForm]);
+      initializeForm();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [formId]);
 
   // Auto Save Effect
   useEffect(() => {
