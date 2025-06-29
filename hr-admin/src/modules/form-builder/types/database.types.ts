@@ -134,3 +134,70 @@ export interface CreateFormDto extends Omit<Form, 'id' | 'metadata' | 'createdAt
 export interface UpdateFormDto extends Partial<Omit<Form, 'id' | 'createdAt'>> {
   // همه فیلدهای Form به صورت اختیاری به جز id و createdAt
 }
+
+// =====================================================
+// 🔧 انواع خطاهای Validation
+// =====================================================
+
+export type ValidationErrorType = 
+  | 'required'
+  | 'minLength'
+  | 'maxLength'
+  | 'pattern'
+  | 'min'
+  | 'max'
+  | 'email'
+  | 'url'
+  | 'fileType'
+  | 'fileSize'
+  | 'custom';
+
+/**
+ * نتیجه اعتبارسنجی
+ */
+export interface ValidationResult {
+  /** آیا معتبر است؟ */
+  isValid: boolean;
+  /** خطاها */
+  errors: Array<{
+    type: ValidationErrorType;
+    message: string;
+    field: string;
+  }>;
+  /** هشدارها */
+  warnings?: Array<{
+    type: string;
+    message: string;
+    field: string;
+  }>;
+}
+
+// =====================================================
+// 🔧 Default exports برای راحتی import
+// =====================================================
+
+export default {
+  // Types
+  FieldType,
+  ValidationErrorType,
+  DatabaseType,
+  
+  // Interfaces
+  FormField,
+  Form,
+  FormResponse,
+  FormTemplate,
+  FieldOption,
+  ValidationRules,
+  FormSettings,
+  FormStyling,
+  FormMetadata,
+  DatabaseConfig,
+  ApiResponse,
+  PaginatedResponse,
+  ValidationResult,
+  
+  // DTOs
+  CreateFormDto,
+  UpdateFormDto
+};
