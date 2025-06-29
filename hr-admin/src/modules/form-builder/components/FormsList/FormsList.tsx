@@ -108,7 +108,7 @@ const FormsList: React.FC<FormsListProps> = ({
     mutationFn: ({ id, status }: { id: string; status: Form['status'] }) => 
       formsAPI.updateFormStatus(id, status),
     onSuccess: () => {
-      queryClient.invalidateQueries(['forms']);
+      queryClient.invalidateQueries({ queryKey: ['forms'] });
     }
   });
 
