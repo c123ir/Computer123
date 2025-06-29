@@ -44,7 +44,6 @@ export const FormBuilder: React.FC<FormBuilderProps> = ({
     validationErrors,
     canUndo,
     canRedo,
-    updateForm,
     addField,
     updateField,
     removeField,
