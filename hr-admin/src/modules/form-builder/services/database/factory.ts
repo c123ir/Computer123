@@ -3,6 +3,8 @@
 // =====================================================
 
 import { DatabaseType, DatabaseConfig } from '../../types';
+import { DatabaseService } from './interface';
+import { PostgreSQLService } from './postgresql.service';
 
 /**
  * Database Service Interface
@@ -29,182 +31,135 @@ export interface DatabaseService {
 }
 
 /**
- * Firebase Service Implementation
+ * Firebase Service Implementation (Disabled)
  */
 class FirebaseService implements DatabaseService {
-  async getForms(filters?: any): Promise<any> {
-    throw new Error('Firebase service not implemented yet');
+  async createForm(): Promise<string> {
+    throw new Error('Firebase service disabled - using PostgreSQL instead');
   }
   
-  async getForm(id: string): Promise<any> {
-    throw new Error('Firebase service not implemented yet');
+  async getForm(): Promise<any> {
+    throw new Error('Firebase service disabled - using PostgreSQL instead');
   }
   
-  async createForm(data: any): Promise<any> {
-    throw new Error('Firebase service not implemented yet');
+  async updateForm(): Promise<void> {
+    throw new Error('Firebase service disabled - using PostgreSQL instead');
   }
   
-  async updateForm(id: string, data: any): Promise<any> {
-    throw new Error('Firebase service not implemented yet');
+  async deleteForm(): Promise<void> {
+    throw new Error('Firebase service disabled - using PostgreSQL instead');
   }
   
-  async deleteForm(id: string): Promise<void> {
-    throw new Error('Firebase service not implemented yet');
+  async listForms(): Promise<any> {
+    throw new Error('Firebase service disabled - using PostgreSQL instead');
   }
   
-  async getFormResponses(formId: string, filters?: any): Promise<any> {
-    throw new Error('Firebase service not implemented yet');
+  async searchForms(): Promise<any> {
+    throw new Error('Firebase service disabled - using PostgreSQL instead');
   }
   
-  async createFormResponse(data: any): Promise<any> {
-    throw new Error('Firebase service not implemented yet');
+  async duplicateForm(): Promise<string> {
+    throw new Error('Firebase service disabled - using PostgreSQL instead');
   }
   
-  async getStats(): Promise<any> {
-    throw new Error('Firebase service not implemented yet');
+  async getForms(): Promise<any> {
+    throw new Error('Firebase service disabled - using PostgreSQL instead');
   }
   
-  async healthCheck(): Promise<any> {
-    throw new Error('Firebase service not implemented yet');
+  async createFormResponse(): Promise<string> {
+    throw new Error('Firebase service disabled - using PostgreSQL instead');
   }
   
-  async connect(): Promise<void> {
-    throw new Error('Firebase service not implemented yet');
+  async createResponse(): Promise<string> {
+    throw new Error('Firebase service disabled - using PostgreSQL instead');
   }
   
-  async disconnect(): Promise<void> {
-    throw new Error('Firebase service not implemented yet');
-  }
-}
-
-/**
- * PostgreSQL Service Implementation
- */
-class PostgreSQLService implements DatabaseService {
-  private baseURL: string;
-
-  constructor(baseURL: string = 'http://localhost:3001/api') {
-    this.baseURL = baseURL;
-  }
-
-  async getForms(filters?: any): Promise<any> {
-    const params = new URLSearchParams(filters);
-    const response = await fetch(`${this.baseURL}/forms?${params}`);
-    
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    
-    return response.json();
+  async getFormResponses(): Promise<any> {
+    throw new Error('Firebase service disabled - using PostgreSQL instead');
   }
   
-  async getForm(id: string): Promise<any> {
-    const response = await fetch(`${this.baseURL}/forms/${id}`);
-    
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    
-    return response.json();
+  async getResponses(): Promise<any> {
+    throw new Error('Firebase service disabled - using PostgreSQL instead');
   }
   
-  async createForm(data: any): Promise<any> {
-    const response = await fetch(`${this.baseURL}/forms`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(data),
-    });
-    
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    
-    return response.json();
+  async getResponse(): Promise<any> {
+    throw new Error('Firebase service disabled - using PostgreSQL instead');
   }
   
-  async updateForm(id: string, data: any): Promise<any> {
-    const response = await fetch(`${this.baseURL}/forms/${id}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(data),
-    });
-    
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    
-    return response.json();
+  async updateResponse(): Promise<void> {
+    throw new Error('Firebase service disabled - using PostgreSQL instead');
   }
   
-  async deleteForm(id: string): Promise<void> {
-    const response = await fetch(`${this.baseURL}/forms/${id}`, {
-      method: 'DELETE',
-    });
-    
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
+  async deleteResponse(): Promise<void> {
+    throw new Error('Firebase service disabled - using PostgreSQL instead');
   }
   
-  async getFormResponses(formId: string, filters?: any): Promise<any> {
-    const params = new URLSearchParams(filters);
-    const response = await fetch(`${this.baseURL}/forms/${formId}/responses?${params}`);
-    
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    
-    return response.json();
+  async deleteAllResponses(): Promise<void> {
+    throw new Error('Firebase service disabled - using PostgreSQL instead');
   }
   
-  async createFormResponse(data: any): Promise<any> {
-    const response = await fetch(`${this.baseURL}/responses`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(data),
-    });
-    
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    
-    return response.json();
+  async getTemplates(): Promise<any[]> {
+    throw new Error('Firebase service disabled - using PostgreSQL instead');
   }
   
-  async getStats(): Promise<any> {
-    const response = await fetch(`${this.baseURL}/stats`);
-    
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    
-    return response.json();
+  async getTemplate(): Promise<any> {
+    throw new Error('Firebase service disabled - using PostgreSQL instead');
+  }
+  
+  async createFormFromTemplate(): Promise<string> {
+    throw new Error('Firebase service disabled - using PostgreSQL instead');
+  }
+  
+  async getFormStats(): Promise<any> {
+    throw new Error('Firebase service disabled - using PostgreSQL instead');
+  }
+  
+  async getOverallStats(): Promise<any> {
+    throw new Error('Firebase service disabled - using PostgreSQL instead');
+  }
+  
+  async getDashboardStats(): Promise<any> {
+    throw new Error('Firebase service disabled - using PostgreSQL instead');
+  }
+  
+  async exportData(): Promise<Blob> {
+    throw new Error('Firebase service disabled - using PostgreSQL instead');
+  }
+  
+  async importData(): Promise<any> {
+    throw new Error('Firebase service disabled - using PostgreSQL instead');
+  }
+  
+  async createBackup(): Promise<Blob> {
+    throw new Error('Firebase service disabled - using PostgreSQL instead');
+  }
+  
+  async restoreFromBackup(): Promise<any> {
+    throw new Error('Firebase service disabled - using PostgreSQL instead');
   }
   
   async healthCheck(): Promise<any> {
-    const response = await fetch(`${this.baseURL}/health`);
-    
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    
-    return response.json();
+    throw new Error('Firebase service disabled - using PostgreSQL instead');
   }
   
-  async connect(): Promise<void> {
-    // PostgreSQL connection handled by backend
-    console.log('PostgreSQL connection handled by backend');
+  async testConnection(): Promise<boolean> {
+    throw new Error('Firebase service disabled - using PostgreSQL instead');
   }
   
-  async disconnect(): Promise<void> {
-    // PostgreSQL disconnection handled by backend
-    console.log('PostgreSQL disconnection handled by backend');
+  async clearCache(): Promise<void> {
+    throw new Error('Firebase service disabled - using PostgreSQL instead');
+  }
+  
+  async optimize(): Promise<void> {
+    throw new Error('Firebase service disabled - using PostgreSQL instead');
+  }
+  
+  async getConfig(): Promise<Record<string, any>> {
+    throw new Error('Firebase service disabled - using PostgreSQL instead');
+  }
+  
+  async updateConfig(): Promise<void> {
+    throw new Error('Firebase service disabled - using PostgreSQL instead');
   }
 }
 
@@ -218,13 +173,16 @@ export class DatabaseFactory {
   static createService(config: DatabaseConfig): DatabaseService {
     switch (config.type) {
       case 'firebase':
-        return new FirebaseService();
+        console.warn('🔄 Firebase service disabled - redirecting to PostgreSQL');
+        return new PostgreSQLService();
         
       case 'postgresql':
+        console.log('✅ Using PostgreSQL backend service');
         return new PostgreSQLService();
         
       default:
-        throw new Error(`Unsupported database type: ${config.type}`);
+        console.log('⚠️ Unknown database type, defaulting to PostgreSQL');
+        return new PostgreSQLService();
     }
   }
 
@@ -233,10 +191,10 @@ export class DatabaseFactory {
    */
   static isSupported(type: DatabaseType): boolean {
     switch (type) {
-      case 'firebase':
       case 'postgresql':
         return true;
-        
+      case 'firebase':
+        return false; // Disabled
       default:
         return false;
     }
@@ -246,7 +204,7 @@ export class DatabaseFactory {
    * لیست انواع پشتیبانی شده
    */
   static getSupportedTypes(): DatabaseType[] {
-    return ['firebase', 'postgresql'];
+    return ['postgresql'];
   }
 }
 
