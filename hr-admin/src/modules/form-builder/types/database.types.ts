@@ -248,17 +248,33 @@ export interface HealthCheckResult {
 // Forward declaration - Import های دقیق در انتها
 
 /**
- * DTO برای ایجاد فرم
+ * DTO برای ایجاد فرم (موقت بدون وابستگی به Form)
  */
-export interface CreateFormDto extends Omit<Form, 'id' | 'metadata' | 'createdAt' | 'updatedAt'> {
-  // همه فیلدهای Form به جز موارد حذف شده
+export interface CreateFormDto {
+  name: string;
+  description?: string;
+  fields: any[];
+  settings: any;
+  styling: any;
+  status?: 'draft' | 'published' | 'archived' | 'paused';
+  category?: string;
+  tags?: string[];
 }
 
 /**
- * DTO برای بروزرسانی فرم
+ * DTO برای بروزرسانی فرم (موقت بدون وابستگی به Form)
  */
-export interface UpdateFormDto extends Partial<Omit<Form, 'id' | 'createdAt'>> {
-  // همه فیلدهای Form به صورت اختیاری به جز id و createdAt
+export interface UpdateFormDto {
+  name?: string;
+  description?: string;
+  fields?: any[];
+  settings?: any;
+  styling?: any;
+  status?: 'draft' | 'published' | 'archived' | 'paused';
+  category?: string;
+  tags?: string[];
+  metadata?: any;
+  updatedAt?: string;
 }
 
 // =====================================================
