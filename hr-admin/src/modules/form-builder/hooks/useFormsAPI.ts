@@ -299,7 +299,12 @@ export const useFormsAPI = () => {
         totalForms: stats?.totalForms || 0,
         totalResponses: stats?.totalResponses || 0,
         activeForms: stats?.activeForms || 0,
-        databaseSize: stats?.databaseSize || 0
+        databaseSize: stats?.databaseSize || 0,
+        performance: {
+          averageQueryTime: stats?.performance?.averageQueryTime || 0,
+          todayQueries: stats?.performance?.todayQueries || 0,
+          recentErrors: stats?.performance?.recentErrors || 0
+        }
       };
     }, []),
 
@@ -308,6 +313,7 @@ export const useFormsAPI = () => {
       return {
         status: 'healthy',
         timestamp: new Date().toISOString(),
+        responseTime: 0,
         checks: [
           {
             name: 'Database',
