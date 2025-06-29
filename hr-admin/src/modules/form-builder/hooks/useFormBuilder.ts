@@ -612,6 +612,7 @@ export const useFormBuilder = (options: UseFormBuilderOptions = {}) => {
     removeField,
     duplicateField,
     moveField,
+    reorderFields,
     selectField,
     updateField,
     
