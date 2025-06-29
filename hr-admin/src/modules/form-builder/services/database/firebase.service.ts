@@ -306,7 +306,7 @@ import {
     // Form Responses
     // =================================
   
-    async createResponse(
+    async createFormResponse(
       formId: string,
       responseData: Record<string, any>,
       metadata?: Record<string, any>
@@ -321,7 +321,9 @@ import {
             duration: metadata?.duration,
             status: 'completed',
             formVersion: metadata?.formVersion || 1
-          }
+          },
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
         };
   
         const docRef = await addDoc(collection(this.db, this.COLLECTIONS.RESPONSES), response);
@@ -343,7 +345,16 @@ import {
       }
     }
   
-    async getResponses(
+    // Alias for backward compatibility
+    async createResponse(
+      formId: string,
+      responseData: Record<string, any>,
+      metadata?: Record<string, any>
+    ): Promise<string> {
+      return this.createFormResponse(formId, responseData, metadata);
+    }
+  
+    async getFormResponses(
       formId: string,
       filters?: QueryFilters,
       pagination?: PaginationOptions
