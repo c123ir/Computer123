@@ -1,5 +1,7 @@
 // src/modules/form-builder/hooks/index.ts
 
+import { useFormBuilder } from './useFormBuilder';
+
 /**
  * Export تمام Hook های Form Builder
  */
@@ -26,7 +28,6 @@ export {
 export type UseFormBuilderReturn = ReturnType<typeof import('./useFormBuilder').useFormBuilder>;
 
 // Default export
-import { useFormBuilder } from './useFormBuilder';
 export default useFormBuilder;
 
 // Placeholder for future hooks
