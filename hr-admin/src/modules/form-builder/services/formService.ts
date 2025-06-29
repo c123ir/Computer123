@@ -7,7 +7,7 @@ import {
   FormResponse,
   CreateFormDto,
   UpdateFormDto,
-  QueryFilters,
+  FormFilters,
   PaginationOptions,
   PaginatedResult,
   ValidationResult,
