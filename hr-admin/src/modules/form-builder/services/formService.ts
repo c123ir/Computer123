@@ -16,6 +16,7 @@ import {
 } from '../types';
 
 import { DatabaseService } from './database/interface';
+import { FirebaseService } from './database/firebase.service';
 import { ValidationService } from './validationService';
 
 /**
