@@ -1,170 +1,171 @@
 // =====================================================
-// 🔧 فایل: src/modules/form-builder/types/field.types.ts
+// 🔧 فایل: src/modules/form-builder/types/form.types.ts
 // =====================================================
 
 /**
- * انواع فیلد‌های قابل استفاده در فرم‌ساز
+ * تنظیمات فرم
  */
-export type FieldType = 
-  | 'text'          // متن ساده
-  | 'textarea'      // متن چندخطی
-  | 'number'        // عدد
-  | 'email'         // ایمیل
-  | 'tel'           // شماره تلفن
-  | 'url'           // آدرس وبسایت
-  | 'select'        // انتخاب از لیست
-  | 'radio'         // انتخاب یکی از چند
-  | 'checkbox'      // چک باکس
-  | 'date'          // تاریخ
-  | 'time'          // زمان
-  | 'datetime'      // تاریخ و زمان
-  | 'file'          // آپلود فایل
-  | 'signature'     // امضا
-  | 'rating'        // امتیازدهی
-  | 'slider';       // اسلایدر
-
-/**
- * گزینه‌های فیلد (برای select, radio, checkbox)
- */
-export interface FieldOption {
-  /** شناسه یکتا */
-  id: string;
-  /** برچسب نمایشی */
-  label: string;
-  /** مقدار */
-  value: string;
-  /** آیا پیش‌فرض انتخاب شده باشد؟ */
-  selected?: boolean;
-  /** غیرفعال */
-  disabled?: boolean;
-}
-
-/**
- * قوانین اعتبارسنجی فیلد
- */
-export interface ValidationRules {
-  /** الزامی */
-  required?: boolean;
-  /** حداقل طول */
-  minLength?: number;
-  /** حداکثر طول */
-  maxLength?: number;
-  /** الگوی regex */
-  pattern?: string;
-  /** پیام خطای سفارشی برای pattern */
-  patternMessage?: string;
-  /** حداقل مقدار (برای number) */
-  min?: number;
-  /** حداکثر مقدار (برای number) */
-  max?: number;
-  /** انواع فایل مجاز */
-  fileTypes?: string[];
-  /** حداکثر اندازه فایل (بایت) */
-  maxFileSize?: number;
-  /** اعتبارسنجی سفارشی */
-  customValidation?: {
-    rule: string;
-    message: string;
+export interface FormSettings {
+  /** متن دکمه ارسال */
+  submitButtonText: string;
+  /** نمایش progress bar */
+  showProgressBar: boolean;
+  /** امکان ذخیره draft */
+  allowSaveDraft: boolean;
+  /** نمایش شماره فیلدها */
+  showFieldNumbers: boolean;
+  /** عرض فرم */
+  formWidth: 'small' | 'medium' | 'large' | 'full';
+  /** redirect پس از ارسال */
+  redirectAfterSubmit?: string;
+  /** پیام تشکر */
+  thankYouMessage?: string;
+  /** تنظیمات چندمرحله‌ای */
+  multiStep?: {
+    enabled: boolean;
+    showStepIndicator: boolean;
+    allowBackNavigation: boolean;
+    steps: {
+      id: string;
+      title: string;
+      fieldIds: string[];
+    }[];
   };
 }
 
 /**
- * تنظیمات ظاهری فیلد
+ * تنظیمات ظاهری فرم
  */
-export interface FieldStyling {
-  /** عرض فیلد */
-  width: '25%' | '50%' | '75%' | '100%';
-  /** کلاس CSS سفارشی */
-  className?: string;
+export interface FormStyling {
+  /** تم کلی */
+  theme: 'default' | 'modern' | 'dark' | 'minimal';
   /** رنگ پس‌زمینه */
-  backgroundColor?: string;
+  backgroundColor: string;
   /** رنگ متن */
-  textColor?: string;
-  /** رنگ border */
-  borderColor?: string;
-  /** نوع border */
-  borderStyle?: 'solid' | 'dashed' | 'dotted' | 'none';
-  /** ضخامت border */
-  borderWidth?: number;
+  textColor: string;
+  /** رنگ اصلی */
+  primaryColor: string;
+  /** فونت */
+  fontFamily: string;
+  /** اندازه فونت */
+  fontSize: number;
   /** شعاع گوشه‌ها */
-  borderRadius?: number;
-  /** فاصله داخلی */
-  padding?: number;
-  /** فاصله خارجی */
-  margin?: number;
+  borderRadius: number;
+  /** فاصله‌گذاری */
+  spacing: 'compact' | 'normal' | 'relaxed';
 }
 
 /**
- * اعتبارسنجی سفارشی
+ * متادیتای فرم
  */
-export interface CustomValidator {
-  /** شناسه validator */
-  id: string;
-  /** نام */
-  name: string;
-  /** function اعتبارسنجی */
-  validator: (value: any, field: FormField, form: Form) => boolean | string;
-  /** پیام خطا */
-  errorMessage: string;
-  /** اولویت اجرا */
-  priority?: number;
+export interface FormMetadata {
+  /** ایجاد کننده */
+  createdBy: string;
+  /** تاریخ ایجاد */
+  createdAt: string;
+  /** آخرین ویرایش */
+  updatedAt: string;
+  /** ویرایش کننده */
+  updatedBy?: string;
+  /** وضعیت فرم */
+  status: 'draft' | 'published' | 'archived' | 'paused';
+  /** نسخه */
+  version: number;
+  /** برچسب‌ها */
+  tags?: string[];
+  /** دسته‌بندی */
+  category?: string;
+  /** آمار */
+  stats?: {
+    views: number;
+    submissions: number;
+    averageCompletionTime: number;
+    conversionRate: number;
+  };
 }
 
 /**
- * فیلد فرم - نسخه کامل
+ * فرم کامل
  */
-export interface FormField {
+export interface Form {
   /** شناسه یکتا */
   id: string;
-  /** نوع فیلد */
-  type: FieldType;
-  /** برچسب فیلد */
-  label: string;
-  /** متن راهنما */
-  placeholder?: string;
-  /** توضیح کمکی */
-  helpText?: string;
-  /** آیا اجباری است؟ */
-  required: boolean;
-  /** مقدار پیش‌فرض */
-  defaultValue?: any;
-  /** آیا غیرفعال است؟ */
-  disabled?: boolean;
-  /** آیا فقط‌خواندنی است؟ */
-  readonly?: boolean;
-  /** قوانین اعتبارسنجی */
-  validation: ValidationRules;
-  /** تنظیمات ظاهری */
-  styling: FieldStyling;
-  /** گزینه‌ها (برای select, radio, checkbox) */
-  options?: FieldOption[];
-  /** تنظیمات خاص نوع فیلد */
-  fieldSettings?: {
-    /** برای file: multiple selection */
-    multiple?: boolean;
-    /** برای rating: تعداد ستاره */
-    maxRating?: number;
-    /** برای slider: مقدار min/max/step */
-    min?: number;
-    max?: number;
-    step?: number;
-    /** برای textarea: تعداد خط */
-    rows?: number;
-    /** برای select: قابلیت جستجو */
-    searchable?: boolean;
-    /** برای date: محدودیت تاریخ */
-    minDate?: string;
-    maxDate?: string;
+  /** نام فرم */
+  name: string;
+  /** توضیح */
+  description?: string;
+  /** فیلدهای فرم */
+  fields: FormField[];
+  /** تنظیمات */
+  settings: FormSettings;
+  /** ظاهر */
+  styling: FormStyling;
+  /** متادیتا */
+  metadata: FormMetadata;
+  /** وضعیت */
+  status: 'draft' | 'published' | 'archived' | 'paused';
+  /** دسته‌بندی */
+  category?: string;
+  /** برچسب‌ها */
+  tags?: string[];
+  /** تاریخ ایجاد */
+  createdAt: string;
+  /** تاریخ بروزرسانی */
+  updatedAt: string;
+}
+
+/**
+ * پاسخ فرم
+ */
+export interface FormResponse {
+  /** شناسه یکتا */
+  id: string;
+  /** شناسه فرم */
+  formId: string;
+  /** پاسخ‌ها */
+  answers: Record<string, any>;
+  /** اطلاعات ارسال کننده */
+  submitterInfo?: {
+    ip?: string;
+    userAgent?: string;
+    referrer?: string;
+    userId?: string;
+    email?: string;
+    name?: string;
   };
-  /** شرایط وابستگی */
-  conditions?: Array<{
-    /** وابسته به کدام فیلد */
-    dependsOn: string;
-    /** نوع عملگر */
-    operator: 'equals' | 'not_equals' | 'contains' | 'greater' | 'less';
-    /** مقدار مقایسه */
-    value: any;
-    /** عمل در صورت برقراری شرط */
-    action: 'show' | 'hide' | 'require' | 'disable';
-  }>;
+  /** متادیتا */
+  metadata: {
+    /** تاریخ ارسال */
+    submittedAt: string;
+    /** مدت زمان پر کردن */
+    duration?: number;
+    /** وضعیت */
+    status: 'draft' | 'completed' | 'partial';
+    /** نسخه فرم */
+    formVersion: number;
+  };
+}
+
+/**
+ * قالب فرم
+ */
+export interface FormTemplate {
+  /** شناسه یکتا */
+  id: string;
+  /** نام قالب */
+  name: string;
+  /** توضیح */
+  description: string;
+  /** دسته‌بندی */
+  category: string;
+  /** پیش‌نمایش */
+  preview?: string;
+  /** برچسب‌ها */
+  tags: string[];
+  /** میزان محبوبیت */
+  popularity: number;
+  /** فعال */
+  isActive: boolean;
+  /** داده‌های فرم */
+  form: Omit<Form, 'id' | 'metadata' | 'createdAt' | 'updatedAt'>;
 }
