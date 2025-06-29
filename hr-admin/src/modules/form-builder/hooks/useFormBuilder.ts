@@ -113,7 +113,7 @@ export const useFormBuilder = (options: UseFormBuilderOptions = {}): UseFormBuil
     };
 
     initializeForm();
-  }, [formId]);
+  }, [formId, initialForm]);
 
   // Auto Save Effect
   useEffect(() => {
