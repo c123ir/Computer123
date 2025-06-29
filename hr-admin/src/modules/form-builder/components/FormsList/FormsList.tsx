@@ -20,7 +20,7 @@ import {
 } from '../../types';
 
 // Import hooks - رفع خطای import
-import { useFormsAPI } from '../../hooks/useFormsAPI';
+import { useFormsAPI } from '../../hooks';
 
 // Components
 import FormCard from './FormCard';
