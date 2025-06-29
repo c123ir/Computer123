@@ -79,6 +79,8 @@ export interface FormFilters {
   status?: string;
   /** فیلتر دسته */
   category?: string;
+  /** فیلتر تگ‌ها */
+  tags?: string[];
   /** ایجاد کننده */
   createdBy?: string;
   /** صفحه */
