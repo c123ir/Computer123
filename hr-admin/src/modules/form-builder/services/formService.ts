@@ -992,7 +992,7 @@ export class FormService {
           break;
           
         case 'radio':
-          field.options?.forEach(option => {
+          field.options?.forEach((option: any) => {
             html += `<label><input type="radio" name="${field.id}" value="${option.value}" /> ${option.label}</label>`;
           });
           break;
