@@ -93,7 +93,7 @@ const FormsList: React.FC<FormsListProps> = ({
   const deleteFormMutation = useMutation({
     mutationFn: (formId: string) => formsAPI.deleteForm(formId),
     onSuccess: () => {
-      queryClient.invalidateQueries(['forms']);
+      queryClient.invalidateQueries({ queryKey: ['forms'] });
     }
   });
 
