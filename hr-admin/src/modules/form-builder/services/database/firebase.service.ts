@@ -266,15 +266,13 @@ import {
         const response: Omit<FormResponse, 'id'> = {
           formId,
           answers: responseData,
-          submitter: metadata?.submitter,
+          submitterInfo: metadata?.submitterInfo,
           metadata: {
             submittedAt: new Date().toISOString(),
             duration: metadata?.duration,
             status: 'completed',
             formVersion: metadata?.formVersion || 1
-          },
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
+          }
         };
   
         const docRef = await addDoc(collection(this.db, this.COLLECTIONS.RESPONSES), response);
