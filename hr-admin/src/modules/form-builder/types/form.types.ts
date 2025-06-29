@@ -97,7 +97,7 @@ export interface Form {
   /** توضیح */
   description?: string;
   /** فیلدهای فرم */
-  fields: any[];
+  fields: FormField[];
   /** تنظیمات */
   settings: FormSettings;
   /** ظاهر */
