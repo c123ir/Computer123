@@ -82,7 +82,7 @@ export class FormService {
     try {
       // بررسی cache
       if (useCache) {
-        const cached = await this.cache.get(`form_${id}`);
+        const cached = await this.cache.get();
         if (cached) {
           console.log('📋 Form loaded from cache:', id);
           return cached;
