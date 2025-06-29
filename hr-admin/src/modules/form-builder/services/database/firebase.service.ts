@@ -393,6 +393,15 @@ import {
       }
     }
   
+    // Alias for backward compatibility  
+    async getResponses(
+      formId: string,
+      filters?: QueryFilters,
+      pagination?: PaginationOptions
+    ): Promise<PaginatedResult<FormResponse>> {
+      return this.getFormResponses(formId, filters, pagination);
+    }
+  
     async getResponse(responseId: string): Promise<FormResponse | null> {
       try {
         const docRef = doc(this.db, this.COLLECTIONS.RESPONSES, responseId);
@@ -401,9 +410,11 @@ import {
         if (!docSnap.exists()) {
           return null;
         }
-  
+
         return {
           id: docSnap.id,
+          createdAt: docSnap.data().createdAt || new Date().toISOString(),
+          updatedAt: docSnap.data().updatedAt || new Date().toISOString(),
           ...docSnap.data()
         } as FormResponse;
       } catch (error) {
@@ -660,5 +671,98 @@ import {
     async updateConfig(config: Record<string, any>): Promise<void> {
       // TODO: Implement config update
       console.log('Config update not implemented yet');
+    }
+
+    // =================================
+    // Forms Management - Additional methods
+    // =================================
+
+    async getForms(
+      userId?: string,
+      filters?: QueryFilters,
+      pagination?: PaginationOptions
+    ): Promise<PaginatedResult<Form>> {
+      try {
+        let baseQuery = collection(this.db, this.COLLECTIONS.FORMS);
+        const constraints: QueryConstraint[] = [];
+
+        // اعمال فیلترها
+        if (filters) {
+          if (filters.status) {
+            constraints.push(where('metadata.status', '==', filters.status));
+          }
+          if (filters.createdBy || userId) {
+            constraints.push(where('metadata.createdBy', '==', filters.createdBy || userId));
+          }
+          if (filters.category) {
+            constraints.push(where('metadata.category', '==', filters.category));
+          }
+          if (filters.tags && filters.tags.length > 0) {
+            constraints.push(where('metadata.tags', 'array-contains-any', filters.tags));
+          }
+        }
+
+        // مرتب‌سازی
+        if (filters?.sortBy) {
+          const sortField = filters.sortBy === 'name' ? 'name' : 
+                          filters.sortBy === 'createdAt' ? 'metadata.createdAt' :
+                          filters.sortBy === 'updatedAt' ? 'metadata.updatedAt' : 
+                          'metadata.createdAt';
+          constraints.push(orderBy(sortField, filters.sortOrder || 'desc'));
+        } else {
+          constraints.push(orderBy('metadata.createdAt', 'desc'));
+        }
+
+        // صفحه‌بندی
+        const pageSize = pagination?.limit || 10;
+        constraints.push(limit(pageSize));
+
+        const q = query(baseQuery, ...constraints);
+        const querySnapshot = await getDocs(q);
+        
+        let forms: Form[] = querySnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        } as Form));
+
+        // اگر search filter داریم، در client side فیلتر کنیم
+        if (filters?.search) {
+          const searchTerm = filters.search.toLowerCase();
+          forms = forms.filter(form => 
+            form.name.toLowerCase().includes(searchTerm) ||
+            form.description?.toLowerCase().includes(searchTerm)
+          );
+        }
+
+        // محاسبه تعداد کل (ساده‌سازی شده)
+        const totalItems = forms.length;
+        const currentPage = pagination?.page || 1;
+        const totalPages = Math.ceil(totalItems / pageSize);
+
+        return {
+          data: forms,
+          pagination: {
+            currentPage,
+            totalPages,
+            totalItems,
+            itemsPerPage: pageSize,
+            hasNextPage: currentPage < totalPages,
+            hasPreviousPage: currentPage > 1
+          }
+        };
+      } catch (error) {
+        console.error('❌ Error getting forms:', error);
+        throw new Error(`Failed to get forms: ${error}`);
+      }
+    }
+
+    // Alias for backward compatibility
+    async searchForms(
+      searchQuery: string,
+      filters?: QueryFilters,
+      pagination?: PaginationOptions
+    ): Promise<PaginatedResult<Form>> {
+      const searchFilters = { ...filters, search: searchQuery };
+      return this.getForms(undefined, searchFilters, pagination);
     }
   }
