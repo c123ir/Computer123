@@ -222,46 +222,62 @@ class FormsAPIService {
  * Hook برای دسترسی به API فرم‌ها
  */
 export const useFormsAPI = () => {
-  const formService = FormService.getInstance();
-
   const formsAPI: FormsAPI = {
     getForms: useCallback(async (filters?: FormFilters): Promise<PaginatedResponse<Form>> => {
-      const result = await formService.searchForms(filters || {});
+      const result = await FormService.searchForms(
+        filters?.search || '', 
+        filters,
+        { page: filters?.page || 1, limit: filters?.limit || 10 }
+      );
       return {
         data: result.data,
         pagination: {
-          currentPage: filters?.page || 1,
-          totalPages: Math.ceil(result.total / (filters?.limit || 10)),
-          totalItems: result.total,
-          pageSize: filters?.limit || 10
+          page: filters?.page || 1,
+          limit: filters?.limit || 10,
+          total: result.total,
+          totalPages: Math.ceil(result.total / (filters?.limit || 10))
         },
         total: result.total
       };
-    }, [formService]),
+    }, []),
 
     getForm: useCallback(async (id: string): Promise<Form> => {
-      return await formService.getForm(id);
-    }, [formService]),
+      const form = await FormService.getForm(id);
+      if (!form) throw new Error('Form not found');
+      return form;
+    }, []),
 
     createForm: useCallback(async (data: CreateFormDto): Promise<Form> => {
-      return await formService.createForm(data);
-    }, [formService]),
+      const formId = await FormService.createForm(data);
+      const form = await FormService.getForm(formId);
+      if (!form) throw new Error('Created form not found');
+      return form;
+    }, []),
 
     updateForm: useCallback(async (id: string, data: UpdateFormDto): Promise<Form> => {
-      return await formService.updateForm(id, data);
-    }, [formService]),
+      await FormService.updateForm(id, data);
+      const form = await FormService.getForm(id);
+      if (!form) throw new Error('Updated form not found');
+      return form;
+    }, []),
 
     deleteForm: useCallback(async (id: string): Promise<void> => {
-      await formService.deleteForm(id);
-    }, [formService]),
+      await FormService.deleteForm(id);
+    }, []),
 
     duplicateForm: useCallback(async (id: string): Promise<Form> => {
-      return await formService.duplicateForm(id);
-    }, [formService]),
+      const newFormId = await FormService.duplicateForm(id);
+      const form = await FormService.getForm(newFormId);
+      if (!form) throw new Error('Duplicated form not found');
+      return form;
+    }, []),
 
     updateFormStatus: useCallback(async (id: string, status: Form['status']): Promise<Form> => {
-      return await formService.updateForm(id, { status });
-    }, [formService]),
+      await FormService.updateForm(id, { status });
+      const form = await FormService.getForm(id);
+      if (!form) throw new Error('Updated form not found');
+      return form;
+    }, []),
 
     getFormResponses: useCallback(async (formId: string, filters?: FormFilters): Promise<PaginatedResponse<FormResponse>> => {
       return await formService.getFormResponses(formId, filters);
