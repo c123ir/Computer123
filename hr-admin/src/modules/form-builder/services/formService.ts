@@ -251,9 +251,15 @@ export class FormService {
       }
 
       // اعتبارسنجی پاسخ‌ها
-      const validation = ValidationService.validateFormAnswers(form.fields, answers);
-      if (!validation.isValid) {
-        throw new Error(`Validation failed: ${validation.errors.map(e => e.message).join(', ')}`);
+      const validationResults = ValidationService.validateForm(form.fields, answers);
+      const isValid = ValidationService.isFormValid(validationResults);
+      
+      if (!isValid) {
+        const errorMessages = Object.values(validationResults)
+          .filter(result => !result.isValid)
+          .flatMap(result => result.errors)
+          .map((error: any) => error.message);
+        throw new Error(`Validation failed: ${errorMessages.join(', ')}`);
       }
 
       // پردازش پاسخ‌ها
