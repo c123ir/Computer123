@@ -1,0 +1,170 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Form {
+  id          String   @id @default(cuid())
+  name        String   @db.VarChar(255)
+  description String?  @db.Text
+  
+  // JSON fields for flexibility (مطابق فرم‌ساز فعلی)
+  fields      Json     // فیلدهای فرم - آرایه FormField[]
+  settings    Json     // تنظیمات عمومی فرم - FormSettings
+  styling     Json     // تنظیمات ظاهری - FormStyling  
+  metadata    Json     // اطلاعات meta - FormMetadata
+  
+  // Status and versioning
+  status      FormStatus @default(DRAFT)
+  version     Int        @default(1)
+  
+  // Categorization
+  category    String?    @db.VarChar(100)
+  tags        String[]   // برچسب‌ها
+  
+  // User tracking
+  createdBy   String     @map("created_by") @db.VarChar(100)
+  updatedBy   String?    @map("updated_by") @db.VarChar(100)
+  
+  // Timestamps
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  
+  // Relations
+  responses   FormResponse[]
+  
+  // Indexes for performance
+  @@index([status])
+  @@index([category])
+  @@index([createdAt])
+  @@index([createdBy])
+  @@map("forms")
+}
+
+model FormResponse {
+  id            String   @id @default(cuid())
+  formId        String   @map("form_id")
+  
+  // Response data
+  answers       Json     // پاسخ‌های کاربر - Record<fieldId, value>
+  submitterInfo Json?    @map("submitter_info") // اطلاعات ارسال‌کننده
+  metadata      Json     // اطلاعات meta پاسخ
+  
+  // Status and timing
+  status        ResponseStatus @default(COMPLETED)
+  submittedAt   DateTime @default(now()) @map("submitted_at")
+  duration      Int?     // مدت زمان پر کردن (ثانیه)
+  
+  // IP و User Agent برای tracking
+  ipAddress     String?  @map("ip_address") @db.VarChar(45)
+  userAgent     String?  @map("user_agent") @db.Text
+  
+  // Relations
+  form Form @relation(fields: [formId], references: [id], onDelete: Cascade)
+  
+  // Indexes
+  @@index([formId])
+  @@index([submittedAt])
+  @@index([status])
+  @@map("form_responses")
+}
+
+model FormTemplate {
+  id          String   @id @default(cuid())
+  name        String   @db.VarChar(255)
+  description String   @db.Text
+  category    String   @db.VarChar(100)
+  
+  // Template data (مطابق CreateFormModal)
+  formData    Json     @map("form_data") // ساختار کامل فرم template
+  preview     String?  @db.Text // URL تصویر پیش‌نمایش
+  tags        String[] // برچسب‌ها
+  
+  // Metadata و popularity
+  popularity  Int      @default(0) // امتیاز محبوبیت
+  isActive    Boolean  @default(true) @map("is_active")
+  isBuiltIn   Boolean  @default(false) @map("is_built_in") // templates پیش‌فرض
+  
+  // User tracking
+  createdBy   String   @map("created_by") @db.VarChar(100)
+  
+  // Timestamps
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  
+  // Indexes
+  @@index([category])
+  @@index([popularity])
+  @@index([isActive])
+  @@map("form_templates")
+}
+
+// User management (برای آینده)
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique @db.VarChar(255)
+  name      String   @db.VarChar(255)
+  password  String   @db.VarChar(255) // hashed
+  role      UserRole @default(USER)
+  isActive  Boolean  @default(true) @map("is_active")
+  
+  // Profile info
+  avatar    String?  @db.Text
+  phone     String?  @db.VarChar(20)
+  
+  // Timestamps
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  lastLogin DateTime? @map("last_login")
+  
+  @@index([email])
+  @@index([role])
+  @@map("users")
+}
+
+// Settings table برای تنظیمات سیستم
+model SystemSetting {
+  id        String   @id @default(cuid())
+  key       String   @unique @db.VarChar(100)
+  value     Json     // مقدار تنظیم
+  type      String   @db.VarChar(50) // نوع تنظیم
+  category  String   @db.VarChar(50) // دسته‌بندی
+  
+  // Description و metadata
+  label       String   @db.VarChar(255)
+  description String?  @db.Text
+  isPublic    Boolean  @default(false) @map("is_public")
+  
+  // Timestamps
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  
+  @@index([category])
+  @@map("system_settings")
+}
+
+// Enums
+enum FormStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+  PAUSED
+}
+
+enum ResponseStatus {
+  DRAFT
+  COMPLETED
+  PARTIAL
+}
+
+enum UserRole {
+  ADMIN
+  MANAGER
+  USER
+}

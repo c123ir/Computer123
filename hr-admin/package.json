@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "@hookform/resolvers": "^5.1.1",
+    "@tanstack/react-query": "^5.81.5",
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
@@ -13,6 +14,7 @@
     "@types/react-dom": "^18.2.25",
     "@types/react-router-dom": "^5.3.3",
     "@types/uuid": "^10.0.0",
+    "axios": "^1.10.0",
     "firebase": "^11.9.1",
     "framer-motion": "^12.19.2",
     "lucide-react": "^0.263.1",
