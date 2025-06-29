@@ -1,6 +1,4 @@
-// =====================================================
-// 🔧 فایل: src/modules/form-builder/types/field.types.ts
-// =====================================================
+// src/modules/form-builder/types/form.types.ts
 
 /**
  * انواع فیلد‌های قابل استفاده در فرم‌ساز
@@ -43,8 +41,6 @@ export interface FieldOption {
  * قوانین اعتبارسنجی فیلد
  */
 export interface ValidationRules {
-  /** الزامی */
-  required?: boolean;
   /** حداقل طول */
   minLength?: number;
   /** حداکثر طول */
@@ -95,23 +91,7 @@ export interface FieldStyling {
 }
 
 /**
- * اعتبارسنجی سفارشی
- */
-export interface CustomValidator {
-  /** شناسه validator */
-  id: string;
-  /** نام */
-  name: string;
-  /** function اعتبارسنجی */
-  validator: (value: any, field: FormField, form: Form) => boolean | string;
-  /** پیام خطا */
-  errorMessage: string;
-  /** اولویت اجرا */
-  priority?: number;
-}
-
-/**
- * فیلد فرم - نسخه کامل
+ * فیلد فرم
  */
 export interface FormField {
   /** شناسه یکتا */
@@ -150,21 +130,229 @@ export interface FormField {
     step?: number;
     /** برای textarea: تعداد خط */
     rows?: number;
-    /** برای select: قابلیت جستجو */
-    searchable?: boolean;
-    /** برای date: محدودیت تاریخ */
-    minDate?: string;
-    maxDate?: string;
+    /** برای date: format */
+    dateFormat?: string;
   };
-  /** شرایط وابستگی */
-  conditions?: Array<{
-    /** وابسته به کدام فیلد */
+  /** شرط نمایش (Conditional Logic) */
+  conditions?: {
+    /** فیلد مرجع */
     dependsOn: string;
-    /** نوع عملگر */
-    operator: 'equals' | 'not_equals' | 'contains' | 'greater' | 'less';
-    /** مقدار مقایسه */
+    /** مقدار مورد انتظار */
     value: any;
-    /** عمل در صورت برقراری شرط */
-    action: 'show' | 'hide' | 'require' | 'disable';
-  }>;
+    /** نوع شرط */
+    operator: 'equals' | 'not_equals' | 'contains' | 'greater_than' | 'less_than';
+  }[];
+}
+
+/**
+ * تنظیمات فرم
+ */
+export interface FormSettings {
+  /** متن دکمه ارسال */
+  submitButtonText: string;
+  /** نمایش نوار پیشرفت */
+  showProgressBar: boolean;
+  /** امکان ذخیره پیش‌نویس */
+  allowSaveDraft: boolean;
+  /** هدایت پس از ارسال */
+  redirectAfterSubmit?: string;
+  /** نمایش شماره فیلد */
+  showFieldNumbers: boolean;
+  /** عرض فرم */
+  formWidth: 'small' | 'medium' | 'large' | 'full';
+  /** محدودیت زمانی */
+  timeLimit?: {
+    enabled: boolean;
+    minutes: number;
+    showTimer: boolean;
+  };
+  /** محدودیت تعداد ارسال */
+  submissionLimit?: {
+    enabled: boolean;
+    maxSubmissions: number;
+    perUser: boolean;
+  };
+  /** تنظیمات ایمیل */
+  emailSettings?: {
+    sendConfirmation: boolean;
+    confirmationTemplate?: string;
+    notifyAdmin: boolean;
+    adminEmail?: string;
+  };
+}
+
+/**
+ * تنظیمات ظاهری فرم
+ */
+export interface FormStyling {
+  /** تم اصلی */
+  theme: 'default' | 'modern' | 'dark' | 'minimal' | 'colorful';
+  /** رنگ پس‌زمینه */
+  backgroundColor: string;
+  /** رنگ متن */
+  textColor: string;
+  /** رنگ اصلی */
+  primaryColor: string;
+  /** رنگ ثانویه */
+  secondaryColor?: string;
+  /** فونت */
+  fontFamily: string;
+  /** اندازه فونت */
+  fontSize: number;
+  /** شعاع گوشه‌ها */
+  borderRadius: number;
+  /** فاصله‌گذاری */
+  spacing: 'compact' | 'normal' | 'relaxed';
+  /** تصویر پس‌زمینه */
+  backgroundImage?: string;
+  /** لوگو */
+  logo?: {
+    url: string;
+    position: 'top' | 'center' | 'bottom';
+    size: 'small' | 'medium' | 'large';
+  };
+  /** CSS سفارشی */
+  customCSS?: string;
+}
+
+/**
+ * اطلاعات meta فرم
+ */
+export interface FormMetadata {
+  /** شناسه ایجادکننده */
+  createdBy: string;
+  /** تاریخ ایجاد */
+  createdAt: string;
+  /** آخرین ویرایش */
+  updatedAt: string;
+  /** آخرین ویرایش‌کننده */
+  updatedBy?: string;
+  /** وضعیت فرم */
+  status: 'draft' | 'published' | 'archived' | 'paused';
+  /** نسخه فرم */
+  version: number;
+  /** تگ‌ها */
+  tags?: string[];
+  /** دسته‌بندی */
+  category?: string;
+  /** آمار */
+  stats?: {
+    totalViews: number;
+    totalSubmissions: number;
+    completionRate: number;
+    averageTime: number;
+  };
+}
+
+/**
+ * تنظیمات فرم چندمرحله‌ای
+ */
+export interface MultiStepConfig {
+  /** فعال/غیرفعال */
+  enabled: boolean;
+  /** مراحل */
+  steps: {
+    /** شناسه مرحله */
+    id: string;
+    /** نام مرحله */
+    title: string;
+    /** توضیح مرحله */
+    description?: string;
+    /** فیلدهای این مرحله */
+    fieldIds: string[];
+  }[];
+  /** نمایش نوار پیشرفت */
+  showProgress: boolean;
+  /** امکان برگشت به مرحله قبل */
+  allowPreviousStep: boolean;
+  /** اعتبارسنجی در هر مرحله */
+  validateOnStep: boolean;
+}
+
+/**
+ * فرم کامل
+ */
+export interface Form {
+  /** شناسه یکتا */
+  id: string;
+  /** نام فرم */
+  name: string;
+  /** توضیح فرم */
+  description?: string;
+  /** فیلدهای فرم */
+  fields: FormField[];
+  /** تنظیمات فرم */
+  settings: FormSettings;
+  /** تنظیمات ظاهری */
+  styling: FormStyling;
+  /** اطلاعات meta */
+  metadata: FormMetadata;
+  /** تنظیمات چندمرحله‌ای */
+  multiStep?: MultiStepConfig;
+}
+
+/**
+ * DTO برای ایجاد فرم جدید
+ */
+export type CreateFormDto = Omit<Form, 'id' | 'metadata'> & {
+  metadata?: Partial<FormMetadata>;
+};
+
+/**
+ * DTO برای ویرایش فرم
+ */
+export type UpdateFormDto = Partial<Omit<Form, 'id' | 'metadata'>> & {
+  metadata?: Partial<FormMetadata>;
+};
+
+/**
+ * پاسخ کاربر به فرم
+ */
+export interface FormResponse {
+  /** شناسه یکتا */
+  id: string;
+  /** شناسه فرم */
+  formId: string;
+  /** پاسخ‌ها */
+  answers: Record<string, any>;
+  /** اطلاعات ارسال‌کننده */
+  submitter?: {
+    name?: string;
+    email?: string;
+    ip?: string;
+    userAgent?: string;
+  };
+  /** اطلاعات meta */
+  metadata: {
+    /** تاریخ ارسال */
+    submittedAt: string;
+    /** مدت زمان پر کردن (ثانیه) */
+    duration?: number;
+    /** وضعیت */
+    status: 'completed' | 'draft' | 'partial';
+    /** نسخه فرم */
+    formVersion: number;
+  };
+}
+
+/**
+ * Template فرم آماده
+ */
+export interface FormTemplate {
+  /** شناسه یکتا */
+  id: string;
+  /** نام template */
+  name: string;
+  /** توضیح */
+  description: string;
+  /** دسته‌بندی */
+  category: string;
+  /** تصویر پیش‌نمایش */
+  preview: string;
+  /** فرم template */
+  form: Omit<Form, 'id' | 'metadata'>;
+  /** محبوبیت */
+  popularity: number;
+  /** تگ‌ها */
+  tags: string[];
 }
