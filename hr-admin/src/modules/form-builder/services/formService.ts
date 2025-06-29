@@ -985,7 +985,7 @@ export class FormService {
           
         case 'select':
           html += `<select>`;
-          field.options?.forEach(option => {
+          field.options?.forEach((option: any) => {
             html += `<option value="${option.value}">${option.label}</option>`;
           });
           html += `</select>`;
