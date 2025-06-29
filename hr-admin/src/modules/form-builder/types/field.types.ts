@@ -104,7 +104,7 @@ export interface CustomValidator {
   /** نام */
   name: string;
   /** function اعتبارسنجی */
-  validator: (value: any, field: FormField, form: Form) => boolean | string;
+  validator: (value: any, field: FormField, form: any) => boolean | string;
   /** پیام خطا */
   errorMessage: string;
   /** اولویت اجرا */
