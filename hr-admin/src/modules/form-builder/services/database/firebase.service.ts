@@ -61,6 +61,8 @@ import {
         const now = new Date().toISOString();
         const form: Omit<Form, 'id'> = {
           ...formData,
+          createdAt: now,
+          updatedAt: now,
           metadata: {
             createdBy: formData.metadata?.createdBy || 'anonymous',
             createdAt: now,
