@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { Save, X, RotateCcw, Eye, Settings as SettingsIcon } from 'lucide-react';
-import { useFormBuilder, useFormBuilderShortcuts } from '../../hooks/useFormBuilder';
+import { useFormBuilder, useFormBuilderShortcuts } from '../../hooks';
 import FieldsPanel from './FieldsPanel';
 import PreviewPanel from './PreviewPanel';
 import SettingsPanel from './SettingsPanel';
