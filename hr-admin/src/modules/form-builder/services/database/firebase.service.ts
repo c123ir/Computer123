@@ -192,7 +192,6 @@ import {
         if (pagination && pagination.page > 1) {
           // برای صفحات بعدی نیاز به startAfter داریم
           // اینجا ساده‌سازی شده - در عمل باید cursor ذخیره کنیم
-          const skipCount = (pagination.page - 1) * pageSize;
           // Firebase pagination پیچیده‌تر است - اینجا فقط basic implementation
         }
   
