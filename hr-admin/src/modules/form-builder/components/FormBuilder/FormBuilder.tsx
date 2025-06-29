@@ -60,7 +60,7 @@ export const FormBuilder: React.FC<FormBuilderProps> = ({
     formId,
     autoSave: true,
     autoSaveInterval: 30000,
-    onSave: (savedForm) => {
+    onSave: async (savedForm) => {
       onSave?.(savedForm.id);
     },
     onError: (error) => {
@@ -70,32 +70,25 @@ export const FormBuilder: React.FC<FormBuilderProps> = ({
 
   // Keyboard shortcuts
   useFormBuilderShortcuts({
-    save: async () => {
-      if (!readonly) {
-        await saveForm();
-      }
-    },
-    undo: () => {
-      if (!readonly && canUndo) {
-        undo();
-      }
-    },
-    redo: () => {
-      if (!readonly && canRedo) {
-        redo();
-      }
-    },
-    copy: () => {
-      if (selectedField && !readonly) {
-        duplicateField(selectedField.id);
-      }
-    },
-    paste: () => {
-      console.log('Paste functionality coming soon');
-    },
-    delete: () => {
-      if (selectedField && !readonly) {
+    saveForm,
+    undo,
+    redo,
+    selectField,
+    removeField,
+    duplicateField
+  }, {
+    enabled: !readonly,
+    onSave: () => saveForm(),
+    onUndo: () => undo(),
+    onRedo: () => redo(),
+    onDelete: () => {
+      if (selectedField) {
         removeField(selectedField.id);
+      }
+    },
+    onDuplicate: () => {
+      if (selectedField) {
+        duplicateField(selectedField.id);
       }
     }
   });
