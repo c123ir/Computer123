@@ -15,7 +15,7 @@ import {
 } from '../types';
 
 import { DatabaseService } from './database/interface';
-import { FirebaseService } from './database/firebase.service';
+import { DatabaseFactory } from './database/factory';
 import { ValidationService } from './validationService';
 
 /**
@@ -23,7 +23,7 @@ import { ValidationService } from './validationService';
  * این کلاس layer بالاتری از DatabaseService است و business logic را مدیریت می‌کند
  */
 export class FormService {
-  private static db: DatabaseService = new FirebaseService();
+  private static db: DatabaseService = DatabaseFactory.createService({ type: 'postgresql' });
   private static cache = {
     get: () => Promise.resolve(null),
     set: () => Promise.resolve(),
