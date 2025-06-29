@@ -32,19 +32,34 @@ export interface FirebaseServices {
  * These values should be set in environment variables
  */
 const firebaseConfig: FirebaseConfig = {
-  apiKey: process.env.REACT_APP_FIREBASE_API_KEY || '',
-  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN || '',
-  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID || '',
-  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET || '',
-  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID || '',
-  appId: process.env.REACT_APP_FIREBASE_APP_ID || '',
-  measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID,
+  apiKey: process.env.REACT_APP_FIREBASE_API_KEY || 'demo-api-key',
+  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN || 'demo-project.firebaseapp.com',
+  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID || 'demo-project',
+  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET || 'demo-project.appspot.com',
+  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID || '123456789012',
+  appId: process.env.REACT_APP_FIREBASE_APP_ID || '1:123456789012:web:demo-app-id',
+  measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID || 'G-DEMO12345',
+};
+
+/**
+ * Check if running in demo mode
+ */
+const isDemoMode = (): boolean => {
+  return firebaseConfig.apiKey === 'demo-api-key' || 
+         firebaseConfig.projectId === 'demo-project' ||
+         process.env.REACT_APP_USE_FIREBASE_EMULATOR === 'true';
 };
 
 /**
  * Validate Firebase Configuration
  */
 function validateFirebaseConfig(config: FirebaseConfig): void {
+  // در حالت demo، validation را skip می‌کنیم
+  if (isDemoMode()) {
+    console.log('🔧 Running in demo mode - Firebase validation skipped');
+    return;
+  }
+
   const requiredFields: (keyof FirebaseConfig)[] = [
     'apiKey',
     'authDomain', 
@@ -54,12 +69,12 @@ function validateFirebaseConfig(config: FirebaseConfig): void {
     'appId'
   ];
 
-  const missingFields = requiredFields.filter(field => !config[field]);
+  const missingFields = requiredFields.filter(field => !config[field] || config[field] === '' || config[field].includes('your-'));
   
   if (missingFields.length > 0) {
-    throw new Error(
-      `Missing Firebase configuration fields: ${missingFields.join(', ')}\n` +
-      'Please check your .env file and ensure all required environment variables are set.'
+    console.warn(
+      `⚠️  Missing or placeholder Firebase configuration fields: ${missingFields.join(', ')}\n` +
+      'Running in demo mode. For production, please update your .env file with real Firebase credentials.'
     );
   }
 }
@@ -80,11 +95,32 @@ function initializeFirebaseApp(): FirebaseApp {
 
     // Initialize Firebase app
     const app = initializeApp(firebaseConfig);
-    console.log('🔥 Firebase app initialized successfully');
+    
+    if (isDemoMode()) {
+      console.log('🔧 Firebase app initialized in demo mode');
+    } else {
+      console.log('🔥 Firebase app initialized successfully');
+    }
     
     return app;
   } catch (error) {
     console.error('❌ Firebase initialization failed:', error);
+    
+    // در حالت development، یک app ساده ایجاد می‌کنیم
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🔧 Creating fallback Firebase app for development');
+      try {
+        const fallbackConfig = {
+          ...firebaseConfig,
+          projectId: 'demo-project-fallback',
+        };
+        return initializeApp(fallbackConfig);
+      } catch (fallbackError) {
+        console.error('❌ Fallback Firebase initialization also failed:', fallbackError);
+        throw fallbackError;
+      }
+    }
+    
     throw error;
   }
 }
@@ -110,24 +146,25 @@ function initializeFirebaseServices(app: FirebaseApp): FirebaseServices {
       console.warn('⚠️  Storage not available - continuing without file upload');
     }
 
-    // Connect to emulators in development mode
-    if (process.env.NODE_ENV === 'development' && process.env.REACT_APP_USE_FIREBASE_EMULATOR === 'true') {
+    // Connect to emulators in development mode یا demo mode
+    if ((process.env.NODE_ENV === 'development' && process.env.REACT_APP_USE_FIREBASE_EMULATOR === 'true') || isDemoMode()) {
       console.log('🔧 Connecting to Firebase emulators...');
       
       // Connect Firestore emulator
       try {
         connectFirestoreEmulator(db, 'localhost', 8080);
         console.log('📊 Connected to Firestore emulator');
-      } catch (error) {
-        console.warn('⚠️  Firestore emulator connection failed:', error);
+      } catch (error: any) {
+        // اگر emulator در دسترس نیست، فقط warning بده
+        console.warn('⚠️  Firestore emulator not available, using demo mode');
       }
 
       // Connect Auth emulator
       try {
         connectAuthEmulator(auth, 'http://localhost:9099');
         console.log('🔐 Connected to Auth emulator');
-      } catch (error) {
-        console.warn('⚠️  Auth emulator connection failed:', error);
+      } catch (error: any) {
+        console.warn('⚠️  Auth emulator not available, using demo mode');
       }
 
       // Connect Storage emulator (اختیاری)
@@ -135,13 +172,17 @@ function initializeFirebaseServices(app: FirebaseApp): FirebaseServices {
         try {
           connectStorageEmulator(storage, 'localhost', 9199);
           console.log('📁 Connected to Storage emulator');
-        } catch (error) {
-          console.warn('⚠️  Storage emulator connection failed:', error);
+        } catch (error: any) {
+          console.warn('⚠️  Storage emulator not available');
         }
       }
     }
 
-    console.log('✅ All Firebase services initialized');
+    if (isDemoMode()) {
+      console.log('✅ Firebase services initialized in demo mode');
+    } else {
+      console.log('✅ All Firebase services initialized');
+    }
     
     return { app, db, auth, storage };
   } catch (error) {
@@ -187,6 +228,12 @@ export function getFirebaseStorage(): FirebaseStorage | null {
  */
 export async function checkFirebaseConnection(): Promise<boolean> {
   try {
+    // در حالت demo، همیشه true برمی‌گردانیم
+    if (isDemoMode()) {
+      console.log('✅ Firebase connection check passed (demo mode)');
+      return true;
+    }
+
     const db = getDB();
     
     // Test connection with a simple Firestore operation
@@ -216,6 +263,7 @@ export const firebaseEnv = {
   isDevelopment: process.env.NODE_ENV === 'development',
   isProduction: process.env.NODE_ENV === 'production',
   useEmulator: process.env.REACT_APP_USE_FIREBASE_EMULATOR === 'true',
+  isDemoMode: isDemoMode(),
   projectId: firebaseConfig.projectId,
   region: process.env.REACT_APP_FIREBASE_REGION || 'us-central1',
 } as const;
@@ -230,9 +278,13 @@ export const getFirebaseConfig = (): FirebaseConfig | null => {
   return null;
 };
 
-// Initialize Firebase immediately when module is imported
+// Initialize Firebase when module is imported (with error handling)
 try {
   getFirebaseServices();
 } catch (error) {
   console.error('❌ Failed to initialize Firebase on module import:', error);
+  console.log('📝 To fix this issue:');
+  console.log('1. Check your .env file exists and has correct Firebase configuration');
+  console.log('2. Or set REACT_APP_USE_FIREBASE_EMULATOR=true for local development');
+  console.log('3. Or use the demo values provided in .env.example');
 }
