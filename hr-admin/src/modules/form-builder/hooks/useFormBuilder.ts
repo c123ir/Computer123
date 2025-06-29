@@ -1,6 +1,6 @@
 // src/modules/form-builder/hooks/useFormBuilder.ts
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { Form, FormField, FieldType, CreateFormDto } from '../types';
 import { FormService } from '../services/formService';
 import { ValidationService } from '../services/validationService';
@@ -135,7 +135,7 @@ export const useFormBuilder = (options: UseFormBuilderOptions = {}): UseFormBuil
   }, [form, autoSave, autoSaveInterval]);
 
   // Computed Properties
-  const fields = form?.fields || [];
+  const fields = useMemo(() => form?.fields || [], [form?.fields]);
   const selectedField = selectedFieldId ? fields.find(f => f.id === selectedFieldId) || null : null;
   const isFormValid = Object.keys(validationErrors).length === 0;
   const canUndo = historyIndex > 0;
