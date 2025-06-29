@@ -308,8 +308,8 @@ export const FormBuilder: React.FC<FormBuilderProps> = ({
             onAddField={handleFieldSelect}
             onDeleteField={removeField}
             onDuplicateField={duplicateField}
-            onMoveField={moveField}
-            onReorderFields={reorderFields}
+            onMoveField={handleMoveField}
+            onReorderFields={handleReorderFields}
             readonly={readonly}
           />
         </div>
