@@ -98,6 +98,19 @@ import {
      * @param metadata اطلاعات اضافی
      * @returns شناسه پاسخ
      */
+    createFormResponse(
+      formId: string,
+      response: Record<string, any>,
+      metadata?: Record<string, any>
+    ): Promise<string>;
+  
+    /**
+     * ثبت پاسخ جدید (alias)
+     * @param formId شناسه فرم
+     * @param response پاسخ‌ها
+     * @param metadata اطلاعات اضافی
+     * @returns شناسه پاسخ
+     */
     createResponse(
       formId: string,
       response: Record<string, any>,
@@ -106,6 +119,19 @@ import {
   
     /**
      * دریافت پاسخ‌های یک فرم
+     * @param formId شناسه فرم
+     * @param filters فیلترها
+     * @param pagination صفحه‌بندی
+     * @returns لیست پاسخ‌ها
+     */
+    getFormResponses(
+      formId: string,
+      filters?: QueryFilters,
+      pagination?: PaginationOptions
+    ): Promise<PaginatedResult<FormResponse>>;
+  
+    /**
+     * دریافت پاسخ‌های یک فرم (alias)
      * @param formId شناسه فرم
      * @param filters فیلترها
      * @param pagination صفحه‌بندی
@@ -208,6 +234,19 @@ import {
       popularForms: Form[];
       trendsData: any[];
     }>;
+  
+    /**
+     * دریافت فرم‌های کاربر
+     * @param userId شناسه کاربر
+     * @param filters فیلترها
+     * @param pagination صفحه‌بندی
+     * @returns لیست فرم‌ها
+     */
+    getForms(
+      userId?: string,
+      filters?: QueryFilters,
+      pagination?: PaginationOptions
+    ): Promise<PaginatedResult<Form>>;
   
     // =================================
     // Data Management
@@ -329,9 +368,9 @@ import {
     /**
      * دریافت از cache
      * @param key کلید
-     * @returns مقدار یا null
+     * @returns مقدار یا null - generic type به عنوان parameter نیست
      */
-    get<T>(key: string): Promise<T | null>;
+    get(key: string): Promise<any>;
   
     /**
      * ذخیره در cache
@@ -339,7 +378,7 @@ import {
      * @param value مقدار
      * @param ttl مدت زمان (ثانیه)
      */
-    set<T>(key: string, value: T, ttl?: number): Promise<void>;
+    set(key: string, value: any, ttl?: number): Promise<void>;
   
     /**
      * حذف از cache
