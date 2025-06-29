@@ -23,7 +23,7 @@ import { ValidationService } from './validationService';
  * این کلاس layer بالاتری از DatabaseService است و business logic را مدیریت می‌کند
  */
 export class FormService {
-  private static db: DatabaseService = DatabaseFactory.create();
+  private static db: DatabaseService = DatabaseFactory.createService({ type: 'firebase' });
   private static cache = {
     get: () => Promise.resolve(null),
     set: () => Promise.resolve(),
