@@ -1,152 +1,229 @@
-// src/modules/form-builder/hooks/useFormsAPI.ts
+// =====================================================
+// 🔧 فایل: src/modules/form-builder/hooks/useFormsAPI.ts
+// =====================================================
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Form, FormFilters, CreateFormDto } from '../types';
+import { useMemo } from 'react';
+import { 
+  Form, 
+  FormFilters, 
+  PaginatedResponse, 
+  CreateFormDto, 
+  UpdateFormDto,
+  FormResponse,
+  DatabaseStats,
+  HealthCheckResult
+} from '../types';
 
-// Mock database service for now
-const mockDatabaseService = {
-  async list(collectionName: string, filters?: FormFilters): Promise<Form[]> {
-    // Return empty array for now
-    console.log('Mock database list called:', collectionName, filters);
-    return [];
-  },
-  
-  async read(collectionName: string, id: string): Promise<Form | null> {
-    console.log('Mock database read called:', collectionName, id);
-    return null;
-  },
-  
-  async create(collectionName: string, data: CreateFormDto): Promise<string> {
-    console.log('Mock database create called:', collectionName, data);
-    return Date.now().toString();
-  },
-  
-  async update(collectionName: string, id: string, data: Partial<Form>): Promise<boolean> {
-    console.log('Mock database update called:', collectionName, id, data);
-    return true;
-  },
-  
-  async delete(collectionName: string, id: string): Promise<boolean> {
-    console.log('Mock database delete called:', collectionName, id);
-    return true;
+// API Base URL
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001/api';
+
+/**
+ * Forms API Service
+ */
+class FormsAPIService {
+  private baseURL: string;
+
+  constructor(baseURL: string) {
+    this.baseURL = baseURL;
   }
-};
 
-// Forms Query Keys
-export const formsKeys = {
-  all: ['forms'] as const,
-  lists: () => [...formsKeys.all, 'list'] as const,
-  list: (filters: FormFilters) => [...formsKeys.lists(), filters] as const,
-  details: () => [...formsKeys.all, 'detail'] as const,
-  detail: (id: string) => [...formsKeys.details(), id] as const,
-};
-
-// Get Forms List
-export const useFormsList = (filters: FormFilters = {}) => {
-  return useQuery({
-    queryKey: formsKeys.list(filters),
-    queryFn: async () => {
-      try {
-        // Try to fetch from API
-        const response = await fetch('http://localhost:3001/api/forms');
-        const result = await response.json();
-        return result.data || [];
-      } catch (error) {
-        console.warn('API not available, using mock data:', error);
-        return await mockDatabaseService.list('forms', filters);
-      }
-    },
-    staleTime: 5 * 60 * 1000, // 5 minutes
-  });
-};
-
-// Get Single Form
-export const useForm = (id: string) => {
-  return useQuery({
-    queryKey: formsKeys.detail(id),
-    queryFn: async () => {
-      return await mockDatabaseService.read('forms', id);
-    },
-    enabled: !!id,
-  });
-};
-
-// Create Form Mutation
-export const useCreateForm = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async (formData: CreateFormDto) => {
-      return await mockDatabaseService.create('forms', formData);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: formsKeys.lists() });
-    },
-  });
-};
-
-// Update Form Mutation
-export const useUpdateForm = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async ({ id, data }: { id: string; data: Partial<Form> }) => {
-      return await mockDatabaseService.update('forms', id, data);
-    },
-    onSuccess: (_, { id }) => {
-      queryClient.invalidateQueries({ queryKey: formsKeys.detail(id) });
-      queryClient.invalidateQueries({ queryKey: formsKeys.lists() });
-    },
-  });
-};
-
-// Delete Form Mutation
-export const useDeleteForm = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async (id: string) => {
-      return await mockDatabaseService.delete('forms', id);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: formsKeys.lists() });
-    },
-  });
-};
-
-// Clone Form Mutation
-export const useCloneForm = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async ({ id, createdBy }: { id: string; createdBy: string }) => {
-      // Mock clone logic
-      console.log('Clone form:', id, 'by:', createdBy);
-      return Date.now().toString();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: formsKeys.lists() });
-    },
-  });
-};
-
-// Update Form Status Mutation
-export const useUpdateFormStatus = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async ({ id, status, updatedBy }: { id: string; status: string; updatedBy: string }) => {
-      return await mockDatabaseService.update('forms', id, { 
-        status: status as any,
-        metadata: {
-          updatedBy,
-          updatedAt: new Date().toISOString()
-        } as any
+  /**
+   * دریافت لیست فرم‌ها
+   */
+  async getForms(filters?: FormFilters): Promise<PaginatedResponse<Form>> {
+    const params = new URLSearchParams();
+    
+    if (filters) {
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value !== undefined && value !== null && value !== '') {
+          params.append(key, String(value));
+        }
       });
-    },
-    onSuccess: (_, { id }) => {
-      queryClient.invalidateQueries({ queryKey: formsKeys.detail(id) });
-      queryClient.invalidateQueries({ queryKey: formsKeys.lists() });
-    },
-  });
+    }
+
+    const response = await fetch(`${this.baseURL}/forms?${params}`);
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    return response.json();
+  }
+
+  /**
+   * دریافت فرم با ID
+   */
+  async getForm(id: string): Promise<Form> {
+    const response = await fetch(`${this.baseURL}/forms/${id}`);
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    const result = await response.json();
+    return result.data;
+  }
+
+  /**
+   * ایجاد فرم جدید
+   */
+  async createForm(formData: CreateFormDto): Promise<Form> {
+    const response = await fetch(`${this.baseURL}/forms`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(formData),
+    });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    const result = await response.json();
+    return result.data;
+  }
+
+  /**
+   * بروزرسانی فرم
+   */
+  async updateForm(id: string, formData: UpdateFormDto): Promise<Form> {
+    const response = await fetch(`${this.baseURL}/forms/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(formData),
+    });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    const result = await response.json();
+    return result.data;
+  }
+
+  /**
+   * حذف فرم
+   */
+  async deleteForm(id: string): Promise<void> {
+    const response = await fetch(`${this.baseURL}/forms/${id}`, {
+      method: 'DELETE',
+    });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+  }
+
+  /**
+   * کپی فرم
+   */
+  async duplicateForm(id: string): Promise<Form> {
+    const response = await fetch(`${this.baseURL}/forms/${id}/duplicate`, {
+      method: 'POST',
+    });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    const result = await response.json();
+    return result.data;
+  }
+
+  /**
+   * تغییر وضعیت فرم
+   */
+  async updateFormStatus(id: string, status: Form['status']): Promise<Form> {
+    const response = await fetch(`${this.baseURL}/forms/${id}/status`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ status }),
+    });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    const result = await response.json();
+    return result.data;
+  }
+
+  /**
+   * دریافت پاسخ‌های فرم
+   */
+  async getFormResponses(formId: string, filters?: FormFilters): Promise<PaginatedResponse<FormResponse>> {
+    const params = new URLSearchParams();
+    
+    if (filters) {
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value !== undefined && value !== null && value !== '') {
+          params.append(key, String(value));
+        }
+      });
+    }
+
+    const response = await fetch(`${this.baseURL}/forms/${formId}/responses?${params}`);
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    return response.json();
+  }
+
+  /**
+   * آمار سیستم
+   */
+  async getStats(): Promise<DatabaseStats> {
+    const response = await fetch(`${this.baseURL}/stats`);
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    const result = await response.json();
+    return result.data;
+  }
+
+  /**
+   * بررسی سلامت سیستم
+   */
+  async healthCheck(): Promise<HealthCheckResult> {
+    const response = await fetch(`${this.baseURL}/health`);
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    return response.json();
+  }
+}
+
+/**
+ * Hook برای استفاده از Forms API
+ */
+export const useFormsAPI = () => {
+  const formsAPI = useMemo(() => new FormsAPIService(API_BASE_URL), []);
+
+  return {
+    formsAPI,
+    // Shortcuts
+    getForms: formsAPI.getForms.bind(formsAPI),
+    getForm: formsAPI.getForm.bind(formsAPI),
+    createForm: formsAPI.createForm.bind(formsAPI),
+    updateForm: formsAPI.updateForm.bind(formsAPI),
+    deleteForm: formsAPI.deleteForm.bind(formsAPI),
+    duplicateForm: formsAPI.duplicateForm.bind(formsAPI),
+    updateFormStatus: formsAPI.updateFormStatus.bind(formsAPI),
+    getFormResponses: formsAPI.getFormResponses.bind(formsAPI),
+    getStats: formsAPI.getStats.bind(formsAPI),
+    healthCheck: formsAPI.healthCheck.bind(formsAPI),
+  };
 };
+
+export default useFormsAPI;
