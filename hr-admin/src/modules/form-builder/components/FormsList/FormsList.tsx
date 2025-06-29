@@ -426,7 +426,7 @@ const FormsList: React.FC<FormsListProps> = ({
           onClose={() => setShowCreateModal(false)}
           onSuccess={() => {
             setShowCreateModal(false);
-            queryClient.invalidateQueries(['forms']);
+            queryClient.invalidateQueries({ queryKey: ['forms'] });
           }}
         />
       )}
