@@ -103,6 +103,8 @@ export interface FormResponse {
   formId: string;
   /** پاسخ‌ها */
   answers: Record<string, any>;
+  /** ارسال کننده */
+  submitter?: any;
   /** متادیتا */
   metadata: {
     submittedAt: string;
@@ -160,12 +162,21 @@ export interface PaginationOptions {
 export interface PaginatedResult<T> {
   /** داده‌ها */
   data: T[];
-  /** تعداد کل */
-  total: number;
-  /** شماره صفحه فعلی */
-  page: number;
-  /** تعداد کل صفحات */
-  totalPages: number;
+  /** اطلاعات صفحه‌بندی */
+  pagination: {
+    /** صفحه فعلی */
+    currentPage: number;
+    /** تعداد کل صفحات */
+    totalPages: number;
+    /** تعداد کل آیتم‌ها */
+    totalItems: number;
+    /** تعداد آیتم در هر صفحه */
+    itemsPerPage: number;
+    /** آیا صفحه بعد وجود دارد */
+    hasNextPage: boolean;
+    /** آیا صفحه قبل وجود دارد */
+    hasPreviousPage: boolean;
+  };
 }
 
 /**
@@ -231,6 +242,15 @@ export interface DatabaseStats {
   activeForms: number;
   /** اندازه پایگاه */
   databaseSize: number;
+  /** اطلاعات عملکرد */
+  performance: {
+    /** میانگین زمان query */
+    averageQueryTime: number;
+    /** تعداد query های امروز */
+    todayQueries: number;
+    /** تعداد خطاهای اخیر */
+    recentErrors: number;
+  };
 }
 
 /**
@@ -241,6 +261,8 @@ export interface HealthCheckResult {
   status: 'healthy' | 'unhealthy' | 'degraded';
   /** زمان */
   timestamp: string;
+  /** زمان پاسخ */
+  responseTime: number;
   /** بررسی‌ها */
   checks: Array<{
     name: string;
