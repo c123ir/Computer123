@@ -93,7 +93,7 @@ export class FormService {
       
       if (form && useCache) {
         // ذخیره در cache برای 1 ساعت
-        await this.cache.set(`form_${id}`, form);
+        await this.cache.set();
       }
 
       return form;
