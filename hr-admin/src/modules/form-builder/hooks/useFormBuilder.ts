@@ -97,23 +97,19 @@ export const useFormBuilder = (options: UseFormBuilderOptions = {}): UseFormBuil
   const autoSaveTimer = useRef<NodeJS.Timeout>();
 
   // Initialize form
-  useEffect(() => {
-    const initializeForm = async () => {
-      if (formId) {
-        await loadForm(formId);
-      } else if (initialForm) {
-        const newForm = createDefaultForm(initialForm);
-        setForm(newForm);
-        addToHistory(newForm);
-      } else {
-        const newForm = createDefaultForm();
-        setForm(newForm);
-        addToHistory(newForm);
-      }
-    };
+  const initializeForm = useCallback(async () => {
+    if (formId) {
+      await loadForm(formId);
+    } else {
+      const newForm = createDefaultForm(initialForm);
+      setForm(newForm);
+      addToHistory(newForm);
+    }
+  }, [formId, initialForm, loadForm, addToHistory]);
 
+  useEffect(() => {
     initializeForm();
-  }, [formId, initialForm]);
+  }, [initializeForm]);
 
   // Auto Save Effect
   useEffect(() => {
