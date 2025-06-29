@@ -113,7 +113,7 @@ import {
      */
     getResponses(
       formId: string,
-      filters?: QueryFilters,
+      filters?: FormFilters,
       pagination?: PaginationOptions
     ): Promise<PaginatedResult<FormResponse>>;
   
