@@ -998,7 +998,7 @@ export class FormService {
           break;
           
         case 'checkbox':
-          field.options?.forEach(option => {
+          field.options?.forEach((option: any) => {
             html += `<label><input type="checkbox" value="${option.value}" /> ${option.label}</label>`;
           });
           break;
