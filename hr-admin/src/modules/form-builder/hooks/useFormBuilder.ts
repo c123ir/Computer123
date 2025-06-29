@@ -185,7 +185,7 @@ export const useFormBuilder = (options: UseFormBuilderOptions = {}): UseFormBuil
     return `field_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   };
 
-  const addToHistory = (newForm: Form) => {
+  const addToHistory = useCallback((newForm: Form) => {
     if (isUpdatingFromHistory.current) return;
 
     setHistory(prev => {
@@ -195,7 +195,7 @@ export const useFormBuilder = (options: UseFormBuilderOptions = {}): UseFormBuil
     });
     
     setHistoryIndex(prev => Math.min(prev + 1, 49));
-  };
+  }, [historyIndex]);
 
   // Form Operations
   const updateForm = useCallback((updates: Partial<Form>) => {
