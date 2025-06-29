@@ -23,12 +23,12 @@ import { ValidationService } from './validationService';
  * این کلاس layer بالاتری از DatabaseService است و business logic را مدیریت می‌کند
  */
 export class FormService {
-  private static db = DatabaseFactory.createService({ type: 'postgresql' });
+  private static db: DatabaseService = DatabaseFactory.create();
   private static cache = {
-    get: async () => null,
-    set: async () => {},
-    delete: async () => {},
-    clear: async () => {}
+    get: () => Promise.resolve(null),
+    set: () => Promise.resolve(),
+    delete: () => Promise.resolve(),
+    clear: () => Promise.resolve()
   };
 
   // =================================
@@ -114,7 +114,7 @@ export class FormService {
       });
       
       // پاکسازی cache
-      await this.cache.delete(`form_${id}`);
+      await this.cache.delete();
       await this.clearFormsCache();
       
       console.log('✅ Form updated successfully:', id);
@@ -133,7 +133,7 @@ export class FormService {
       await this.db.deleteForm(id);
       
       // پاکسازی cache
-      await this.cache.delete(`form_${id}`);
+      await this.cache.delete();
       await this.clearFormsCache();
       
       console.log('✅ Form deleted successfully:', id);
@@ -155,7 +155,7 @@ export class FormService {
       const cacheKey = `forms_${JSON.stringify({ filters, pagination })}`;
       
       if (useCache) {
-        const cached = await this.cache.get(cacheKey);
+        const cached = await this.cache.get();
         if (cached) {
           console.log('📋 Forms list loaded from cache');
           return cached;
@@ -166,7 +166,7 @@ export class FormService {
       
       if (useCache) {
         // ذخیره در cache برای 10 دقیقه
-        await this.cache.set(cacheKey, result);
+        await this.cache.set();
       }
 
       return result;
@@ -294,7 +294,7 @@ export class FormService {
       const cacheKey = `responses_${formId}_${JSON.stringify({ filters, pagination })}`;
       
       if (useCache) {
-        const cached = await this.cache.get(cacheKey);
+        const cached = await this.cache.get();
         if (cached) {
           console.log('📋 Responses loaded from cache');
           return cached;
@@ -305,7 +305,7 @@ export class FormService {
       
       if (useCache) {
         // ذخیره در cache برای 5 دقیقه
-        await this.cache.set(cacheKey, result);
+        await this.cache.set();
       }
 
       return result;
@@ -344,7 +344,7 @@ export class FormService {
     try {
       const cacheKey = `templates_${category || 'all'}`;
       
-      const cached = await this.cache.get(cacheKey);
+      const cached = await this.cache.get();
       if (cached) {
         return cached;
       }
@@ -352,7 +352,7 @@ export class FormService {
       const templates = await this.db.getTemplates(category);
       
       // ذخیره در cache برای 1 ساعت
-      await this.cache.set(cacheKey, templates);
+      await this.cache.set();
       
       return templates;
     } catch (error) {
@@ -484,7 +484,7 @@ export class FormService {
     try {
       const cacheKey = `stats_${formId}`;
       
-      const cached = await this.cache.get(cacheKey);
+      const cached = await this.cache.get();
       if (cached) {
         return cached;
       }
@@ -492,7 +492,7 @@ export class FormService {
       const stats = await this.db.getFormStats(formId);
       
       // ذخیره در cache برای 15 دقیقه
-      await this.cache.set(cacheKey, stats);
+      await this.cache.set();
       
       return stats;
     } catch (error) {
