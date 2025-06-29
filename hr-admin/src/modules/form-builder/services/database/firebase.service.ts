@@ -228,56 +228,7 @@ import {
       }
     }
   
-    async searchForms(
-      searchQuery: string,
-      filters?: QueryFilters,
-      pagination?: PaginationOptions
-    ): Promise<PaginatedResult<Form>> {
-      try {
-        // Firebase full-text search محدود است
-        // در عمل باید از Algolia یا ElasticSearch استفاده کنیم
-        // اینجا ساده‌سازی شده با array-contains
-        
-        const constraints: QueryConstraint[] = [];
-        
-        // فرض می‌کنیم searchable fields داریم
-        // این روش بهینه نیست ولی برای شروع کافی است
-        
-        const q = query(collection(this.db, this.COLLECTIONS.FORMS), ...constraints);
-        const querySnapshot = await getDocs(q);
-        
-        // فیلتر کردن نتایج در client side (موقت)
-        const allForms: Form[] = querySnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        } as Form));
-        
-        const filteredForms = allForms.filter(form => 
-          form.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          form.description?.toLowerCase().includes(searchQuery.toLowerCase())
-        );
-  
-        const pageSize = pagination?.limit || 10;
-        const currentPage = pagination?.page || 1;
-        const startIndex = (currentPage - 1) * pageSize;
-        const endIndex = startIndex + pageSize;
-        
-        return {
-          data: filteredForms.slice(startIndex, endIndex),
-          pagination: {
-            currentPage,
-            totalPages: Math.ceil(filteredForms.length / pageSize),
-            totalItems: filteredForms.length,
-            itemsPerPage: pageSize,
-            hasNextPage: endIndex < filteredForms.length,
-            hasPreviousPage: currentPage > 1
-          }
-        };
-      } catch (error) {
-        console.error('❌ Error searching forms:', error);
-        throw new Error(`Failed to search forms: ${error}`);
-      }
-    }
+    
   
     async duplicateForm(id: string, newName: string): Promise<string> {
       try {
