@@ -2,9 +2,8 @@
 
 import React, { useState } from 'react';
 import {
-  Settings, Type, Palette, Eye, EyeOff, Plus, Minus, 
-  AlignLeft, AlignCenter, AlignRight, ToggleLeft, ToggleRight,
-  Hash, FileText, HelpCircle, Asterisk, Link2
+  Settings, Type, Palette, Plus, Minus, 
+  Asterisk, HelpCircle
 } from 'lucide-react';
 import { FormField, ValidationRules, FieldStyling, FieldOption } from '../../types';
 
