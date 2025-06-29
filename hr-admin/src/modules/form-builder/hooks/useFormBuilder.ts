@@ -286,6 +286,7 @@ export const useFormBuilder = (options: UseFormBuilderOptions = {}) => {
     try {
       await onSave(state.form);
       lastSavedFormRef.current = state.form;
+      setLastSaved(new Date());
       setState(prev => ({ 
         ...prev, 
         hasUnsavedChanges: false, 
