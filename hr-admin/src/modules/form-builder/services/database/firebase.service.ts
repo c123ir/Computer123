@@ -61,6 +61,7 @@ import {
         const now = new Date().toISOString();
         const form: Omit<Form, 'id'> = {
           ...formData,
+          status: formData.status || 'draft',
           createdAt: now,
           updatedAt: now,
           metadata: {
