@@ -407,6 +407,13 @@ export const useFormBuilder = (options: UseFormBuilderOptions = {}) => {
     });
   }, [updateForm]);
 
+  const reorderFields = useCallback((reorderedFields: FormField[]) => {
+    updateForm(prev => ({
+      ...prev,
+      fields: reorderedFields
+    }));
+  }, [updateForm]);
+
   const selectField = useCallback((fieldId: string | null) => {
     const selectedField = fieldId 
       ? state.form.fields.find(f => f.id === fieldId) || null
