@@ -571,13 +571,16 @@ export const useFormBuilder = (options: UseFormBuilderOptions = {}) => {
   useEffect(() => {
     if (!autoSave || !state.hasUnsavedChanges || !onSave) return;
 
-    autoSaveTimerRef.current = setTimeout(() => {
-      saveForm();
+    setIsAutoSaving(true);
+    autoSaveTimerRef.current = setTimeout(async () => {
+      await saveForm();
+      setIsAutoSaving(false);
     }, autoSaveInterval);
 
     return () => {
       if (autoSaveTimerRef.current) {
         clearTimeout(autoSaveTimerRef.current);
+        setIsAutoSaving(false);
       }
     };
   }, [autoSave, state.hasUnsavedChanges, autoSaveInterval, saveForm, onSave]);
