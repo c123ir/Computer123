@@ -128,7 +128,7 @@ export const useFormBuilder = (options: UseFormBuilderOptions = {}): UseFormBuil
         clearTimeout(autoSaveTimer.current);
       }
     };
-  }, [form, autoSave, autoSaveInterval]);
+  }, [form, autoSave, autoSaveInterval, performAutoSave]);
 
   // Computed Properties
   const fields = useMemo(() => form?.fields || [], [form?.fields]);
