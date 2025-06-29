@@ -215,6 +215,11 @@ const FormsList: React.FC<FormsListProps> = ({
     const aValue = a[sortBy as keyof Form];
     const bValue = b[sortBy as keyof Form];
     
+    // Handle undefined values
+    if (aValue === undefined && bValue === undefined) return 0;
+    if (aValue === undefined) return 1;
+    if (bValue === undefined) return -1;
+    
     if (sortOrder === 'asc') {
       return aValue > bValue ? 1 : -1;
     } else {
