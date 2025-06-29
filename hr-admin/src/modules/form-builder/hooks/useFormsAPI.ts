@@ -15,8 +15,7 @@ import {
   HealthCheckResult
 } from '../types';
 
-// API Base URL
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001/api';
+// Note: API_BASE_URL is defined in FormsAPIService class below if needed
 
 export interface FormsAPI {
   getForms: (filters?: FormFilters) => Promise<PaginatedResponse<Form>>;
@@ -32,8 +31,9 @@ export interface FormsAPI {
 }
 
 /**
- * Forms API Service
+ * Forms API Service (Currently unused - kept for future HTTP API implementation)
  */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 class FormsAPIService {
   private baseURL: string;
 
