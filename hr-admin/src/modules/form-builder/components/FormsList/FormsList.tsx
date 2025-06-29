@@ -14,7 +14,7 @@ import {
   useUpdateFormStatus, 
   useCloneForm 
 } from '../../hooks/useFormsAPI';
-import { FormFilters } from '../../types';
+import { FormFilters, Form } from '../../types';
 
 // Type definitions
 interface Form {
@@ -179,7 +179,7 @@ const FormsList: React.FC = () => {
   const sortedForms = filteredForms;
 
   // دسته‌های موجود
-  const categories = Array.from(new Set(forms.map(form => form.category).filter(Boolean)));
+  const categories = Array.from(new Set(forms.map((form: Form) => form.category).filter(Boolean))) as string[];
 
   // Loading and Error states
   if (isLoading) {
@@ -285,7 +285,7 @@ const FormsList: React.FC = () => {
             `}
           >
             <option value="all">همه دسته‌ها</option>
-            {categories.map(category => (
+            {categories.map((category: string) => (
               <option key={category} value={category}>{category}</option>
             ))}
           </select>
@@ -384,7 +384,7 @@ const FormsList: React.FC = () => {
       {/* Forms Grid/List */}
       {viewMode === 'grid' ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {sortedForms.map(form => (
+          {sortedForms.map((form: Form) => (
             <FormCard
               key={form.id}
               form={form}
@@ -401,7 +401,7 @@ const FormsList: React.FC = () => {
       ) : (
         // List View
         <div className="space-y-3">
-          {sortedForms.map(form => (
+          {sortedForms.map((form: Form) => (
             <FormCard
               key={form.id}
               form={form}
