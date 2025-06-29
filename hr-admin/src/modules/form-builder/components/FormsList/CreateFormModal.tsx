@@ -655,3 +655,6 @@ const CreateFormModal: React.FC<CreateFormModalProps> = ({
 };
 
 export default CreateFormModal;
+
+// Export types
+export type { CreateFormModalProps, CreateFormData, FormTemplate };
