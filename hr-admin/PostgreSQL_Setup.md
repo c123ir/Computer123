@@ -78,7 +78,10 @@ Backend باید پاسخ‌ها را در این format ارسال کند:
 1. `src/modules/form-builder/services/database/factory.ts` - PostgreSQL service فعال شد
 2. `src/modules/form-builder/services/formService.ts` - استفاده از PostgreSQL factory
 3. `src/config/firebase.ts` - Firebase غیرفعال شد
-4. `.env` - تنظیمات PostgreSQL API
+4. `src/modules/form-builder/services/database/firebase.service.ts` - Firebase service ساده‌سازی شد
+5. `src/components/common/FirebaseConnectionTest.tsx` - تبدیل به PostgreSQL connection test
+6. `src/App.tsx` - بروزرسانی imports و components
+7. `.env` - تنظیمات PostgreSQL API
 
 ## وضعیت فعلی
 
