@@ -121,6 +121,9 @@ export interface HealthCheckResult {
   }>;
 }
 
+// Import Form type
+import { Form } from './form.types';
+
 /**
  * DTO برای ایجاد فرم
  */
