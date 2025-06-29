@@ -259,6 +259,7 @@ export interface CreateFormDto {
   status?: 'draft' | 'published' | 'archived' | 'paused';
   category?: string;
   tags?: string[];
+  metadata?: any;
 }
 
 /**
