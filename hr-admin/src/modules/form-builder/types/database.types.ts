@@ -298,13 +298,4 @@ export interface ValidationResult {
   }>;
 }
 
-// =====================================================
-// 🔧 Re-export types from other files
-// =====================================================
-
-export type { Form } from './form.types';
-export type { FormField, FieldType } from './field.types';
-export type { FormResponse } from './response.types';
-export type { FormTemplate } from './template.types';
-export type { FieldOption, ValidationRules } from './field.types';
-export type { FormSettings, FormStyling, FormMetadata } from './form.types';
+// Note: Form type will be imported where needed to avoid circular dependencies
