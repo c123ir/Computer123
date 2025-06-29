@@ -130,6 +130,10 @@ export const useFormBuilder = (options: UseFormBuilderOptions = {}) => {
     historyIndex: 0
   }));
 
+  // Additional States
+  const [isAutoSaving, setIsAutoSaving] = useState(false);
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
+
   // Refs
   const autoSaveTimerRef = useRef<NodeJS.Timeout>();
   const lastSavedFormRef = useRef<Form>(state.form);
