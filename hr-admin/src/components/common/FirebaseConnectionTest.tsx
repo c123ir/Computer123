@@ -1,12 +1,6 @@
-// src/components/common/FirebaseConnectionTest.tsx
+// src/components/common/PostgreSQLConnectionTest.tsx
 import React, { useEffect, useState } from 'react';
-import { 
-  getFirebaseServices, 
-  checkFirebaseConnection, 
-  firebaseEnv,
-  getFirebaseConfig 
-} from '../../config/firebase';
-import { CheckCircle, XCircle, Clock, AlertTriangle } from 'lucide-react';
+import { CheckCircle, XCircle, Clock, AlertTriangle, Database } from 'lucide-react';
 
 interface ConnectionStatus {
   status: 'checking' | 'connected' | 'failed' | 'warning';
@@ -15,75 +9,94 @@ interface ConnectionStatus {
 }
 
 /**
- * Firebase Connection Test Component
+ * PostgreSQL Backend Connection Test Component
  * Only visible in development mode
  */
-export const FirebaseConnectionTest: React.FC = () => {
+export const PostgreSQLConnectionTest: React.FC = () => {
   const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>({
     status: 'checking',
-    message: 'بررسی اتصال Firebase...'
+    message: 'بررسی اتصال PostgreSQL Backend...'
   });
   
-  const [configInfo, setConfigInfo] = useState<any>(null);
+  const [backendInfo, setBackendInfo] = useState<any>(null);
 
   useEffect(() => {
     testConnection();
-    if (firebaseEnv.isDevelopment) {
-      setConfigInfo(getFirebaseConfig());
-    }
+    setBackendInfo({
+      apiUrl: process.env.REACT_APP_API_URL || 'http://localhost:3001/api',
+      host: process.env.REACT_APP_BACKEND_HOST || 'localhost',
+      port: process.env.REACT_APP_BACKEND_PORT || '3001',
+      databaseType: process.env.REACT_APP_DATABASE_TYPE || 'postgresql'
+    });
   }, []);
 
   const testConnection = async () => {
     try {
       setConnectionStatus({
         status: 'checking',
-        message: 'در حال تست اتصال...'
+        message: 'در حال تست اتصال به Backend...'
       });
 
-      // Test Firebase services initialization
-      const services = getFirebaseServices();
+      const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:3001/api';
       
-      if (!services) {
-        throw new Error('Firebase services not initialized');
-      }
+      // Test health endpoint with timeout
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000);
 
-      // Test actual connection with timeout
-      const connectionPromise = checkFirebaseConnection();
-      const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error('Connection timeout')), 10000);
-      });
+      try {
+        const response = await fetch(`${apiUrl}/health`, {
+          signal: controller.signal,
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
 
-      const isConnected = await Promise.race([connectionPromise, timeoutPromise]) as boolean;
-      
-      if (isConnected) {
-        setConnectionStatus({
-          status: 'connected',
-          message: 'اتصال Firebase موفقیت‌آمیز است',
-          details: `Project: ${firebaseEnv.projectId}`
-        });
-      } else {
-        setConnectionStatus({
-          status: 'warning',
-          message: 'Firebase مقداردهی شده ولی اتصال تست نشد',
-          details: 'ممکن است مشکلی در تنظیمات یا شبکه وجود داشته باشد'
-        });
+        clearTimeout(timeoutId);
+
+        if (response.ok) {
+          const healthData = await response.json();
+          setConnectionStatus({
+            status: 'connected',
+            message: 'اتصال PostgreSQL Backend موفقیت‌آمیز است',
+            details: `Status: ${healthData.status || 'healthy'} - API: ${apiUrl}`
+          });
+        } else {
+          setConnectionStatus({
+            status: 'warning',
+            message: `Backend در دسترس است ولی خطا دارد (${response.status})`,
+            details: `HTTP ${response.status}: ${response.statusText}`
+          });
+        }
+      } catch (fetchError: any) {
+        clearTimeout(timeoutId);
+        
+        if (fetchError.name === 'AbortError') {
+          setConnectionStatus({
+            status: 'failed',
+            message: 'خطا: زمان اتصال به Backend تمام شد',
+            details: 'Backend در دسترس نیست یا پاسخ نمی‌دهد'
+          });
+        } else {
+          throw fetchError;
+        }
       }
     } catch (error: any) {
-      console.error('Firebase connection test error:', error);
+      console.error('PostgreSQL backend connection test error:', error);
       
       // More specific error messages
-      let errorMessage = 'خطا در اتصال Firebase';
+      let errorMessage = 'خطا در اتصال PostgreSQL Backend';
       let errorDetails = error.message;
       
-      if (error.message.includes('timeout')) {
-        errorMessage = 'خطا: زمان اتصال به Firebase تمام شد';
-        errorDetails = 'لطفاً اتصال اینترنت خود را بررسی کنید';
-      } else if (error.message.includes('permission')) {
-        errorMessage = 'خطا: دسترسی Firebase';
-        errorDetails = 'Rules یا Authentication تنظیم نشده است';
+      if (error.message.includes('Failed to fetch') || error.message.includes('ECONNREFUSED')) {
+        errorMessage = 'خطا: Backend در دسترس نیست';
+        errorDetails = 'لطفاً مطمئن شوید که PostgreSQL backend روی پورت 3001 در حال اجرا است';
+      } else if (error.message.includes('timeout')) {
+        errorMessage = 'خطا: زمان اتصال به Backend تمام شد';
+        errorDetails = 'Backend ممکن است کند باشد یا مشکل شبکه وجود داشته باشد';
       } else if (error.message.includes('network')) {
         errorMessage = 'خطا: مشکل شبکه';
-        errorDetails = 'لطفاً VPN یا اتصال اینترنت را بررسی کنید';
+        errorDetails = 'لطفاً اتصال اینترنت یا تنظیمات شبکه را بررسی کنید';
       }
       
       setConnectionStatus({
@@ -105,7 +118,7 @@ export const FirebaseConnectionTest: React.FC = () => {
       case 'failed':
         return <XCircle className="w-5 h-5 text-red-500" />;
       default:
-        return <Clock className="w-5 h-5 text-gray-500" />;
+        return <Database className="w-5 h-5 text-gray-500" />;
     }
   };
 
@@ -125,7 +138,7 @@ export const FirebaseConnectionTest: React.FC = () => {
   };
 
   // Only render in development mode
-  if (!firebaseEnv.isDevelopment) {
+  if (process.env.NODE_ENV !== 'development') {
     return null;
   }
 
@@ -136,7 +149,7 @@ export const FirebaseConnectionTest: React.FC = () => {
           {getStatusIcon()}
           <div className="flex-1 min-w-0">
             <h4 className="text-sm font-medium text-gray-900">
-              وضعیت Firebase
+              وضعیت PostgreSQL Backend
             </h4>
             <p className="text-sm text-gray-600 mt-1">
               {connectionStatus.message}
@@ -153,26 +166,24 @@ export const FirebaseConnectionTest: React.FC = () => {
         <div className="mt-3 pt-3 border-t border-gray-200">
           <div className="flex justify-between text-xs text-gray-500">
             <span>Environment:</span>
-            <span className="font-mono">{firebaseEnv.isDevelopment ? 'DEV' : 'PROD'}</span>
+            <span className="font-mono">{process.env.NODE_ENV === 'development' ? 'DEV' : 'PROD'}</span>
           </div>
-          {firebaseEnv.useEmulator && (
-            <div className="flex justify-between text-xs text-gray-500">
-              <span>Emulator:</span>
-              <span className="font-mono text-orange-600">ON</span>
-            </div>
-          )}
+          <div className="flex justify-between text-xs text-gray-500">
+            <span>Database:</span>
+            <span className="font-mono text-blue-600">PostgreSQL</span>
+          </div>
         </div>
 
         {/* Configuration Info (Development Only) */}
-        {configInfo && (
+        {backendInfo && (
           <details className="mt-3 pt-3 border-t border-gray-200">
             <summary className="text-xs text-gray-500 cursor-pointer hover:text-gray-700">
               مشاهده تنظیمات
             </summary>
             <div className="mt-2 p-2 bg-gray-100 rounded text-xs font-mono text-left">
-              <div>Project: {configInfo.projectId}</div>
-              <div>Auth: {configInfo.authDomain}</div>
-              <div>Storage: {configInfo.storageBucket}</div>
+              <div>API URL: {backendInfo.apiUrl}</div>
+              <div>Host: {backendInfo.host}:{backendInfo.port}</div>
+              <div>Database: {backendInfo.databaseType}</div>
             </div>
           </details>
         )}
@@ -192,19 +203,21 @@ export const FirebaseConnectionTest: React.FC = () => {
 };
 
 /**
- * Firebase Status Hook
+ * PostgreSQL Backend Status Hook
  * For use in other components
  */
-export const useFirebaseStatus = () => {
+export const usePostgreSQLStatus = () => {
   const [isConnected, setIsConnected] = useState<boolean | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const testConnection = async () => {
       try {
-        const connected = await checkFirebaseConnection();
+        const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:3001/api';
+        const response = await fetch(`${apiUrl}/health`);
+        const connected = response.ok;
         setIsConnected(connected);
-        setError(null);
+        setError(connected ? null : `HTTP ${response.status}: ${response.statusText}`);
       } catch (err: any) {
         setIsConnected(false);
         setError(err.message);
@@ -219,8 +232,11 @@ export const useFirebaseStatus = () => {
     setError(null);
     
     try {
-      const connected = await checkFirebaseConnection();
+      const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:3001/api';
+      const response = await fetch(`${apiUrl}/health`);
+      const connected = response.ok;
       setIsConnected(connected);
+      setError(connected ? null : `HTTP ${response.status}: ${response.statusText}`);
     } catch (err: any) {
       setIsConnected(false);
       setError(err.message);
@@ -230,4 +246,8 @@ export const useFirebaseStatus = () => {
   return { isConnected, error, retry };
 };
 
-export default FirebaseConnectionTest;
+// Backward compatibility exports
+export const FirebaseConnectionTest = PostgreSQLConnectionTest;
+export const useFirebaseStatus = usePostgreSQLStatus;
+
+export default PostgreSQLConnectionTest;
