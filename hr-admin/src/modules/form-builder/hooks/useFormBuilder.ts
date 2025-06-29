@@ -317,7 +317,7 @@ export const useFormBuilder = (options: UseFormBuilderOptions = {}) => {
   // Field Management Actions
   // =====================================================
 
-  const addField = useCallback((type: FieldType, index?: number) => {
+  const addField = useCallback((type: FieldType, index?: number): string => {
     const newField: FormField = {
       id: generateFieldId(),
       type,
@@ -352,6 +352,8 @@ export const useFormBuilder = (options: UseFormBuilderOptions = {}) => {
 
     // انتخاب فیلد جدید
     setState(prev => ({ ...prev, selectedField: newField }));
+    
+    return newField.id;
   }, [updateForm]);
 
   const removeField = useCallback((fieldId: string) => {
