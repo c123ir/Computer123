@@ -638,7 +638,14 @@ export const useFormBuilder = (options: UseFormBuilderOptions = {}) => {
 
   return {
     ...state,
-    ...actions
+    ...actions,
+    // Additional properties needed by FormBuilder component
+    fields: state.form.fields,
+    isSaving: state.isLoading,
+    isAutoSaving,
+    lastSaved,
+    isFormValid: Object.keys(state.errors).length === 0,
+    validationErrors: state.errors
   };
 };
 
