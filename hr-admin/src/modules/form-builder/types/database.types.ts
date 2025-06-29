@@ -92,6 +92,57 @@ export interface FormFilters {
 }
 
 /**
+ * پاسخ فرم
+ */
+export interface FormResponse {
+  /** شناسه */
+  id: string;
+  /** شناسه فرم */
+  formId: string;
+  /** پاسخ‌ها */
+  answers: Record<string, any>;
+  /** متادیتا */
+  metadata: {
+    submittedAt: string;
+    duration?: number;
+    status: 'completed' | 'draft';
+    formVersion?: number;
+  };
+  /** تاریخ ایجاد */
+  createdAt: string;
+  /** تاریخ بروزرسانی */
+  updatedAt: string;
+}
+
+/**
+ * قالب فرم
+ */
+export interface FormTemplate {
+  /** شناسه */
+  id: string;
+  /** نام */
+  name: string;
+  /** توضیحات */
+  description?: string;
+  /** دسته‌بندی */
+  category: string;
+  /** تگ‌ها */
+  tags: string[];
+  /** تصویر پیش‌نمایش */
+  thumbnail?: string;
+  /** محتوای فرم */
+  content: any;
+  /** متادیتا */
+  metadata: {
+    createdBy: string;
+    createdAt: string;
+    updatedAt: string;
+    version: number;
+    popularity: number;
+  };
+}
+
+/**
  * گزینه‌های صفحه‌بندی
  */
 export interface PaginationOptions {
