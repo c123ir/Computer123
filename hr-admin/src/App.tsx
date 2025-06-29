@@ -37,8 +37,8 @@ function App() {
             </Routes>
           </Layout>
           
-          {/* Firebase Connection Test - فقط در development */}
-          <PostgreSQLConnectionTest />
+                      {/* PostgreSQL Backend Connection Test - فقط در development */}
+            <PostgreSQLConnectionTest />
         </div>
       </Router>
     </ThemeProvider>
