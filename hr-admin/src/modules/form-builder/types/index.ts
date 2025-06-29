@@ -2,9 +2,6 @@
 // 🔧 فایل: src/modules/form-builder/types/index.ts
 // =====================================================
 
-// Base types
-export * from './base.types';
-
 // Form related types
 export * from './form.types';
 
