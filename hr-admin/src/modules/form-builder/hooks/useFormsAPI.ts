@@ -2,7 +2,8 @@
 // 🔧 فایل: src/modules/form-builder/hooks/useFormsAPI.ts
 // =====================================================
 
-import { useMemo } from 'react';
+import { useCallback } from 'react';
+import { FormService } from '../services/formService';
 import { 
   Form, 
   FormFilters, 
@@ -16,6 +17,19 @@ import {
 
 // API Base URL
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001/api';
+
+export interface FormsAPI {
+  getForms: (filters?: FormFilters) => Promise<PaginatedResponse<Form>>;
+  getForm: (id: string) => Promise<Form>;
+  createForm: (data: CreateFormDto) => Promise<Form>;
+  updateForm: (id: string, data: UpdateFormDto) => Promise<Form>;
+  deleteForm: (id: string) => Promise<void>;
+  duplicateForm: (id: string) => Promise<Form>;
+  updateFormStatus: (id: string, status: Form['status']) => Promise<Form>;
+  getFormResponses: (formId: string, filters?: FormFilters) => Promise<PaginatedResponse<FormResponse>>;
+  getStats: () => Promise<DatabaseStats>;
+  healthCheck: () => Promise<HealthCheckResult>;
+}
 
 /**
  * Forms API Service
@@ -205,25 +219,64 @@ class FormsAPIService {
 }
 
 /**
- * Hook برای استفاده از Forms API
+ * Hook برای دسترسی به API فرم‌ها
  */
 export const useFormsAPI = () => {
-  const formsAPI = useMemo(() => new FormsAPIService(API_BASE_URL), []);
+  const formService = FormService.getInstance();
 
-  return {
-    formsAPI,
-    // Shortcuts
-    getForms: formsAPI.getForms.bind(formsAPI),
-    getForm: formsAPI.getForm.bind(formsAPI),
-    createForm: formsAPI.createForm.bind(formsAPI),
-    updateForm: formsAPI.updateForm.bind(formsAPI),
-    deleteForm: formsAPI.deleteForm.bind(formsAPI),
-    duplicateForm: formsAPI.duplicateForm.bind(formsAPI),
-    updateFormStatus: formsAPI.updateFormStatus.bind(formsAPI),
-    getFormResponses: formsAPI.getFormResponses.bind(formsAPI),
-    getStats: formsAPI.getStats.bind(formsAPI),
-    healthCheck: formsAPI.healthCheck.bind(formsAPI),
+  const formsAPI: FormsAPI = {
+    getForms: useCallback(async (filters?: FormFilters): Promise<PaginatedResponse<Form>> => {
+      const result = await formService.searchForms(filters || {});
+      return {
+        data: result.data,
+        pagination: {
+          currentPage: filters?.page || 1,
+          totalPages: Math.ceil(result.total / (filters?.limit || 10)),
+          totalItems: result.total,
+          pageSize: filters?.limit || 10
+        },
+        total: result.total
+      };
+    }, [formService]),
+
+    getForm: useCallback(async (id: string): Promise<Form> => {
+      return await formService.getForm(id);
+    }, [formService]),
+
+    createForm: useCallback(async (data: CreateFormDto): Promise<Form> => {
+      return await formService.createForm(data);
+    }, [formService]),
+
+    updateForm: useCallback(async (id: string, data: UpdateFormDto): Promise<Form> => {
+      return await formService.updateForm(id, data);
+    }, [formService]),
+
+    deleteForm: useCallback(async (id: string): Promise<void> => {
+      await formService.deleteForm(id);
+    }, [formService]),
+
+    duplicateForm: useCallback(async (id: string): Promise<Form> => {
+      return await formService.duplicateForm(id);
+    }, [formService]),
+
+    updateFormStatus: useCallback(async (id: string, status: Form['status']): Promise<Form> => {
+      return await formService.updateForm(id, { status });
+    }, [formService]),
+
+    getFormResponses: useCallback(async (formId: string, filters?: FormFilters): Promise<PaginatedResponse<FormResponse>> => {
+      return await formService.getFormResponses(formId, filters);
+    }, [formService]),
+
+    getStats: useCallback(async (): Promise<DatabaseStats> => {
+      return await formService.getStats();
+    }, [formService]),
+
+    healthCheck: useCallback(async (): Promise<HealthCheckResult> => {
+      return await formService.healthCheck();
+    }, [formService])
   };
+
+  return { formsAPI };
 };
 
 export default useFormsAPI;
