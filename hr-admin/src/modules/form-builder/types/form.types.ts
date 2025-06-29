@@ -2,6 +2,8 @@
 // 🔧 فایل: src/modules/form-builder/types/form.types.ts
 // =====================================================
 
+import type { FormField } from './field.types';
+
 /**
  * تنظیمات فرم
  */
@@ -95,7 +97,7 @@ export interface Form {
   /** توضیح */
   description?: string;
   /** فیلدهای فرم */
-  fields: FormField[];
+  fields: any[];
   /** تنظیمات */
   settings: FormSettings;
   /** ظاهر */
