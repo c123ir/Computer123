@@ -17,6 +17,11 @@ export {
   type UseFormBuilderShortcutsOptions
 } from './useFormBuilderShortcuts';
 
+export {
+  useFormsAPI,
+  type FormsAPI
+} from './useFormsAPI';
+
 // Hook Types
 export type UseFormBuilderReturn = ReturnType<typeof import('./useFormBuilder').useFormBuilder>;
 
