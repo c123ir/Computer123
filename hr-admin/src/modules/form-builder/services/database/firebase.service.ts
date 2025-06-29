@@ -26,7 +26,7 @@ import {
     FormTemplate,
     CreateFormDto,
     UpdateFormDto,
-    FormFilters,
+    FormFilters as QueryFilters,
     PaginationOptions,
     PaginatedResult,
     SortOptions,
