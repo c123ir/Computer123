@@ -17,7 +17,7 @@ export * from './hooks';
 // Services
 export { FormService } from './services/formService';
 export { ValidationService } from './services/validationService';
-export { DatabaseServiceFactory } from './services/database/factory';
+export { DatabaseFactory } from './services/database/factory';
 
 // Service Types
 export type { DatabaseService, RealtimeService, CacheService, StorageService } from './services/database/interface';
