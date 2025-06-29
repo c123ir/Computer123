@@ -230,14 +230,14 @@ export const useFormsAPI = () => {
         { page: filters?.page || 1, limit: filters?.limit || 10 }
       );
       return {
+        success: true,
         data: result.data,
         pagination: {
           page: filters?.page || 1,
           limit: filters?.limit || 10,
           total: result.total,
           totalPages: Math.ceil(result.total / (filters?.limit || 10))
-        },
-        total: result.total
+        }
       };
     }, []),
 
