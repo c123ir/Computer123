@@ -1,13 +1,20 @@
 // src/modules/form-builder/components/FormsList/FormsList.tsx
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useTheme } from '../../../../contexts/ThemeContext';
 import { 
   Plus, Search, Filter, Grid, List, Calendar, Users, BarChart3,
-  Star, Archive, Clock, CheckCircle
+  Star, Archive, Clock, CheckCircle, Loader2
 } from 'lucide-react';
 import FormCard from './FormCard';
 import CreateFormModal from './CreateFormModal';
+import { 
+  useFormsList, 
+  useDeleteForm, 
+  useUpdateFormStatus, 
+  useCloneForm 
+} from '../../hooks/useFormsAPI';
+import { FormFilters } from '../../types';
 
 // Type definitions
 interface Form {
@@ -81,94 +88,133 @@ const mockForms: Form[] = [
 
 const FormsList: React.FC = () => {
   const { isDark } = useTheme();
-  const [forms, setForms] = useState<Form[]>(mockForms);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const [sortBy, setSortBy] = useState<'name' | 'date' | 'submissions'>('date');
+  const [sortBy, setSortBy] = useState<'name' | 'createdAt' | 'updatedAt' | 'responses'>('updatedAt');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+
+  // Build filters for API
+  const filters: FormFilters = {
+    search: searchTerm || undefined,
+    status: selectedStatus !== 'all' ? selectedStatus : undefined,
+    category: selectedCategory !== 'all' ? selectedCategory : undefined,
+    sortBy,
+    sortOrder,
+    limit: 50, // Adjust as needed
+  };
+
+  // API hooks
+  const { data: forms = [], isLoading, error, refetch } = useFormsList(filters);
+  const deleteFormMutation = useDeleteForm();
+  const updateStatusMutation = useUpdateFormStatus();
+  const cloneFormMutation = useCloneForm();
 
   // Handlers for FormCard actions
   const handleEdit = (formId: string) => {
     console.log('Edit form:', formId);
     // Navigate to form builder
+    window.location.href = `/forms/${formId}/edit`;
   };
 
   const handleView = (formId: string) => {
     console.log('View form:', formId);
     // Navigate to form preview
+    window.location.href = `/forms/${formId}/preview`;
   };
 
-  const handleCopy = (formId: string) => {
-    console.log('Copy form:', formId);
-    // Duplicate form logic
+  const handleCopy = async (formId: string) => {
+    try {
+      await cloneFormMutation.mutateAsync({
+        id: formId,
+        createdBy: 'کاربر فعلی' // TODO: Get from auth context
+      });
+      console.log('Form cloned successfully');
+    } catch (error) {
+      console.error('Failed to clone form:', error);
+    }
   };
 
-  const handleDelete = (formId: string) => {
-    console.log('Delete form:', formId);
-    // Delete confirmation and logic
-    setForms(prev => prev.filter(f => f.id !== formId));
+  const handleDelete = async (formId: string) => {
+    if (window.confirm('آیا از حذف این فرم اطمینان دارید؟')) {
+      try {
+        await deleteFormMutation.mutateAsync(formId);
+        console.log('Form deleted successfully');
+      } catch (error) {
+        console.error('Failed to delete form:', error);
+      }
+    }
   };
 
-  const handleStatusChange = (formId: string, newStatus: Form['status']) => {
-    console.log('Status change:', formId, newStatus);
-    setForms(prev => prev.map(f => 
-      f.id === formId ? { ...f, status: newStatus } : f
-    ));
+  const handleStatusChange = async (formId: string, newStatus: Form['status']) => {
+    try {
+      await updateStatusMutation.mutateAsync({
+        id: formId,
+        status: newStatus,
+        updatedBy: 'کاربر فعلی' // TODO: Get from auth context
+      });
+      console.log('Form status updated successfully');
+    } catch (error) {
+      console.error('Failed to update form status:', error);
+    }
   };
 
   const handleShare = (formId: string) => {
-    console.log('Share form:', formId);
-    // Share logic
+    const shareUrl = `${window.location.origin}/forms/${formId}/public`;
+    navigator.clipboard.writeText(shareUrl);
+    console.log('Form URL copied to clipboard');
   };
 
-  const handleFormCreated = (formData: any) => {
-    console.log('Form created:', formData);
-    // Add new form to list
-    const newForm: Form = {
-      id: Date.now().toString(),
-      name: formData.name,
-      description: formData.description,
-      status: 'draft',
-      createdAt: new Date().toLocaleDateString('fa-IR'),
-      updatedAt: new Date().toLocaleDateString('fa-IR'),
-      createdBy: 'کاربر فعلی',
-      category: formData.category,
-      stats: {
-        totalViews: 0,
-        totalSubmissions: 0,
-        completionRate: 0
-      }
-    };
-    setForms(prev => [newForm, ...prev]);
+  const handleFormCreated = () => {
+    // React Query will automatically refetch the list
+    console.log('Form created, list will refresh automatically');
   };
 
-  // فیلتر کردن فرم‌ها
-  const filteredForms = forms.filter(form => {
-    const matchesSearch = form.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         form.description?.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = selectedCategory === 'all' || form.category === selectedCategory;
-    const matchesStatus = selectedStatus === 'all' || form.status === selectedStatus;
-    
-    return matchesSearch && matchesCategory && matchesStatus;
-  });
+  // فیلتر کردن فرم‌ها (اکنون در backend انجام می‌شود)
+  const filteredForms = forms;
 
-  // مرتب‌سازی فرم‌ها
-  const sortedForms = [...filteredForms].sort((a, b) => {
-    switch (sortBy) {
-      case 'name':
-        return a.name.localeCompare(b.name);
-      case 'submissions':
-        return (b.stats?.totalSubmissions || 0) - (a.stats?.totalSubmissions || 0);
-      case 'date':
-      default:
-        return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
-    }
-  });
+  // مرتب‌سازی فرم‌ها (اکنون در backend انجام می‌شود)
+  const sortedForms = filteredForms;
 
   // دسته‌های موجود
   const categories = Array.from(new Set(forms.map(form => form.category).filter(Boolean)));
+
+  // Loading and Error states
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="flex items-center gap-3">
+          <Loader2 className="w-6 h-6 animate-spin text-blue-500" />
+          <span className={`${isDark ? 'text-white' : 'text-gray-900'}`}>
+            در حال بارگذاری فرم‌ها...
+          </span>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className={`
+        text-center py-12 rounded-xl backdrop-blur-xl border
+        ${isDark 
+          ? 'bg-red-900/20 border-red-700/30 text-red-400' 
+          : 'bg-red-50 border-red-200 text-red-700'
+        }
+      `}>
+        <h3 className="text-lg font-medium mb-2">خطا در بارگذاری فرم‌ها</h3>
+        <p className="mb-4">{error.message}</p>
+        <button
+          onClick={() => refetch()}
+          className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
+        >
+          تلاش مجدد
+        </button>
+      </div>
+    );
+  }
 
   // Status badge component (moved to FormCard)
   // const StatusBadge = ({ status }: { status: Form['status'] }) => { ... }
@@ -304,9 +350,9 @@ const FormsList: React.FC = () => {
           </span>
           <div className="flex gap-2">
             {[
-              { value: 'date', label: 'تاریخ ویرایش' },
+              { value: 'updatedAt', label: 'تاریخ ویرایش' },
               { value: 'name', label: 'نام فرم' },
-              { value: 'submissions', label: 'تعداد پاسخ' }
+              { value: 'responses', label: 'تعداد پاسخ' }
             ].map(option => (
               <button
                 key={option.value}
