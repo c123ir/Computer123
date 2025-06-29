@@ -1,302 +1,171 @@
-// src/modules/form-builder/types/field.types.ts
 
-import type { FieldType, FormField } from './form.types';
-
-// Re-export everything from form.types for convenience
-export * from './form.types';
+// =====================================================
+// 🔧 فایل: src/modules/form-builder/types/field.types.ts
+// =====================================================
 
 /**
- * تنظیمات درگ اند دراپ
+ * انواع فیلد‌های قابل استفاده در فرم‌ساز
  */
-export interface DragDropConfig {
-  /** آیا قابل کشیدن است؟ */
-  isDraggable: boolean;
-  /** آیا می‌تواند محل کشیدن باشد؟ */
-  isDroppable: boolean;
-  /** نوع داده برای drag & drop */
-  dragType: 'field' | 'form' | 'section';
-  /** شناسه منطقه drop */
-  dropZoneId?: string;
+export type FieldType = 
+  | 'text'          // متن ساده
+  | 'textarea'      // متن چندخطی
+  | 'number'        // عدد
+  | 'email'         // ایمیل
+  | 'tel'           // شماره تلفن
+  | 'url'           // آدرس وبسایت
+  | 'select'        // انتخاب از لیست
+  | 'radio'         // انتخاب یکی از چند
+  | 'checkbox'      // چک باکس
+  | 'date'          // تاریخ
+  | 'time'          // زمان
+  | 'datetime'      // تاریخ و زمان
+  | 'file'          // آپلود فایل
+  | 'signature'     // امضا
+  | 'rating'        // امتیازدهی
+  | 'slider';       // اسلایدر
+
+/**
+ * گزینه‌های فیلد (برای select, radio, checkbox)
+ */
+export interface FieldOption {
+  /** شناسه یکتا */
+  id: string;
+  /** برچسب نمایشی */
+  label: string;
+  /** مقدار */
+  value: string;
+  /** آیا پیش‌فرض انتخاب شده باشد؟ */
+  selected?: boolean;
+  /** غیرفعال */
+  disabled?: boolean;
 }
 
 /**
- * Field Palette Item - فیلد در palette
+ * قوانین اعتبارسنجی فیلد
  */
-export interface FieldPaletteItem {
-  /** نوع فیلد */
-  type: FieldType;
-  /** نام نمایشی */
-  displayName: string;
-  /** آیکون */
-  icon: string;
-  /** توضیح کوتاه */
-  description: string;
-  /** دسته‌بندی */
-  category: 'basic' | 'advanced' | 'layout' | 'special';
-  /** آیا PRO feature است؟ */
-  isPro?: boolean;
-  /** تنظیمات پیش‌فرض */
-  defaultConfig: Partial<FormField>;
+export interface ValidationRules {
+  /** الزامی */
+  required?: boolean;
+  /** حداقل طول */
+  minLength?: number;
+  /** حداکثر طول */
+  maxLength?: number;
+  /** الگوی regex */
+  pattern?: string;
+  /** پیام خطای سفارشی برای pattern */
+  patternMessage?: string;
+  /** حداقل مقدار (برای number) */
+  min?: number;
+  /** حداکثر مقدار (برای number) */
+  max?: number;
+  /** انواع فایل مجاز */
+  fileTypes?: string[];
+  /** حداکثر اندازه فایل (بایت) */
+  maxFileSize?: number;
+  /** اعتبارسنجی سفارشی */
+  customValidation?: {
+    rule: string;
+    message: string;
+  };
 }
 
 /**
- * تنظیمات validator سفارشی
+ * تنظیمات ظاهری فیلد
+ */
+export interface FieldStyling {
+  /** عرض فیلد */
+  width: '25%' | '50%' | '75%' | '100%';
+  /** کلاس CSS سفارشی */
+  className?: string;
+  /** رنگ پس‌زمینه */
+  backgroundColor?: string;
+  /** رنگ متن */
+  textColor?: string;
+  /** رنگ border */
+  borderColor?: string;
+  /** نوع border */
+  borderStyle?: 'solid' | 'dashed' | 'dotted' | 'none';
+  /** ضخامت border */
+  borderWidth?: number;
+  /** شعاع گوشه‌ها */
+  borderRadius?: number;
+  /** فاصله داخلی */
+  padding?: number;
+  /** فاصله خارجی */
+  margin?: number;
+}
+
+/**
+ * اعتبارسنجی سفارشی
  */
 export interface CustomValidator {
-  /** نام validator */
+  /** شناسه validator */
+  id: string;
+  /** نام */
   name: string;
-  /** تابع validation */
-  validator: (value: any, field: any, formData: Record<string, any>) => boolean | string;
+  /** function اعتبارسنجی */
+  validator: (value: any, field: FormField, form: Form) => boolean | string;
   /** پیام خطا */
   errorMessage: string;
-  /** آیا async است؟ */
-  async?: boolean;
+  /** اولویت اجرا */
+  priority?: number;
 }
 
 /**
- * Event Handler برای فیلد
+ * فیلد فرم - نسخه کامل
  */
-export interface FieldEventHandler {
-  /** نوع event */
-  event: 'onChange' | 'onFocus' | 'onBlur' | 'onClick' | 'onLoad';
-  /** action */
-  action: 'showField' | 'hideField' | 'setValue' | 'calculate' | 'validate' | 'custom';
-  /** پارامترها */
-  params?: Record<string, any>;
-  /** شرط اجرا */
-  condition?: string;
-}
-
-/**
- * انیمیشن فیلد
- */
-export interface FieldAnimation {
-  /** نوع انیمیشن */
-  type: 'fadeIn' | 'slideIn' | 'bounce' | 'pulse' | 'shake';
-  /** مدت زمان (میلی‌ثانیه) */
-  duration: number;
-  /** تأخیر (میلی‌ثانیه) */
-  delay?: number;
-  /** تکرار */
-  repeat?: boolean;
-}
-
-/**
- * Tooltip فیلد
- */
-export interface FieldTooltip {
-  /** متن tooltip */
-  text: string;
-  /** موقعیت */
-  position: 'top' | 'bottom' | 'left' | 'right';
-  /** trigger */
-  trigger: 'hover' | 'click' | 'focus';
-  /** تأخیر نمایش */
-  delay?: number;
-}
-
-/**
- * فیلد پیشرفته با قابلیت‌های اضافی
- */
-export interface AdvancedFormField extends FormField {
-  /** تنظیمات drag & drop */
-  dragDrop?: DragDropConfig;
-  /** event handler ها */
-  eventHandlers?: FieldEventHandler[];
-  /** انیمیشن */
-  animation?: FieldAnimation;
-  /** tooltip */
-  tooltip?: FieldTooltip;
-  /** validator های سفارشی */
-  customValidators?: CustomValidator[];
-  /** dependency به فیلدهای دیگر */
-  dependencies?: {
-    fieldId: string;
-    type: 'value' | 'visibility' | 'validation' | 'options';
-    mapping: Record<string, any>;
-  }[];
-  /** cache تنظیمات */
-  cache?: {
-    enabled: boolean;
-    ttl: number; // time to live in seconds
-  };
-}
-
-/**
- * Field Group - گروه‌بندی فیلدها
- */
-export interface FieldGroup {
-  /** شناسه گروه */
+export interface FormField {
+  /** شناسه یکتا */
   id: string;
-  /** نام گروه */
-  name: string;
-  /** توضیح */
-  description?: string;
-  /** فیلدهای عضو */
-  fieldIds: string[];
-  /** نوع layout */
-  layout: 'vertical' | 'horizontal' | 'grid' | 'tabs';
-  /** تنظیمات grid (اگر layout = grid) */
-  gridConfig?: {
-    columns: number;
-    gap: number;
-    responsive: boolean;
-  };
-  /** قابل collapse */
-  collapsible?: boolean;
-  /** پیش‌فرض collapsed */
-  defaultCollapsed?: boolean;
-  /** رنگ‌بندی */
-  styling?: {
-    backgroundColor?: string;
-    borderColor?: string;
-    borderWidth?: number;
-    borderRadius?: number;
-    padding?: number;
-    margin?: number;
-  };
-}
-
-/**
- * Field Section - بخش‌بندی فرم
- */
-export interface FormSection {
-  /** شناسه بخش */
-  id: string;
-  /** عنوان بخش */
-  title: string;
-  /** توضیح */
-  description?: string;
-  /** فیلدها و گروه‌ها */
-  items: (string | FieldGroup)[];
-  /** قابل تا شدن */
-  collapsible: boolean;
-  /** پیش‌فرض باز/بسته */
-  defaultExpanded: boolean;
-  /** شرط نمایش */
-  visibility?: {
-    condition: string;
-    dependsOn: string[];
-  };
+  /** نوع فیلد */
+  type: FieldType;
+  /** برچسب فیلد */
+  label: string;
+  /** متن راهنما */
+  placeholder?: string;
+  /** توضیح کمکی */
+  helpText?: string;
+  /** آیا اجباری است؟ */
+  required: boolean;
+  /** مقدار پیش‌فرض */
+  defaultValue?: any;
+  /** آیا غیرفعال است؟ */
+  disabled?: boolean;
+  /** آیا فقط‌خواندنی است؟ */
+  readonly?: boolean;
+  /** قوانین اعتبارسنجی */
+  validation: ValidationRules;
   /** تنظیمات ظاهری */
-  styling?: {
-    headerStyle?: Record<string, any>;
-    contentStyle?: Record<string, any>;
+  styling: FieldStyling;
+  /** گزینه‌ها (برای select, radio, checkbox) */
+  options?: FieldOption[];
+  /** تنظیمات خاص نوع فیلد */
+  fieldSettings?: {
+    /** برای file: multiple selection */
+    multiple?: boolean;
+    /** برای rating: تعداد ستاره */
+    maxRating?: number;
+    /** برای slider: مقدار min/max/step */
+    min?: number;
+    max?: number;
+    step?: number;
+    /** برای textarea: تعداد خط */
+    rows?: number;
+    /** برای select: قابلیت جستجو */
+    searchable?: boolean;
+    /** برای date: محدودیت تاریخ */
+    minDate?: string;
+    maxDate?: string;
   };
-}
-
-/**
- * Field State - وضعیت فیلد در runtime
- */
-export interface FieldState {
-  /** مقدار فعلی */
-  value: any;
-  /** آیا فعال است؟ */
-  isActive: boolean;
-  /** آیا نمایش داده می‌شود؟ */
-  isVisible: boolean;
-  /** آیا معتبر است؟ */
-  isValid: boolean;
-  /** خطاهای validation */
-  errors: string[];
-  /** آیا touched شده؟ */
-  isTouched: boolean;
-  /** آیا در حال loading است؟ */
-  isLoading: boolean;
-  /** تاریخ آخرین تغییر */
-  lastModified: Date;
-  /** metadata اضافی */
-  metadata?: Record<string, any>;
-}
-
-/**
- * Field Registry - ثبت انواع فیلد
- */
-export interface FieldRegistry {
-  /** ثبت فیلد جدید */
-  register(fieldType: string, config: FieldPaletteItem): void;
-  /** دریافت فیلد */
-  get(fieldType: string): FieldPaletteItem | undefined;
-  /** لیست تمام فیلدها */
-  getAll(): FieldPaletteItem[];
-  /** لیست بر اساس دسته */
-  getByCategory(category: string): FieldPaletteItem[];
-  /** حذف فیلد */
-  unregister(fieldType: string): void;
-}
-
-/**
- * Field Factory - ساخت فیلد
- */
-export interface FieldFactory {
-  /** ساخت فیلد جدید */
-  create(type: FieldType, config?: Partial<FormField>): FormField;
-  /** کلون فیلد */
-  clone(field: FormField): FormField;
-  /** Validate فیلد */
-  validate(field: FormField): string[];
-  /** تبدیل فیلد به JSON */
-  serialize(field: FormField): string;
-  /** تبدیل JSON به فیلد */
-  deserialize(json: string): FormField;
-}
-
-/**
- * انواع خطاهای validation
- */
-export type ValidationErrorType = 
-  | 'required'
-  | 'minLength'
-  | 'maxLength'
-  | 'pattern'
-  | 'min'
-  | 'max'
-  | 'email'
-  | 'url'
-  | 'fileType'
-  | 'fileSize'
-  | 'custom';
-
-/**
- * نتیجه validation
- */
-export interface ValidationResult {
-  /** آیا معتبر است؟ */
-  isValid: boolean;
-  /** خطاها */
-  errors: {
-    type: ValidationErrorType;
-    message: string;
-    field: string;
-  }[];
-  /** هشدارها */
-  warnings?: {
-    type: string;
-    message: string;
-    field: string;
-  }[];
-}
-
-/**
- * تنظیمات accessibility
- */
-export interface AccessibilityConfig {
-  /** aria-label */
-  ariaLabel?: string;
-  /** aria-describedby */
-  ariaDescribedBy?: string;
-  /** role */
-  role?: string;
-  /** tabindex */
-  tabIndex?: number;
-  /** کلیدهای میانبر */
-  shortcuts?: {
-    key: string;
-    action: string;
-  }[];
-  /** پشتیبانی screen reader */
-  screenReader?: {
-    announcements: string[];
-    liveRegion: boolean;
-  };
+  /** شرایط وابستگی */
+  conditions?: Array<{
+    /** وابسته به کدام فیلد */
+    dependsOn: string;
+    /** نوع عملگر */
+    operator: 'equals' | 'not_equals' | 'contains' | 'greater' | 'less';
+    /** مقدار مقایسه */
+    value: any;
+    /** عمل در صورت برقراری شرط */
+    action: 'show' | 'hide' | 'require' | 'disable';
+  }>;
 }
