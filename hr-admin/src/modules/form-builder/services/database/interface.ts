@@ -75,7 +75,7 @@ import {
      */
     searchForms(
       query: string,
-      filters?: QueryFilters,
+      filters?: FormFilters,
       pagination?: PaginationOptions
     ): Promise<PaginatedResult<Form>>;
   
