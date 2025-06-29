@@ -492,7 +492,7 @@ import {
       // الگوی کلی شماره ثابت
       const generalLandlineRegex = /^0[1-9][0-9]{8,9}$/;
       
-      const cleanPhone = phone.replace(/[\s\-\(\)]/g, '');
+      const cleanPhone = phone.replace(/[\s\-()]/g, '');
       
       return mobileRegex.test(cleanPhone) || 
              landlineRegex.test(cleanPhone) || 
