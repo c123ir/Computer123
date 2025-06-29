@@ -18,7 +18,6 @@ import {
     increment
   } from 'firebase/firestore';
   
-  import { getDB } from '../../../../config/firebase';
   import { DatabaseService } from './interface';
   import {
     Form,
@@ -38,10 +37,11 @@ import {
   } from '../../types';
   
   /**
-   * پیاده‌سازی Firebase برای DatabaseService
+   * پیاده‌سازی Firebase برای DatabaseService - DISABLED
+   * این service غیرفعال شده و PostgreSQL استفاده می‌شود
    */
   export class FirebaseService implements DatabaseService {
-    private readonly db = getDB();
+    private readonly db = null; // Firebase disabled
     
     // نام collection ها
     private readonly COLLECTIONS = {
