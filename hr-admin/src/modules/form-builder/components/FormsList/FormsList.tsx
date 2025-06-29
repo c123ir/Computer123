@@ -83,7 +83,7 @@ const FormsList: React.FC<FormsListProps> = ({
   } = useQuery({
     queryKey: ['forms', filters],
     queryFn: () => formsAPI.getForms(filters),
-    keepPreviousData: true
+    placeholderData: (previousData) => previousData
   });
 
   const forms = formsResponse?.data || [];
