@@ -11,8 +11,12 @@ import {
   PaginationOptions,
   PaginatedResult,
   ValidationResult,
-  FieldType
+  FieldType,
+  FormTemplate
 } from '../types';
+
+import { DatabaseService } from './database/interface';
+import { ValidationService } from './validationService';
 
 /**
  * سرویس اصلی مدیریت فرم‌ها
@@ -89,7 +93,7 @@ export class FormService {
       
       if (form && useCache) {
         // ذخیره در cache برای 1 ساعت
-        await this.cache.set(`form_${id}`, form, 3600);
+        await this.cache.set(`form_${id}`, form);
       }
 
       return form;
@@ -158,11 +162,11 @@ export class FormService {
         }
       }
 
-      const result = await this.db.listForms(filters, pagination);
+      const result = await this.db.getForms(undefined, filters, pagination);
       
       if (useCache) {
         // ذخیره در cache برای 10 دقیقه
-        await this.cache.set(cacheKey, result, 600);
+        await this.cache.set(cacheKey, result);
       }
 
       return result;
@@ -181,7 +185,9 @@ export class FormService {
     pagination?: PaginationOptions
   ): Promise<PaginatedResult<Form>> {
     try {
-      return await this.db.searchForms(query, filters, pagination);
+      // استفاده از getForms با search filter
+      const searchFilters = { ...filters, search: query };
+      return await this.db.getForms(undefined, searchFilters, pagination);
     } catch (error) {
       console.error('❌ Error searching forms:', error);
       throw error;
@@ -199,8 +205,23 @@ export class FormService {
       }
 
       const duplicatedName = newName || `${originalForm.name} - کپی`;
-      const newFormId = await this.db.duplicateForm(id, duplicatedName);
       
+      // ایجاد فرم جدید با داده‌های کپی شده
+      const newFormData: CreateFormDto = {
+        name: duplicatedName,
+        description: originalForm.description,
+        fields: originalForm.fields,
+        settings: originalForm.settings,
+        styling: originalForm.styling,
+        category: originalForm.category,
+        tags: originalForm.tags,
+        metadata: {
+          ...originalForm.metadata,
+          createdAt: new Date().toISOString()
+        }
+      };
+      
+      const newFormId = await this.db.createForm(newFormData);
       await this.clearFormsCache();
       
       console.log('✅ Form duplicated successfully:', newFormId);
@@ -278,7 +299,7 @@ export class FormService {
       
       if (useCache) {
         // ذخیره در cache برای 5 دقیقه
-        await this.cache.set(cacheKey, result, 300);
+        await this.cache.set(cacheKey, result);
       }
 
       return result;
@@ -325,7 +346,7 @@ export class FormService {
       const templates = await this.db.getTemplates(category);
       
       // ذخیره در cache برای 1 ساعت
-      await this.cache.set(cacheKey, templates, 3600);
+      await this.cache.set(cacheKey, templates);
       
       return templates;
     } catch (error) {
@@ -465,7 +486,7 @@ export class FormService {
       const stats = await this.db.getFormStats(formId);
       
       // ذخیره در cache برای 15 دقیقه
-      await this.cache.set(cacheKey, stats, 900);
+      await this.cache.set(cacheKey, stats);
       
       return stats;
     } catch (error) {
