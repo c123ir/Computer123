@@ -213,7 +213,7 @@ export const useFormBuilder = (options: UseFormBuilderOptions = {}): UseFormBuil
 
     setForm(updatedForm);
     addToHistory(updatedForm);
-  }, [form]);
+  }, [form, addToHistory]);
 
   const addField = useCallback((fieldType: FieldType, index?: number): string => {
     if (!form) return '';
