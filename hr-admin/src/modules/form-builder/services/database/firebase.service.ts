@@ -192,7 +192,7 @@ import {
         const pageSize = pagination?.limit || 10;
         constraints.push(limit(pageSize));
   
-        if (pagination && pagination.page > 1) {
+        if (pagination && pagination.page && pagination.page > 1) {
           // برای صفحات بعدی نیاز به startAfter داریم
           // اینجا ساده‌سازی شده - در عمل باید cursor ذخیره کنیم
           // Firebase pagination پیچیده‌تر است - اینجا فقط basic implementation
