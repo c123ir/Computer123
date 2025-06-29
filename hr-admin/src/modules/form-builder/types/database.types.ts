@@ -92,6 +92,79 @@ export interface FormFilters {
 }
 
 /**
+ * گزینه‌های صفحه‌بندی
+ */
+export interface PaginationOptions {
+  /** شماره صفحه */
+  page?: number;
+  /** تعداد در صفحه */
+  limit?: number;
+}
+
+/**
+ * نتیجه صفحه‌بندی شده
+ */
+export interface PaginatedResult<T> {
+  /** داده‌ها */
+  data: T[];
+  /** تعداد کل */
+  total: number;
+  /** شماره صفحه فعلی */
+  page: number;
+  /** تعداد کل صفحات */
+  totalPages: number;
+}
+
+/**
+ * گزینه‌های مرتب‌سازی
+ */
+export interface SortOptions {
+  /** فیلد مرتب‌سازی */
+  field: string;
+  /** جهت مرتب‌سازی */
+  order: 'asc' | 'desc';
+}
+
+/**
+ * گزینه‌های Export
+ */
+export interface ExportOptions {
+  /** فرمت خروجی */
+  format: 'json' | 'csv' | 'excel';
+  /** شامل پاسخ‌ها */
+  includeResponses?: boolean;
+  /** شامل متادیتا */
+  includeMetadata?: boolean;
+}
+
+/**
+ * گزینه‌های Import
+ */
+export interface ImportOptions {
+  /** فرمت ورودی */
+  format: 'json' | 'csv' | 'excel';
+  /** Overwrite موجود */
+  overwrite?: boolean;
+  /** Validation strict */
+  strict?: boolean;
+}
+
+/**
+ * نتیجه عملیات دسته‌ای
+ */
+export interface BatchResult {
+  /** تعداد موفق */
+  successful: number;
+  /** تعداد ناموفق */
+  failed: number;
+  /** خطاها */
+  errors: Array<{
+    item: any;
+    error: string;
+  }>;
+}
+
+/**
  * آمار پایگاه داده
  */
 export interface DatabaseStats {
