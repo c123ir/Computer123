@@ -61,7 +61,7 @@ import {
      * @returns لیست فرم‌ها
      */
     listForms(
-      filters?: QueryFilters,
+      filters?: FormFilters,
       pagination?: PaginationOptions,
       sort?: SortOptions
     ): Promise<PaginatedResult<Form>>;
