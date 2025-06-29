@@ -44,13 +44,15 @@ export interface FormBuilderActions {
   
   // Field Management
   /** اضافه کردن فیلد */
-  addField: (type: FieldType, index?: number) => void;
+  addField: (type: FieldType, index?: number) => string;
   /** حذف فیلد */
   removeField: (fieldId: string) => void;
   /** کپی فیلد */
   duplicateField: (fieldId: string) => void;
   /** جابجایی فیلد */
   moveField: (fieldId: string, newIndex: number) => void;
+  /** مرتب‌سازی مجدد فیلدها */
+  reorderFields: (fields: FormField[]) => void;
   /** انتخاب فیلد */
   selectField: (fieldId: string | null) => void;
   /** بروزرسانی فیلد */
