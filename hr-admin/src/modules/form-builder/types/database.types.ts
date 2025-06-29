@@ -194,8 +194,7 @@ export interface HealthCheckResult {
   }>;
 }
 
-// Import Form type
-import { Form } from './form.types';
+// Forward declaration - Import های دقیق در انتها
 
 /**
  * DTO برای ایجاد فرم
