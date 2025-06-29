@@ -14,25 +14,10 @@ import {
   useUpdateFormStatus, 
   useCloneForm 
 } from '../../hooks/useFormsAPI';
-import { FormFilters, Form } from '../../types';
+import { FormFilters } from '../../types';
 
-// Type definitions
-interface Form {
-  id: string;
-  name: string;
-  description?: string;
-  status: 'draft' | 'published' | 'archived' | 'paused';
-  createdAt: string;
-  updatedAt: string;
-  createdBy: string;
-  stats?: {
-    totalViews: number;
-    totalSubmissions: number;
-    completionRate: number;
-  };
-  category?: string;
-  tags?: string[];
-}
+// Remove duplicate Form interface since it's imported from types
+// interface Form { ... } ← حذف کنید
 
 // Mock data - بعداً از Firebase می‌آید
 const mockForms: Form[] = [
