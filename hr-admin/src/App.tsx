@@ -8,7 +8,7 @@ import ComingSoon from './pages/ComingSoon';
 import FormsList from './pages/FormsList';
 import FormBuilderPage from './pages/FormBuilderPage';
 
-// Firebase Connection Test (فقط در development)
+// PostgreSQL Backend Connection Test (فقط در development)
 import PostgreSQLConnectionTest from './components/common/FirebaseConnectionTest';
 
 function App() {
