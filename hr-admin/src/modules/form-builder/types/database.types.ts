@@ -176,31 +176,12 @@ export interface ValidationResult {
 }
 
 // =====================================================
-// 🔧 Default exports برای راحتی import
+// 🔧 Re-export types from other files
 // =====================================================
 
-export default {
-  // Types
-  FieldType,
-  ValidationErrorType,
-  DatabaseType,
-  
-  // Interfaces
-  FormField,
-  Form,
-  FormResponse,
-  FormTemplate,
-  FieldOption,
-  ValidationRules,
-  FormSettings,
-  FormStyling,
-  FormMetadata,
-  DatabaseConfig,
-  ApiResponse,
-  PaginatedResponse,
-  ValidationResult,
-  
-  // DTOs
-  CreateFormDto,
-  UpdateFormDto
-};
+export type { Form } from './form.types';
+export type { FormField, FieldType } from './field.types';
+export type { FormResponse } from './response.types';
+export type { FormTemplate } from './template.types';
+export type { FieldOption, ValidationRules } from './field.types';
+export type { FormSettings, FormStyling, FormMetadata } from './form.types';
