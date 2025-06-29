@@ -152,6 +152,7 @@ export class FormService {
     useCache: boolean = true
   ): Promise<PaginatedResult<Form>> {
     try {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const cacheKey = `forms_${JSON.stringify({ filters, pagination })}`;
       
       if (useCache) {
@@ -291,6 +292,7 @@ export class FormService {
     useCache: boolean = true
   ): Promise<PaginatedResult<FormResponse>> {
     try {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const cacheKey = `responses_${formId}_${JSON.stringify({ filters, pagination })}`;
       
       if (useCache) {
@@ -342,6 +344,7 @@ export class FormService {
    */
   static async getTemplates(category?: string): Promise<FormTemplate[]> {
     try {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const cacheKey = `templates_${category || 'all'}`;
       
       const cached = await this.cache.get();
@@ -482,6 +485,7 @@ export class FormService {
    */
   static async getFormStats(formId: string, useCache: boolean = true): Promise<any> {
     try {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const cacheKey = `stats_${formId}`;
       
       const cached = await this.cache.get();
