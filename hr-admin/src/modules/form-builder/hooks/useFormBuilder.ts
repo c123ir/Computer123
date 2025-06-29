@@ -145,7 +145,8 @@ export const useFormBuilder = (options: UseFormBuilderOptions = {}): UseFormBuil
         clearTimeout(autoSaveTimer.current);
       }
     };
-  }, [form, autoSave, autoSaveInterval, performAutoSave]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [form, autoSave, autoSaveInterval]);
 
   // Computed Properties
   const fields = useMemo(() => form?.fields || [], [form?.fields]);
