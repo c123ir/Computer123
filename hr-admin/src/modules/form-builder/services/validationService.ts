@@ -425,9 +425,9 @@ import {
             return dependentValue !== condition.value;
           case 'contains':
             return String(dependentValue).includes(String(condition.value));
-          case 'greater_than':
+          case 'greater':
             return Number(dependentValue) > Number(condition.value);
-          case 'less_than':
+          case 'less':
             return Number(dependentValue) < Number(condition.value);
           default:
             return true;
