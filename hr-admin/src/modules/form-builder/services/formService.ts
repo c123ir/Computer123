@@ -1,6 +1,6 @@
 // src/modules/form-builder/services/formService.ts
 
-import { DatabaseServiceFactory } from './database/factory';
+import { DatabaseFactory } from './database/factory';
 import {
   Form,
   FormField,
