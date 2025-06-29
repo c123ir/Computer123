@@ -525,3 +525,6 @@ const FormCard: React.FC<FormCardProps> = ({
 };
 
 export default FormCard;
+
+// Export types
+export type { FormCardProps, Form };
