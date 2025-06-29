@@ -1,162 +1,147 @@
 // src/modules/form-builder/hooks/useFormBuilder.ts
 
-import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
-import { Form, FormField, FieldType, CreateFormDto } from '../types';
-import { FormService } from '../services/formService';
-import { ValidationService } from '../services/validationService';
+import { useState, useCallback, useRef, useEffect } from 'react';
+import { 
+  Form, 
+  FormField, 
+  FieldType, 
+  CreateFormDto, 
+  UpdateFormDto,
+  FormSettings,
+  FormStyling,
+  FormMetadata 
+} from '../types';
 
-/**
- * Hook اصلی برای مدیریت Form Builder
- * شامل مدیریت state، CRUD operations، و validation
- */
-
-export interface UseFormBuilderOptions {
-  /** شناسه فرم برای ویرایش */
-  formId?: string;
-  /** فرم پیش‌فرض */
-  initialForm?: Partial<Form>;
-  /** ذخیره خودکار */
-  autoSave?: boolean;
-  /** فاصله ذخیره خودکار (میلی‌ثانیه) */
-  autoSaveInterval?: number;
-  /** callback پس از ذخیره */
-  onSave?: (form: Form) => void;
-  /** callback پس از خطا */
-  onError?: (error: string) => void;
+export interface FormBuilderState {
+  /** فرم فعلی */
+  form: Form;
+  /** فیلد انتخاب شده */
+  selectedField: FormField | null;
+  /** حالت ویرایش */
+  isEditing: boolean;
+  /** تغییرات ذخیره نشده */
+  hasUnsavedChanges: boolean;
+  /** وضعیت بارگذاری */
+  isLoading: boolean;
+  /** خطاها */
+  errors: Record<string, string>;
+  /** تاریخچه تغییرات برای undo/redo */
+  history: Form[];
+  /** موقعیت فعلی در تاریخچه */
+  historyIndex: number;
 }
 
-export interface UseFormBuilderReturn {
-  // Form State
-  form: Form | null;
-  fields: FormField[];
-  selectedFieldId: string | null;
-  selectedField: FormField | null;
+export interface FormBuilderActions {
+  // Form Management
+  /** ایجاد فرم جدید */
+  createNewForm: (initial?: Partial<Form>) => void;
+  /** بارگذاری فرم */
+  loadForm: (form: Form) => void;
+  /** ذخیره فرم */
+  saveForm: () => Promise<void>;
+  /** reset فرم */
+  resetForm: () => void;
   
-  // Loading States
-  isLoading: boolean;
-  isSaving: boolean;
-  isValidating: boolean;
+  // Field Management
+  /** اضافه کردن فیلد */
+  addField: (type: FieldType, index?: number) => void;
+  /** حذف فیلد */
+  removeField: (fieldId: string) => void;
+  /** کپی فیلد */
+  duplicateField: (fieldId: string) => void;
+  /** جابجایی فیلد */
+  moveField: (fieldId: string, newIndex: number) => void;
+  /** انتخاب فیلد */
+  selectField: (fieldId: string | null) => void;
+  /** بروزرسانی فیلد */
+  updateField: (fieldId: string, updates: Partial<FormField>) => void;
+  
+  // Form Settings
+  /** بروزرسانی تنظیمات */
+  updateSettings: (updates: Partial<FormSettings>) => void;
+  /** بروزرسانی ظاهر */
+  updateStyling: (updates: Partial<FormStyling>) => void;
+  /** بروزرسانی متادیتا */
+  updateMetadata: (updates: Partial<FormMetadata>) => void;
+  
+  // History Management
+  /** undo */
+  undo: () => void;
+  /** redo */
+  redo: () => void;
+  /** آیا undo امکان‌پذیر است */
+  canUndo: boolean;
+  /** آیا redo امکان‌پذیر است */
+  canRedo: boolean;
   
   // Validation
-  validationErrors: Record<string, string[]>;
-  isFormValid: boolean;
-  
-  // Actions
-  updateForm: (updates: Partial<Form>) => void;
-  addField: (fieldType: FieldType, index?: number) => string;
-  updateField: (fieldId: string, updates: Partial<FormField>) => void;
-  removeField: (fieldId: string) => void;
-  duplicateField: (fieldId: string) => string;
-  moveField: (fieldId: string, direction: 'up' | 'down') => void;
-  reorderFields: (fieldIds: string[]) => void;
-  selectField: (fieldId: string | null) => void;
-  
-  // Form Operations
-  saveForm: () => Promise<string | null>;
-  loadForm: (formId: string) => Promise<void>;
-  resetForm: () => void;
+  /** اعتبارسنجی فرم */
   validateForm: () => boolean;
+  /** اعتبارسنجی فیلد */
+  validateField: (fieldId: string) => boolean;
   
-  // Undo/Redo
-  canUndo: boolean;
-  canRedo: boolean;
-  undo: () => void;
-  redo: () => void;
-  
-  // Auto Save
-  isAutoSaving: boolean;
-  lastSaved: Date | null;
+  // Utils
+  /** تمیز کردن خطاها */
+  clearErrors: () => void;
+  /** تنظیم خطا */
+  setError: (key: string, message: string) => void;
 }
 
-export const useFormBuilder = (options: UseFormBuilderOptions = {}): UseFormBuilderReturn => {
+export interface UseFormBuilderOptions {
+  /** فرم اولیه */
+  initialForm?: Form;
+  /** فعال‌سازی auto-save */
+  autoSave?: boolean;
+  /** فاصله auto-save (میلی‌ثانیه) */
+  autoSaveInterval?: number;
+  /** callback ذخیره */
+  onSave?: (form: Form) => Promise<void>;
+  /** callback خطا */
+  onError?: (error: string) => void;
+  /** حداکثر تعداد history */
+  maxHistorySize?: number;
+}
+
+/**
+ * Hook اصلی برای مدیریت فرم‌ساز
+ */
+export const useFormBuilder = (options: UseFormBuilderOptions = {}) => {
   const {
-    formId,
     initialForm,
     autoSave = false,
     autoSaveInterval = 30000, // 30 seconds
     onSave,
-    onError
+    onError,
+    maxHistorySize = 50
   } = options;
 
-  // State Management
-  const [form, setForm] = useState<Form | null>(null);
-  const [selectedFieldId, setSelectedFieldId] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
-  const [isValidating, setIsValidating] = useState(false);
-  const [isAutoSaving, setIsAutoSaving] = useState(false);
-  const [lastSaved, setLastSaved] = useState<Date | null>(null);
-  const [validationErrors, setValidationErrors] = useState<Record<string, string[]>>({});
+  // =====================================================
+  // States
+  // =====================================================
+  
+  const [state, setState] = useState<FormBuilderState>(() => ({
+    form: initialForm || createEmptyForm(),
+    selectedField: null,
+    isEditing: false,
+    hasUnsavedChanges: false,
+    isLoading: false,
+    errors: {},
+    history: [initialForm || createEmptyForm()],
+    historyIndex: 0
+  }));
 
-  // History Management for Undo/Redo
-  const [history, setHistory] = useState<Form[]>([]);
-  const [historyIndex, setHistoryIndex] = useState(-1);
-  const isUpdatingFromHistory = useRef(false);
+  // Refs
+  const autoSaveTimerRef = useRef<NodeJS.Timeout>();
+  const lastSavedFormRef = useRef<Form>(state.form);
 
-  // Auto Save Timer
-  const autoSaveTimer = useRef<NodeJS.Timeout>();
-
-      // Initialize form
-    useEffect(() => {
-      const initializeForm = async () => {
-        if (formId) {
-          // Load existing form - will be defined later
-          setIsLoading(true);
-          try {
-            const loadedForm = await FormService.getForm(formId);
-            if (loadedForm) {
-              setForm(loadedForm);
-              setHistory([loadedForm]);
-              setHistoryIndex(0);
-              setSelectedFieldId(null);
-              setValidationErrors({});
-            }
-          } catch (error) {
-            console.error('Error loading form:', error);
-          } finally {
-            setIsLoading(false);
-          }
-        } else {
-          const newForm = createDefaultForm(initialForm);
-          setForm(newForm);
-          setHistory([newForm]);
-          setHistoryIndex(0);
-        }
-      };
-
-      initializeForm();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [formId]);
-
-  // Auto Save Effect
-  useEffect(() => {
-    if (autoSave && form && !isUpdatingFromHistory.current) {
-      if (autoSaveTimer.current) {
-        clearTimeout(autoSaveTimer.current);
-      }
-
-      autoSaveTimer.current = setTimeout(() => {
-        performAutoSave();
-      }, autoSaveInterval);
-    }
-
-    return () => {
-      if (autoSaveTimer.current) {
-        clearTimeout(autoSaveTimer.current);
-      }
-    };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [form, autoSave, autoSaveInterval]);
-
-  // Computed Properties
-  const fields = useMemo(() => form?.fields || [], [form?.fields]);
-  const selectedField = selectedFieldId ? fields.find(f => f.id === selectedFieldId) || null : null;
-  const isFormValid = Object.keys(validationErrors).length === 0;
-  const canUndo = historyIndex > 0;
-  const canRedo = historyIndex < history.length - 1;
-
+  // =====================================================
   // Helper Functions
-  const createDefaultForm = (initial?: Partial<Form>): Form => {
+  // =====================================================
+
+  /**
+   * ایجاد فرم خالی
+   */
+  function createEmptyForm(initial?: Partial<Form>): Form {
     const now = new Date().toISOString();
     
     return {
@@ -191,537 +176,470 @@ export const useFormBuilder = (options: UseFormBuilderOptions = {}): UseFormBuil
         version: 1,
         ...initial?.metadata
       },
+      status: initial?.status || 'draft',
+      category: initial?.category,
+      tags: initial?.tags || [],
+      createdAt: now,
+      updatedAt: now,
       ...initial
     };
-  };
+  }
 
+  /**
+   * تولید ID یکتا برای فیلد
+   */
   const generateFieldId = (): string => {
     return `field_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   };
 
+  /**
+   * اضافه کردن به تاریخچه
+   */
   const addToHistory = useCallback((newForm: Form) => {
-    if (isUpdatingFromHistory.current) return;
-
-    setHistory(prev => {
-      const newHistory = prev.slice(0, historyIndex + 1);
-      newHistory.push({ ...newForm });
-      return newHistory.slice(-50); // Keep last 50 states
-    });
-    
-    setHistoryIndex(prev => Math.min(prev + 1, 49));
-  }, [historyIndex]);
-
-  // Form Operations
-  const updateForm = useCallback((updates: Partial<Form>) => {
-    if (!form) return;
-
-    const updatedForm = {
-      ...form,
-      ...updates,
-      metadata: {
-        ...form.metadata,
-        updatedAt: new Date().toISOString(),
-        ...updates.metadata
+    setState(prev => {
+      const newHistory = prev.history.slice(0, prev.historyIndex + 1);
+      newHistory.push(newForm);
+      
+      // محدود کردن اندازه تاریخچه
+      if (newHistory.length > maxHistorySize) {
+        newHistory.shift();
       }
-    };
-
-    setForm(updatedForm);
-    addToHistory(updatedForm);
-  }, [form, addToHistory]);
-
-  const addField = useCallback((fieldType: FieldType, index?: number): string => {
-    if (!form) return '';
-
-    const newField = FormService.createField(fieldType, `فیلد ${fieldType}`);
-    const newFields = [...fields];
-    
-    if (index !== undefined) {
-      newFields.splice(index, 0, newField);
-    } else {
-      newFields.push(newField);
-    }
-
-    updateForm({ fields: newFields });
-    setSelectedFieldId(newField.id);
-    
-    return newField.id;
-  }, [form, fields, updateForm]);
-
-  const updateField = useCallback((fieldId: string, updates: Partial<FormField>) => {
-    if (!form) return;
-
-    const updatedFields = fields.map(field =>
-      field.id === fieldId ? { ...field, ...updates } : field
-    );
-
-    updateForm({ fields: updatedFields });
-  }, [form, fields, updateForm]);
-
-  const removeField = useCallback((fieldId: string) => {
-    if (!form) return;
-
-    const updatedFields = fields.filter(field => field.id !== fieldId);
-    updateForm({ fields: updatedFields });
-
-    if (selectedFieldId === fieldId) {
-      setSelectedFieldId(null);
-    }
-  }, [form, fields, selectedFieldId, updateForm]);
-
-  const duplicateField = useCallback((fieldId: string): string => {
-    if (!form) return '';
-
-    const originalField = fields.find(f => f.id === fieldId);
-    if (!originalField) return '';
-
-    const duplicatedField: FormField = {
-      ...originalField,
-      id: generateFieldId(),
-      label: `${originalField.label} - کپی`
-    };
-
-    const originalIndex = fields.findIndex(f => f.id === fieldId);
-    const newFields = [...fields];
-    newFields.splice(originalIndex + 1, 0, duplicatedField);
-
-    updateForm({ fields: newFields });
-    setSelectedFieldId(duplicatedField.id);
-
-    return duplicatedField.id;
-  }, [form, fields, updateForm]);
-
-  const moveField = useCallback((fieldId: string, direction: 'up' | 'down') => {
-    if (!form) return;
-
-    const currentIndex = fields.findIndex(f => f.id === fieldId);
-    if (currentIndex === -1) return;
-
-    const newIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
-    if (newIndex < 0 || newIndex >= fields.length) return;
-
-    const newFields = [...fields];
-    const [movedField] = newFields.splice(currentIndex, 1);
-    newFields.splice(newIndex, 0, movedField);
-
-    updateForm({ fields: newFields });
-  }, [form, fields, updateForm]);
-
-  const reorderFields = useCallback((fieldIds: string[]) => {
-    if (!form || fieldIds.length !== fields.length) return;
-
-    const reorderedFields = fieldIds.map(id => {
-      const field = fields.find(f => f.id === id);
-      if (!field) throw new Error(`Field not found: ${id}`);
-      return field;
+      
+      return {
+        ...prev,
+        history: newHistory,
+        historyIndex: newHistory.length - 1
+      };
     });
+  }, [maxHistorySize]);
 
-    updateForm({ fields: reorderedFields });
-  }, [form, fields, updateForm]);
+  /**
+   * بروزرسانی فرم و اضافه کردن به تاریخچه
+   */
+  const updateForm = useCallback((updates: Partial<Form> | ((prev: Form) => Form)) => {
+    setState(prev => {
+      const newForm = typeof updates === 'function' 
+        ? updates(prev.form)
+        : { ...prev.form, ...updates, updatedAt: new Date().toISOString() };
+      
+      // بررسی تغییرات
+      const hasChanges = JSON.stringify(newForm) !== JSON.stringify(lastSavedFormRef.current);
+      
+      return {
+        ...prev,
+        form: newForm,
+        hasUnsavedChanges: hasChanges
+      };
+    });
+    
+    // اضافه کردن به تاریخچه (با debounce)
+    setTimeout(() => {
+      setState(current => {
+        addToHistory(current.form);
+        return current;
+      });
+    }, 100);
+  }, [addToHistory]);
 
-  const selectField = useCallback((fieldId: string | null) => {
-    setSelectedFieldId(fieldId);
+  // =====================================================
+  // Form Management Actions
+  // =====================================================
+
+  const createNewForm = useCallback((initial?: Partial<Form>) => {
+    const newForm = createEmptyForm(initial);
+    setState(prev => ({
+      ...prev,
+      form: newForm,
+      selectedField: null,
+      isEditing: true,
+      hasUnsavedChanges: false,
+      errors: {},
+      history: [newForm],
+      historyIndex: 0
+    }));
+    lastSavedFormRef.current = newForm;
   }, []);
 
-  // Form CRUD Operations
-  const saveForm = useCallback(async (): Promise<string | null> => {
-    if (!form) return null;
+  const loadForm = useCallback((form: Form) => {
+    setState(prev => ({
+      ...prev,
+      form,
+      selectedField: null,
+      isEditing: false,
+      hasUnsavedChanges: false,
+      errors: {},
+      history: [form],
+      historyIndex: 0
+    }));
+    lastSavedFormRef.current = form;
+  }, []);
 
-    setIsSaving(true);
-    
+  const saveForm = useCallback(async (): Promise<void> => {
+    if (!state.hasUnsavedChanges || !onSave) return;
+
+    setState(prev => ({ ...prev, isLoading: true, errors: {} }));
+
     try {
-      let savedFormId: string;
-
-      if (form.id) {
-        // Update existing form
-        await FormService.updateForm(form.id, form);
-        savedFormId = form.id;
-      } else {
-        // Create new form
-        const createDto: CreateFormDto = {
-          name: form.name,
-          description: form.description,
-          fields: form.fields,
-          settings: form.settings,
-          styling: form.styling,
-          metadata: form.metadata
-        };
-        
-        savedFormId = await FormService.createForm(createDto);
-        
-        // Update form with new ID
-        const updatedForm = { ...form, id: savedFormId };
-        setForm(updatedForm);
-      }
-
-      setLastSaved(new Date());
-      onSave?.(form);
-      
-      return savedFormId;
+      await onSave(state.form);
+      lastSavedFormRef.current = state.form;
+      setState(prev => ({ 
+        ...prev, 
+        hasUnsavedChanges: false, 
+        isLoading: false 
+      }));
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'خطا در ذخیره فرم';
+      setState(prev => ({ 
+        ...prev, 
+        isLoading: false,
+        errors: { ...prev.errors, save: errorMessage }
+      }));
       onError?.(errorMessage);
-      return null;
-    } finally {
-      setIsSaving(false);
     }
-  }, [form, onSave, onError]);
-
-  const loadForm = useCallback(async (formId: string) => {
-    setIsLoading(true);
-    
-    try {
-      const loadedForm = await FormService.getForm(formId);
-      
-      if (loadedForm) {
-        setForm(loadedForm);
-        setHistory([loadedForm]);
-        setHistoryIndex(0);
-        setSelectedFieldId(null);
-        setValidationErrors({});
-      } else {
-        onError?.('فرم یافت نشد');
-      }
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'خطا در بارگذاری فرم';
-      onError?.(errorMessage);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [onError]);
+  }, [state.form, state.hasUnsavedChanges, onSave, onError]);
 
   const resetForm = useCallback(() => {
-    const newForm = createDefaultForm();
-    setForm(newForm);
-    setHistory([newForm]);
-    setHistoryIndex(0);
-    setSelectedFieldId(null);
-    setValidationErrors({});
-    setLastSaved(null);
+    setState(prev => ({
+      ...prev,
+      form: lastSavedFormRef.current,
+      selectedField: null,
+      hasUnsavedChanges: false,
+      errors: {}
+    }));
   }, []);
 
-  const validateForm = useCallback((): boolean => {
-    if (!form) return false;
+  // =====================================================
+  // Field Management Actions
+  // =====================================================
 
-    setIsValidating(true);
+  const addField = useCallback((type: FieldType, index?: number) => {
+    const newField: FormField = {
+      id: generateFieldId(),
+      type,
+      label: `فیلد ${type}`,
+      placeholder: '',
+      helpText: '',
+      required: false,
+      defaultValue: '',
+      disabled: false,
+      readonly: false,
+      validation: {},
+      styling: {
+        width: '100%'
+      },
+      options: type === 'select' || type === 'radio' || type === 'checkbox' ? [
+        { id: 'option_1', label: 'گزینه ۱', value: 'option_1' },
+        { id: 'option_2', label: 'گزینه ۲', value: 'option_2' }
+      ] : undefined,
+      fieldSettings: getDefaultFieldSettings(type)
+    };
 
-    try {
-      const errors: Record<string, string[]> = {};
+    updateForm(prev => {
+      const newFields = [...prev.fields];
+      const insertIndex = index !== undefined ? index : newFields.length;
+      newFields.splice(insertIndex, 0, newField);
       
-      // Validate form basic info
-      if (!form.name.trim()) {
-        errors.formName = ['نام فرم الزامی است'];
+      return {
+        ...prev,
+        fields: newFields
+      };
+    });
+
+    // انتخاب فیلد جدید
+    setState(prev => ({ ...prev, selectedField: newField }));
+  }, [updateForm]);
+
+  const removeField = useCallback((fieldId: string) => {
+    updateForm(prev => ({
+      ...prev,
+      fields: prev.fields.filter(field => field.id !== fieldId)
+    }));
+
+    // اگر فیلد انتخاب شده حذف شد، انتخاب را پاک کن
+    setState(prev => ({
+      ...prev,
+      selectedField: prev.selectedField?.id === fieldId ? null : prev.selectedField
+    }));
+  }, [updateForm]);
+
+  const duplicateField = useCallback((fieldId: string) => {
+    const fieldToDuplicate = state.form.fields.find(f => f.id === fieldId);
+    if (!fieldToDuplicate) return;
+
+    const newField: FormField = {
+      ...fieldToDuplicate,
+      id: generateFieldId(),
+      label: `${fieldToDuplicate.label} (کپی)`
+    };
+
+    updateForm(prev => {
+      const fieldIndex = prev.fields.findIndex(f => f.id === fieldId);
+      const newFields = [...prev.fields];
+      newFields.splice(fieldIndex + 1, 0, newField);
+      
+      return {
+        ...prev,
+        fields: newFields
+      };
+    });
+  }, [state.form.fields, updateForm]);
+
+  const moveField = useCallback((fieldId: string, newIndex: number) => {
+    updateForm(prev => {
+      const fields = [...prev.fields];
+      const currentIndex = fields.findIndex(f => f.id === fieldId);
+      
+      if (currentIndex === -1 || newIndex < 0 || newIndex >= fields.length) {
+        return prev;
       }
 
-      if (form.fields.length === 0) {
-        errors.formFields = ['فرم باید حداقل یک فیلد داشته باشد'];
-      }
+      const [movedField] = fields.splice(currentIndex, 1);
+      fields.splice(newIndex, 0, movedField);
 
-      // Validate each field
-      form.fields.forEach(field => {
-        const fieldValidation = ValidationService.validateField(field, null);
-        if (!fieldValidation.isValid) {
-          errors[field.id] = fieldValidation.errors.map(e => e.message);
-        }
-      });
+      return {
+        ...prev,
+        fields
+      };
+    });
+  }, [updateForm]);
 
-      setValidationErrors(errors);
-      return Object.keys(errors).length === 0;
-    } catch (error) {
-      onError?.('خطا در اعتبارسنجی فرم');
-      return false;
-    } finally {
-      setIsValidating(false);
-    }
-  }, [form, onError]);
-
-  // Auto Save Function
-  const performAutoSave = useCallback(async () => {
-    if (!form || !form.id) return; // Only auto-save existing forms
-
-    setIsAutoSaving(true);
+  const selectField = useCallback((fieldId: string | null) => {
+    const selectedField = fieldId 
+      ? state.form.fields.find(f => f.id === fieldId) || null
+      : null;
     
-    try {
-      await FormService.updateForm(form.id, form);
-      setLastSaved(new Date());
-    } catch (error) {
-      console.warn('Auto-save failed:', error);
-    } finally {
-      setIsAutoSaving(false);
-    }
-  }, [form]);
+    setState(prev => ({ ...prev, selectedField }));
+  }, [state.form.fields]);
 
-  // Undo/Redo Functions
+  const updateField = useCallback((fieldId: string, updates: Partial<FormField>) => {
+    updateForm(prev => ({
+      ...prev,
+      fields: prev.fields.map(field =>
+        field.id === fieldId ? { ...field, ...updates } : field
+      )
+    }));
+
+    // بروزرسانی فیلد انتخاب شده
+    setState(prev => ({
+      ...prev,
+      selectedField: prev.selectedField?.id === fieldId 
+        ? { ...prev.selectedField, ...updates }
+        : prev.selectedField
+    }));
+  }, [updateForm]);
+
+  // =====================================================
+  // Settings Actions
+  // =====================================================
+
+  const updateSettings = useCallback((updates: Partial<FormSettings>) => {
+    updateForm(prev => ({
+      ...prev,
+      settings: { ...prev.settings, ...updates }
+    }));
+  }, [updateForm]);
+
+  const updateStyling = useCallback((updates: Partial<FormStyling>) => {
+    updateForm(prev => ({
+      ...prev,
+      styling: { ...prev.styling, ...updates }
+    }));
+  }, [updateForm]);
+
+  const updateMetadata = useCallback((updates: Partial<FormMetadata>) => {
+    updateForm(prev => ({
+      ...prev,
+      metadata: { ...prev.metadata, ...updates }
+    }));
+  }, [updateForm]);
+
+  // =====================================================
+  // History Actions
+  // =====================================================
+
   const undo = useCallback(() => {
-    if (!canUndo) return;
-
-    const newIndex = historyIndex - 1;
-    const previousForm = history[newIndex];
-    
-    if (previousForm) {
-      isUpdatingFromHistory.current = true;
-      setForm(previousForm);
-      setHistoryIndex(newIndex);
+    setState(prev => {
+      if (prev.historyIndex <= 0) return prev;
       
-      // Reset field selection if field no longer exists
-      if (selectedFieldId && !previousForm.fields.find(f => f.id === selectedFieldId)) {
-        setSelectedFieldId(null);
-      }
+      const newIndex = prev.historyIndex - 1;
+      const formToRestore = prev.history[newIndex];
       
-      setTimeout(() => {
-        isUpdatingFromHistory.current = false;
-      }, 0);
-    }
-  }, [canUndo, historyIndex, history, selectedFieldId]);
+      return {
+        ...prev,
+        form: formToRestore,
+        historyIndex: newIndex,
+        hasUnsavedChanges: JSON.stringify(formToRestore) !== JSON.stringify(lastSavedFormRef.current)
+      };
+    });
+  }, []);
 
   const redo = useCallback(() => {
-    if (!canRedo) return;
+    setState(prev => {
+      if (prev.historyIndex >= prev.history.length - 1) return prev;
+      
+      const newIndex = prev.historyIndex + 1;
+      const formToRestore = prev.history[newIndex];
+      
+      return {
+        ...prev,
+        form: formToRestore,
+        historyIndex: newIndex,
+        hasUnsavedChanges: JSON.stringify(formToRestore) !== JSON.stringify(lastSavedFormRef.current)
+      };
+    });
+  }, []);
 
-    const newIndex = historyIndex + 1;
-    const nextForm = history[newIndex];
-    
-    if (nextForm) {
-      isUpdatingFromHistory.current = true;
-      setForm(nextForm);
-      setHistoryIndex(newIndex);
-      
-      // Reset field selection if field no longer exists
-      if (selectedFieldId && !nextForm.fields.find(f => f.id === selectedFieldId)) {
-        setSelectedFieldId(null);
-      }
-      
-      setTimeout(() => {
-        isUpdatingFromHistory.current = false;
-      }, 0);
+  const canUndo = state.historyIndex > 0;
+  const canRedo = state.historyIndex < state.history.length - 1;
+
+  // =====================================================
+  // Validation
+  // =====================================================
+
+  const validateForm = useCallback((): boolean => {
+    const errors: Record<string, string> = {};
+
+    // بررسی نام فرم
+    if (!state.form.name.trim()) {
+      errors.name = 'نام فرم الزامی است';
     }
-  }, [canRedo, historyIndex, history, selectedFieldId]);
+
+    // بررسی فیلدها
+    if (state.form.fields.length === 0) {
+      errors.fields = 'حداقل یک فیلد باید وجود داشته باشد';
+    }
+
+    // بررسی فیلدهای تکراری
+    const fieldIds = state.form.fields.map(f => f.id);
+    const duplicateIds = fieldIds.filter((id, index) => fieldIds.indexOf(id) !== index);
+    if (duplicateIds.length > 0) {
+      errors.duplicateFields = 'شناسه فیلدهای تکراری یافت شد';
+    }
+
+    setState(prev => ({ ...prev, errors }));
+    return Object.keys(errors).length === 0;
+  }, [state.form]);
+
+  const validateField = useCallback((fieldId: string): boolean => {
+    const field = state.form.fields.find(f => f.id === fieldId);
+    if (!field) return false;
+
+    const errors: Record<string, string> = {};
+
+    if (!field.label.trim()) {
+      errors[`field_${fieldId}_label`] = 'برچسب فیلد الزامی است';
+    }
+
+    setState(prev => ({ ...prev, errors: { ...prev.errors, ...errors } }));
+    return Object.keys(errors).length === 0;
+  }, [state.form.fields]);
+
+  // =====================================================
+  // Utils
+  // =====================================================
+
+  const clearErrors = useCallback(() => {
+    setState(prev => ({ ...prev, errors: {} }));
+  }, []);
+
+  const setError = useCallback((key: string, message: string) => {
+    setState(prev => ({
+      ...prev,
+      errors: { ...prev.errors, [key]: message }
+    }));
+  }, []);
+
+  // =====================================================
+  // Effects
+  // =====================================================
+
+  // Auto-save
+  useEffect(() => {
+    if (!autoSave || !state.hasUnsavedChanges || !onSave) return;
+
+    autoSaveTimerRef.current = setTimeout(() => {
+      saveForm();
+    }, autoSaveInterval);
+
+    return () => {
+      if (autoSaveTimerRef.current) {
+        clearTimeout(autoSaveTimerRef.current);
+      }
+    };
+  }, [autoSave, state.hasUnsavedChanges, autoSaveInterval, saveForm, onSave]);
 
   // Cleanup
   useEffect(() => {
     return () => {
-      if (autoSaveTimer.current) {
-        clearTimeout(autoSaveTimer.current);
+      if (autoSaveTimerRef.current) {
+        clearTimeout(autoSaveTimerRef.current);
       }
     };
   }, []);
 
-  return {
-    // Form State
-    form,
-    fields,
-    selectedFieldId,
-    selectedField,
+  // =====================================================
+  // Return
+  // =====================================================
+
+  const actions: FormBuilderActions = {
+    // Form Management
+    createNewForm,
+    loadForm,
+    saveForm,
+    resetForm,
     
-    // Loading States
-    isLoading,
-    isSaving,
-    isValidating,
-    
-    // Validation
-    validationErrors,
-    isFormValid,
-    
-    // Actions
-    updateForm,
+    // Field Management
     addField,
-    updateField,
     removeField,
     duplicateField,
     moveField,
-    reorderFields,
     selectField,
+    updateField,
     
-    // Form Operations
-    saveForm,
-    loadForm,
-    resetForm,
-    validateForm,
+    // Settings
+    updateSettings,
+    updateStyling,
+    updateMetadata,
     
-    // Undo/Redo
-    canUndo,
-    canRedo,
+    // History
     undo,
     redo,
+    canUndo,
+    canRedo,
     
-    // Auto Save
-    isAutoSaving,
-    lastSaved
+    // Validation
+    validateForm,
+    validateField,
+    
+    // Utils
+    clearErrors,
+    setError
   };
-};
-
-/**
- * Hook برای مدیریت form data و submission
- */
-export const useFormData = (formId: string) => {
-  const [responses, setResponses] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [stats, setStats] = useState<any>(null);
-
-  const loadResponses = useCallback(async () => {
-    setIsLoading(true);
-    try {
-      const result = await FormService.getFormResponses(formId);
-      setResponses(result.data);
-    } catch (error) {
-      console.error('Error loading responses:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [formId]);
-
-  const loadStats = useCallback(async () => {
-    try {
-      const formStats = await FormService.getFormStats(formId);
-      setStats(formStats);
-    } catch (error) {
-      console.error('Error loading stats:', error);
-    }
-  }, [formId]);
-
-  useEffect(() => {
-    if (formId) {
-      loadResponses();
-      loadStats();
-    }
-  }, [formId, loadResponses, loadStats]);
-
-  const exportData = useCallback(async (format: 'json' | 'csv' | 'xlsx' = 'json') => {
-    try {
-      // TODO: Implement export functionality
-      console.log(`Exporting data in ${format} format...`);
-    } catch (error) {
-      console.error('Error exporting data:', error);
-    }
-  }, []);
-
-  const deleteResponse = useCallback(async (responseId: string) => {
-    try {
-      await FormService.deleteResponse(responseId, formId);
-      await loadResponses(); // Reload responses
-    } catch (error) {
-      console.error('Error deleting response:', error);
-    }
-  }, [formId, loadResponses]);
 
   return {
-    responses,
-    stats,
-    isLoading,
-    loadResponses,
-    loadStats,
-    exportData,
-    deleteResponse
+    ...state,
+    ...actions
   };
 };
 
 /**
- * Hook برای مدیریت form templates
+ * تنظیمات پیش‌فرض برای انواع فیلد
  */
-export const useFormTemplates = () => {
-  const [templates, setTemplates] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState<string>('');
-
-  const loadTemplates = useCallback(async (category?: string) => {
-    setIsLoading(true);
-    try {
-      const templateList = await FormService.getTemplates(category);
-      setTemplates(templateList);
-    } catch (error) {
-      console.error('Error loading templates:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  const createFromTemplate = useCallback(async (templateId: string, formName: string) => {
-    try {
-      const newFormId = await FormService.createFormFromTemplate(templateId, formName);
-      return newFormId;
-    } catch (error) {
-      console.error('Error creating form from template:', error);
-      return null;
-    }
-  }, []);
-
-  useEffect(() => {
-    loadTemplates(selectedCategory);
-  }, [selectedCategory, loadTemplates]);
-
-  return {
-    templates,
-    isLoading,
-    selectedCategory,
-    setSelectedCategory,
-    loadTemplates,
-    createFromTemplate
-  };
-};
-
-/**
- * Hook برای مدیریت keyboard shortcuts
- */
-export const useFormBuilderShortcuts = (
-  actions: {
-    save: () => void;
-    undo: () => void;
-    redo: () => void;
-    copy: () => void;
-    paste: () => void;
-    delete: () => void;
+function getDefaultFieldSettings(type: FieldType): FormField['fieldSettings'] {
+  switch (type) {
+    case 'textarea':
+      return { rows: 3 };
+    case 'rating':
+      return { maxRating: 5 };
+    case 'slider':
+      return { min: 0, max: 100, step: 1 };
+    case 'file':
+      return { multiple: false };
+    case 'select':
+      return { searchable: false };
+    default:
+      return {};
   }
-) => {
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      // Check if user is typing in an input field
-      const isInputField = (e.target as HTMLElement)?.tagName?.toLowerCase() === 'input' ||
-                          (e.target as HTMLElement)?.tagName?.toLowerCase() === 'textarea';
-      
-      if (isInputField) return;
-
-      // Ctrl/Cmd + S (Save)
-      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
-        e.preventDefault();
-        actions.save();
-      }
-      
-      // Ctrl/Cmd + Z (Undo)
-      if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
-        e.preventDefault();
-        actions.undo();
-      }
-      
-      // Ctrl/Cmd + Shift + Z or Ctrl/Cmd + Y (Redo)
-      if (((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'Z') ||
-          ((e.ctrlKey || e.metaKey) && e.key === 'y')) {
-        e.preventDefault();
-        actions.redo();
-      }
-      
-      // Ctrl/Cmd + C (Copy)
-      if ((e.ctrlKey || e.metaKey) && e.key === 'c') {
-        e.preventDefault();
-        actions.copy();
-      }
-      
-      // Ctrl/Cmd + V (Paste)
-      if ((e.ctrlKey || e.metaKey) && e.key === 'v') {
-        e.preventDefault();
-        actions.paste();
-      }
-      
-      // Delete key
-      if (e.key === 'Delete' || e.key === 'Backspace') {
-        e.preventDefault();
-        actions.delete();
-      }
-    };
-
-    document.addEventListener('keydown', handleKeyDown);
-    
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [actions]);
-};
+}
 
 export default useFormBuilder;
