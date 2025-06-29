@@ -17,11 +17,22 @@
     "test": "jest",
     "type-check": "tsc --noEmit"
   },
-  "keywords": ["form-builder", "api", "postgresql", "express"],
+  "keywords": [
+    "form-builder",
+    "api",
+    "postgresql",
+    "express"
+  ],
   "author": "Computer123",
   "license": "ISC",
   "type": "commonjs",
   "engines": {
     "node": ">=18.0.0"
+  },
+  "devDependencies": {
+    "prisma": "^6.9.0"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.9.0"
   }
 }
