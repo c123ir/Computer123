@@ -176,6 +176,8 @@ export interface SortOptions {
   field: string;
   /** جهت مرتب‌سازی */
   order: 'asc' | 'desc';
+  /** جهت مرتب‌سازی (alias for Firebase) */
+  direction: 'asc' | 'desc';
 }
 
 /**
