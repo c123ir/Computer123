@@ -108,6 +108,17 @@ export const FormBuilder: React.FC<FormBuilderProps> = ({
     }
   };
 
+  // Handle move field - wrapper to convert direction to index
+  const handleMoveField = (fieldId: string, direction: 'up' | 'down') => {
+    const currentIndex = fields.findIndex(f => f.id === fieldId);
+    if (currentIndex === -1) return;
+    
+    const newIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
+    if (newIndex >= 0 && newIndex < fields.length) {
+      moveField(fieldId, newIndex);
+    }
+  };
+
   // Handle save
   const handleSave = async () => {
     if (!readonly && validateForm()) {
