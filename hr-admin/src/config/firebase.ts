@@ -69,7 +69,7 @@ function validateFirebaseConfig(config: FirebaseConfig): void {
     'appId'
   ];
 
-  const missingFields = requiredFields.filter(field => !config[field] || config[field] === '' || config[field].includes('your-'));
+  const missingFields = requiredFields.filter(field => !config[field] || config[field] === '' || (config[field] && config[field].includes('your-')));
   
   if (missingFields.length > 0) {
     console.warn(
