@@ -9,7 +9,7 @@ import FormsList from './pages/FormsList';
 import FormBuilderPage from './pages/FormBuilderPage';
 
 // Firebase Connection Test (فقط در development)
-import FirebaseConnectionTest from './components/common/FirebaseConnectionTest';
+import PostgreSQLConnectionTest from './components/common/FirebaseConnectionTest';
 
 function App() {
   return (
