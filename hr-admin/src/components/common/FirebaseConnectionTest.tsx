@@ -37,7 +37,7 @@ export const PostgreSQLConnectionTest: React.FC = () => {
         message: 'در حال تست اتصال به Backend...'
       });
 
-      const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:3001/api';
+      const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:3995/api';
       
       // Test health endpoint with timeout
       const controller = new AbortController();
