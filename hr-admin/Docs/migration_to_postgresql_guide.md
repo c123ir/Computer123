@@ -90,7 +90,7 @@ JWT_SECRET=your_jwt_secret_here
 CORS_ORIGIN=http://localhost:3000
 
 # .env (برای frontend - آپدیت)
-REACT_APP_API_URL=http://localhost:3001/api
+REACT_APP_API_URL=http://localhost:3995/api
 REACT_APP_DATABASE_TYPE=postgresql
 REACT_APP_ENV=development
 ```
@@ -454,7 +454,7 @@ services:
   backend:
     build: ./computer123-backend
     ports:
-      - "3001:3001"
+      - "3995:3995"
     environment:
       DATABASE_URL: postgresql://form_builder:your_secure_password@postgres:5432/computer123_forms
     depends_on:
