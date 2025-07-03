@@ -107,11 +107,14 @@ app.use((req, res) => {
 // Database connection test
 async function connectToDatabase() {
   try {
+    // Test database connection
     await prisma.$connect();
     console.log('✅ Connected to PostgreSQL database');
+    return true;
   } catch (error) {
     console.error('❌ Database connection failed:', error);
-    process.exit(1);
+    console.log('⚠️  Running in demo mode without database');
+    return false;
   }
 }
 
