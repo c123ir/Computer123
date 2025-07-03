@@ -24,9 +24,9 @@ export const PostgreSQLConnectionTest: React.FC = () => {
   useEffect(() => {
     testConnection();
     setBackendInfo({
-      apiUrl: process.env.REACT_APP_API_URL || 'http://localhost:3995/api',
-      host: process.env.REACT_APP_BACKEND_HOST || 'localhost',
-      port: process.env.REACT_APP_BACKEND_PORT || '3995',
+      apiUrl: getApiUrl(),
+      host: getBackendHost(),
+      port: getBackendPort(),
       databaseType: process.env.REACT_APP_DATABASE_TYPE || 'postgresql'
     });
   }, []);
