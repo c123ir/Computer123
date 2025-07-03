@@ -90,7 +90,7 @@ export const PostgreSQLConnectionTest: React.FC = () => {
       
       if (error.message.includes('Failed to fetch') || error.message.includes('ECONNREFUSED')) {
         errorMessage = 'خطا: Backend در دسترس نیست';
-        errorDetails = 'لطفاً مطمئن شوید که PostgreSQL backend روی پورت 3001 در حال اجرا است';
+        errorDetails = 'لطفاً مطمئن شوید که PostgreSQL backend روی پورت 3995 در حال اجرا است';
       } else if (error.message.includes('timeout')) {
         errorMessage = 'خطا: زمان اتصال به Backend تمام شد';
         errorDetails = 'Backend ممکن است کند باشد یا مشکل شبکه وجود داشته باشد';
