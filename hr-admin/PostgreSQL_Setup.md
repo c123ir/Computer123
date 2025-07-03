@@ -14,9 +14,9 @@
 
 ```bash
 # PostgreSQL Backend API Configuration
-REACT_APP_API_URL=http://localhost:3001/api
+REACT_APP_API_URL=http://localhost:3995/api
 REACT_APP_BACKEND_HOST=localhost
-REACT_APP_BACKEND_PORT=3001
+REACT_APP_BACKEND_PORT=3995
 
 # Database Type
 REACT_APP_DATABASE_TYPE=postgresql
