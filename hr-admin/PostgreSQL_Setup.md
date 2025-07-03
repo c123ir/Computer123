@@ -86,7 +86,7 @@ Backend باید پاسخ‌ها را در این format ارسال کند:
 ## وضعیت فعلی
 
 ✅ **Build موفق**: پروژه با موفقیت compile می‌شود (بدون خطا)  
-✅ **Runtime آماده**: پروژه روی http://localhost:3000 در دسترس است  
+✅ **Runtime آماده**: پروژه روی http://localhost:3990 در دسترس است  
 ✅ **API Ready**: تمام API calls به PostgreSQL backend ارسال می‌شوند  
 ✅ **Connection Test**: PostgreSQL backend connection test در development mode فعال است  
 ✅ **Bundle Size**: حجم bundle کاهش یافت (Firebase dependencies حذف شد)  
