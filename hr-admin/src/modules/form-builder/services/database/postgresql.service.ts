@@ -19,6 +19,7 @@ import {
   BatchResult,
   HealthCheckResult
 } from '../../types';
+import { getApiUrl } from '../../../../utils/api';
 
 /**
  * PostgreSQL Service Implementation
