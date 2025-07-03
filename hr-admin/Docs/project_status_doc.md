@@ -134,9 +134,9 @@ enum FormStatus {
 ```bash
 DATABASE_URL="postgresql://form_builder:Mojtab@123@localhost:5432/computer123_forms"
 NODE_ENV=development
-PORT=3001
+PORT=3995
 JWT_SECRET=computer123_super_secure_jwt_secret_key_2025
-CORS_ORIGIN=http://localhost:3000
+CORS_ORIGIN=http://localhost:3990
 ```
 
 ---
