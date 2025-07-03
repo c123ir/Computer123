@@ -1,6 +1,7 @@
 // src/components/common/PostgreSQLConnectionTest.tsx
 import React, { useEffect, useState } from 'react';
 import { CheckCircle, XCircle, Clock, AlertTriangle, Database } from 'lucide-react';
+import { getApiUrl, getBackendHost, getBackendPort, buildApiUrl, API_ENDPOINTS } from '../../utils/api';
 
 interface ConnectionStatus {
   status: 'checking' | 'connected' | 'failed' | 'warning';
