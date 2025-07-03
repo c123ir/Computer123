@@ -233,8 +233,8 @@ export const usePostgreSQLStatus = () => {
     setError(null);
     
     try {
-      const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:3995/api';
-      const response = await fetch(`${apiUrl}/health`);
+      const healthUrl = buildApiUrl(API_ENDPOINTS.HEALTH);
+      const response = await fetch(healthUrl);
       const connected = response.ok;
       setIsConnected(connected);
       setError(connected ? null : `HTTP ${response.status}: ${response.statusText}`);
