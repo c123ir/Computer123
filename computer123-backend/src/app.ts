@@ -24,7 +24,7 @@ app.use(helmet());
 
 // CORS
 app.use(cors({
-  origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
+  origin: process.env.CORS_ORIGIN || 'http://localhost:3990',
   credentials: true
 }));
 
@@ -64,7 +64,7 @@ export default app;
 import app from './app';
 import { PrismaClient } from '@prisma/client';
 
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3995;
 const prisma = new PrismaClient();
 
 // Database connection test
