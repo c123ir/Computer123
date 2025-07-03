@@ -130,13 +130,19 @@ process.on('SIGINT', gracefulShutdown);
 
 // Start server
 async function startServer() {
-  await connectToDatabase();
+  const dbConnected = await connectToDatabase();
   
   app.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT}`);
     console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
     console.log(`🔗 Health check: http://localhost:${PORT}/health`);
     console.log(`🔗 API Test: http://localhost:${PORT}/api/test`);
+    
+    if (dbConnected) {
+      console.log('✅ Database: Connected');
+    } else {
+      console.log('⚠️  Database: Demo mode (no connection)');
+    }
   });
 }
 
