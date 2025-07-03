@@ -85,9 +85,9 @@ GRANT ALL PRIVILEGES ON DATABASE computer123_forms TO form_builder;
 # .env.local (برای backend)
 DATABASE_URL="postgresql://form_builder:your_secure_password@localhost:5432/computer123_forms"
 NODE_ENV=development
-PORT=3001
+PORT=3995
 JWT_SECRET=your_jwt_secret_here
-CORS_ORIGIN=http://localhost:3000
+CORS_ORIGIN=http://localhost:3990
 
 # .env (برای frontend - آپدیت)
 REACT_APP_API_URL=http://localhost:3995/api
@@ -463,9 +463,9 @@ services:
   frontend:
     build: ./hr-admin
     ports:
-      - "3000:3000"
+      - "3990:3990"
     environment:
-      REACT_APP_API_URL: http://backend:3001/api
+      REACT_APP_API_URL: http://backend:3995/api
 
 volumes:
   postgres_data:
