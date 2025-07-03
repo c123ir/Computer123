@@ -213,7 +213,7 @@ export const usePostgreSQLStatus = () => {
   useEffect(() => {
     const testConnection = async () => {
       try {
-        const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:3001/api';
+        const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:3995/api';
         const response = await fetch(`${apiUrl}/health`);
         const connected = response.ok;
         setIsConnected(connected);
@@ -232,7 +232,7 @@ export const usePostgreSQLStatus = () => {
     setError(null);
     
     try {
-      const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:3001/api';
+      const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:3995/api';
       const response = await fetch(`${apiUrl}/health`);
       const connected = response.ok;
       setIsConnected(connected);
