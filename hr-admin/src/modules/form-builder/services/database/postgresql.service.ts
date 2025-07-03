@@ -29,7 +29,7 @@ export class PostgreSQLService implements DatabaseService {
   private baseURL: string;
 
   constructor(baseURL?: string) {
-    this.baseURL = baseURL || process.env.REACT_APP_API_URL || 'http://localhost:3995/api';
+    this.baseURL = baseURL || getApiUrl();
   }
 
   // =================================
