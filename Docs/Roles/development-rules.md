@@ -1,0 +1,204 @@
+# قوانین توسعه پروژه Computer123 Form Builder
+
+## 🎯 اصول کلی توسعه
+
+### 1. ساختار فایل‌ها
+- همیشه مسیر کامل فایل در اول به عنوان کامنت بنویس
+- فولدر `src/modules/form-builder/` برای تمام کامپوننت‌های فرم‌ساز
+- فایل‌های TypeScript با پسوند `.ts` یا `.tsx`
+- نام‌گذاری فایل‌ها: PascalCase برای کامپوننت‌ها، camelCase برای utilities
+
+### 2. استاندارد TypeScript
+- همیشه type safety رعایت شود
+- Interface ها در فایل `types/index.ts` تعریف شوند
+- هیچ `any` type استفاده نشود مگر ضروری باشد
+- همه Props ها type شده باشند
+
+### 3. کامپوننت‌ها
+- همه کامپوننت‌ها functional و با React hooks باشند
+- استفاده از React.memo برای بهینه‌سازی
+- Props destructuring در parameter
+- Conditional rendering با early return
+
+### 4. Styling
+- فقط Tailwind CSS استفاده شود
+- کلاس‌های فارسی RTL: `text-right`, `mr-*`, `ml-*`
+- Responsive design: `sm:`, `md:`, `lg:`, `xl:`
+- Dark mode support: `dark:` prefix
+
+### 5. Backend Integration
+- تمام API calls از `services/` فولدر
+- استفاده از Database Abstraction Layer
+- Error handling در همه API calls
+- Loading states مدیریت شوند
+
+## 🔧 Backend API Integration
+
+### استاندارد API Calls:
+```typescript
+// ✅ درست
+const response = await formService.createForm(formData);
+
+// ❌ غلط  
+const response = await fetch('/api/forms', { method: 'POST', body: formData });
+```
+
+### Database Service Pattern:
+```typescript
+// استفاده از factory pattern
+const dbService = DatabaseFactory.create('postgresql');
+const form = await dbService.getForm(id);
+```
+
+## 📱 UI/UX Guidelines
+
+### 1. Layout
+- همیشه responsive design
+- Mobile-first approach
+- Sidebar collapsible در موبایل
+- Header sticky در تمام صفحات
+
+### 2. Forms
+- Validation real-time
+- Error messages فارسی و واضح
+- Loading indicators برای actions
+- Success/Error notifications
+
+### 3. Accessibility
+- ARIA labels برای screen readers
+- Keyboard navigation support
+- Color contrast مناسب
+- Focus indicators واضح
+
+## 🎨 Design System
+
+### رنگ‌بندی:
+- Primary: Blue (#3B82F6)
+- Secondary: Purple (#8B5CF6)  
+- Success: Green (#10B981)
+- Error: Red (#EF4444)
+- Warning: Yellow (#F59E0B)
+
+### Typography:
+- Font: Vazirmatn
+- Heading: font-bold
+- Body: font-normal
+- Caption: text-sm text-gray-600
+
+### Spacing:
+- Padding: p-4, p-6, p-8
+- Margin: m-4, m-6, m-8
+- Gap: gap-4, gap-6, gap-8
+
+## 🚀 Performance
+
+### 1. React Optimization
+- React.memo برای heavy components
+- useMemo برای expensive calculations
+- useCallback برای event handlers
+- React.lazy برای code splitting
+
+### 2. Bundle Size
+- Import فقط utilities مورد نیاز
+- Tree shaking enabled
+- Dynamic imports برای large libraries
+
+### 3. API Optimization
+- Request debouncing برای search
+- Pagination برای lists
+- Caching appropriate responses
+
+## 🧪 Testing
+
+### Unit Tests:
+- Jest + React Testing Library
+- تست هر utility function
+- تست هر custom hook
+- تست کامپوننت‌های کلیدی
+
+### Integration Tests:
+- تست API integration
+- تست form submission flow
+- تست drag & drop functionality
+
+## 📝 Documentation
+
+### Code Comments:
+- JSDoc برای functions
+- Inline comments برای complex logic
+- TODO comments برای future improvements
+
+### Component Documentation:
+```typescript
+/**
+ * FormBuilder - کامپوننت اصلی فرم‌ساز
+ * @param initialForm - فرم اولیه برای ویرایش
+ * @param onSave - callback برای ذخیره فرم
+ * @param onCancel - callback برای لغو
+ */
+interface FormBuilderProps {
+  initialForm?: Form;
+  onSave: (form: Form) => void;
+  onCancel: () => void;
+}
+```
+
+## 🔄 Git Workflow
+
+### Commit Messages:
+- feat: اضافه کردن قابلیت جدید
+- fix: رفع bug
+- refactor: تغییر کد بدون تغییر functionality
+- style: تغییرات فقط styling
+- docs: تغییر مستندات
+- test: اضافه کردن یا تغییر tests
+
+### Branch Strategy:
+- main: production ready code
+- develop: latest development
+- feature/[name]: new features
+- fix/[name]: bug fixes
+
+## 🛡️ Security
+
+### Input Validation:
+- Sanitize user inputs
+- Validate in both frontend & backend
+- Escape output در rendering
+
+### API Security:
+- Authentication headers
+- Rate limiting
+- Input validation
+- SQL injection prevention
+
+## 📊 Monitoring
+
+### Error Tracking:
+- Console.error برای development
+- Error boundary برای React errors
+- API error logging
+
+### Performance Monitoring:
+- Bundle analyzer
+- Lighthouse scores
+- API response times
+
+---
+
+## ✅ Checklist برای هر Feature
+
+- [ ] TypeScript types تعریف شده
+- [ ] Component responsive است
+- [ ] Error handling اضافه شده
+- [ ] Loading states مدیریت شده
+- [ ] Dark mode support
+- [ ] RTL layout درست است
+- [ ] API integration test شده
+- [ ] Git commit با message مناسب
+- [ ] Documentation بروزرسانی شده
+
+---
+
+*این قوانین باید توسط تمام اعضای تیم رعایت شود.*
+*آخرین بروزرسانی: ژوئیه 2025*

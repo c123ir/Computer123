@@ -1,4 +1,3 @@
-
 // =====================================================
 // 🔧 فایل: src/modules/form-builder/types/field.types.ts
 // =====================================================
@@ -156,6 +155,8 @@ export interface FormField {
     /** برای date: محدودیت تاریخ */
     minDate?: string;
     maxDate?: string;
+    /** تنظیمات اضافی */
+    [key: string]: any;
   };
   /** شرایط وابستگی */
   conditions?: Array<{
