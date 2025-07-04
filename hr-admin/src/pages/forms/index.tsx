@@ -2,12 +2,21 @@ import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Form } from '../../modules/form-builder/types';
 
+interface FormListItem {
+  id: string;
+  name: string;
+  description: string;
+  status: 'draft' | 'published' | 'archived';
+  createdAt: string;
+  updatedAt: string;
+}
+
 const Forms: React.FC = () => {
-  const [selectedForm, setSelectedForm] = useState<Form | null>(null);
+  const [selectedForm, setSelectedForm] = useState<FormListItem | null>(null);
   const [isCreating, setIsCreating] = useState(false);
 
   // TODO: Replace with actual API call
-  const { data: forms = [], isLoading } = useQuery({
+  const { data: forms = [], isLoading } = useQuery<FormListItem[]>({
     queryKey: ['forms'],
     queryFn: async () => {
       // Simulated API response
