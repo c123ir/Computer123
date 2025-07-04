@@ -155,23 +155,34 @@ const CreateFormModal: React.FC<CreateFormModalProps> = ({
       return;
     }
 
+    setErrors({ submit: '' });
+    setIsLoading(true);
+
     try {
-      const now = new Date().toISOString();
-      
-      const createDto: CreateFormDto = {
+      const newForm: CreateFormDto = {
         name: formData.name!,
         description: formData.description,
-        category: formData.category,
-        tags: formData.tags || [],
-        status: formData.status || 'draft',
         fields: formData.fields || [],
         settings: formData.settings!,
-        styling: formData.styling!
+        styling: formData.styling!,
+        category: formData.category,
+        tags: formData.tags || [],
+        status: 'draft',
+        metadata: {
+          createdBy: 'current-user',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          status: 'draft',
+          version: 1
+        }
       };
 
-      await createFormMutation.mutateAsync(createDto);
+      await createFormMutation.mutateAsync(newForm);
     } catch (error) {
-      console.error('خطا در ارسال فرم:', error);
+      console.error('خطا در ایجاد فرم:', error);
+      setErrors({ submit: 'خطا در ایجاد فرم. لطفاً دوباره تلاش کنید.' });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -267,114 +278,4 @@ const CreateFormModal: React.FC<CreateFormModalProps> = ({
                   value={formData.description || ''}
                   onChange={(e) => handleInputChange('description', e.target.value)}
                   rows={3}
-                  className={`w-full px-3 py-2 border rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none ${
-                    errors.description 
-                      ? 'border-red-300 dark:border-red-600' 
-                      : 'border-gray-300 dark:border-gray-600'
-                  }`}
-                  placeholder="توضیح کوتاهی از فرم بنویسید"
-                  disabled={createFormMutation.isPending}
-                />
-                {errors.description && (
-                  <p className="mt-1 text-sm text-red-600 dark:text-red-400">
-                    {errors.description}
-                  </p>
-                )}
-              </div>
-
-              {/* Category */}
-              <div>
-                <label htmlFor="category" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  دسته‌بندی
-                </label>
-                <select
-                  id="category"
-                  value={formData.category || ''}
-                  onChange={(e) => handleInputChange('category', e.target.value)}
-                  className={`w-full px-3 py-2 border rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                    errors.category 
-                      ? 'border-red-300 dark:border-red-600' 
-                      : 'border-gray-300 dark:border-gray-600'
-                  }`}
-                  disabled={createFormMutation.isPending}
-                >
-                  <option value="">دسته‌بندی را انتخاب کنید</option>
-                  {predefinedCategories.map(category => (
-                    <option key={category} value={category}>
-                      {category}
-                    </option>
-                  ))}
-                </select>
-                {errors.category && (
-                  <p className="mt-1 text-sm text-red-600 dark:text-red-400">
-                    {errors.category}
-                  </p>
-                )}
-              </div>
-
-              {/* Tags */}
-              <div>
-                <label htmlFor="tags" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  برچسب‌ها
-                </label>
-                <input
-                  type="text"
-                  id="tags"
-                  value={formData.tags?.join(', ') || ''}
-                  onChange={(e) => handleTagsChange(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="برچسب‌ها را با کاما جدا کنید"
-                  disabled={createFormMutation.isPending}
-                />
-                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                  مثال: ثبت‌نام، دوره، برنامه‌نویسی
-                </p>
-              </div>
-
-              {/* Submit Error */}
-              {errors.submit && (
-                <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md p-3">
-                  <p className="text-sm text-red-600 dark:text-red-400">
-                    {errors.submit}
-                  </p>
-                </div>
-              )}
-            </form>
-          </div>
-
-          {/* Actions */}
-          <div className="bg-gray-50 dark:bg-gray-750 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-            <button
-              type="submit"
-              onClick={handleSubmit}
-              disabled={createFormMutation.isPending || !formData.name?.trim()}
-              className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {createFormMutation.isPending ? (
-                <>
-                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  در حال ایجاد...
-                </>
-              ) : (
-                'ایجاد فرم'
-              )}
-            </button>
-            <button
-              type="button"
-              onClick={handleClose}
-              disabled={createFormMutation.isPending}
-              className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 dark:border-gray-600 shadow-sm px-4 py-2 bg-white dark:bg-gray-700 text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:mr-3 sm:w-auto sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              انصراف
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-export default CreateFormModal;
+                  className={`
