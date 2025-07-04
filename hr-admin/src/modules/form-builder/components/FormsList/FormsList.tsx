@@ -8,15 +8,13 @@ import {
   MagnifyingGlassIcon, 
   PlusIcon, 
   Squares2X2Icon, 
-  ListBulletIcon,
-  FunnelIcon 
+  ListBulletIcon
 } from '@heroicons/react/24/outline';
 
 // Import types - using proper imports to avoid conflicts
 import type { 
   Form, 
-  FormFilters, 
-  PaginatedResponse 
+  FormFilters
 } from '../../types';
 
 // Import hooks - using proper import
