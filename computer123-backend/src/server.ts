@@ -30,9 +30,10 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Health check
-app.get('/health', (req, res) => {
+app.get('/api/health', (req, res) => {
   res.json({ 
     status: 'OK', 
+    api: 'PostgreSQL Backend',
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV || 'development',
     database: 'Connected'
@@ -43,18 +44,25 @@ app.get('/health', (req, res) => {
 app.get('/api/test', (req, res) => {
   res.json({ 
     message: 'Backend is working!',
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
+    port: PORT
   });
 });
 
-// Forms API (placeholder)
+// Forms API
 app.get('/api/forms', async (req, res) => {
   try {
-    // For now, return empty array
+    // For now, return empty array with pagination
     res.json({
       success: true,
       data: [],
-      message: 'Forms endpoint is working (empty for now)'
+      pagination: {
+        page: 1,
+        totalPages: 1,
+        total: 0,
+        limit: 20
+      },
+      message: 'Forms endpoint working'
     });
   } catch (error) {
     res.status(500).json({
@@ -64,7 +72,7 @@ app.get('/api/forms', async (req, res) => {
   }
 });
 
-// Templates API (placeholder)
+// Templates API
 app.get('/api/templates', (req, res) => {
   res.json({
     success: true,
@@ -74,14 +82,24 @@ app.get('/api/templates', (req, res) => {
         name: 'فرم تماس با ما',
         description: 'فرم ساده برای ارتباط مشتریان',
         category: 'عمومی',
-        popularity: 95
+        popularity: 95,
+        isActive: true
       },
       {
         id: 'registration',
         name: 'فرم ثبت‌نام',
         description: 'ثبت‌نام در دوره‌ها یا رویدادها',
         category: 'آموزش',
-        popularity: 88
+        popularity: 88,
+        isActive: true
+      },
+      {
+        id: 'feedback',
+        name: 'فرم نظرسنجی',
+        description: 'جمع‌آوری نظرات و پیشنهادات',
+        category: 'بازاریابی',
+        popularity: 76,
+        isActive: true
       }
     ]
   });
