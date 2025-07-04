@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import { useFormsAPI } from '../../hooks/useFormsAPI';
-import { CreateFormDto } from '../../types';
+import { CreateFormDto, FormField } from '../../types';
 
 interface CreateFormModalProps {
   /** آیا مودال باز است */
@@ -155,10 +155,34 @@ const CreateFormModal: React.FC<CreateFormModalProps> = ({
       return;
     }
 
+    // اطمینان از داشتن حداقل یک فیلد برای عبور از اعتبارسنجی backend
+    const defaultFields: FormField[] = (formData.fields && formData.fields.length > 0)
+      ? (formData.fields as FormField[])
+      : [
+          {
+            id: `field_${Date.now()}`,
+            type: 'text',
+            label: 'نام',
+            placeholder: 'نام خود را وارد کنید',
+            required: true,
+            defaultValue: '',
+            disabled: false,
+            readonly: false,
+            validation: {
+              required: true,
+              minLength: 2,
+              maxLength: 50
+            },
+            styling: {
+              width: '100%'
+            }
+          }
+        ];
+
     const newForm: CreateFormDto = {
       name: formData.name!,
       description: formData.description,
-      fields: formData.fields || [],
+      fields: defaultFields,
       settings: formData.settings!,
       styling: formData.styling!,
       category: formData.category,
