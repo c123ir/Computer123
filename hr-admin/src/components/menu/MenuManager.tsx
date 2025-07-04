@@ -1,12 +1,23 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { MenuItem, MenuType, CreateMenuDto } from '../../types/menu';
+import { MenuItem, MenuType, CreateMenuDto, UpdateMenuDto } from '../../types/menu';
 import { createMenu, updateMenu, deleteMenu } from '../../services/menu.service';
 import { MenuTree } from './MenuTree';
 import { Logger } from '../../utils/logger';
 
 interface MenuManagerProps {
   className?: string;
+}
+
+interface StaticConfig {
+  route?: string;
+  component?: string;
+  params?: Record<string, any>;
+}
+
+interface MenuConfig {
+  static?: StaticConfig;
+  [key: string]: any;
 }
 
 export const MenuManager: React.FC<MenuManagerProps> = ({ className }) => {
@@ -16,7 +27,7 @@ export const MenuManager: React.FC<MenuManagerProps> = ({ className }) => {
   const [formData, setFormData] = useState<CreateMenuDto>({
     title: '',
     type: MenuType.STATIC,
-    config: {},
+    config: { static: {} } as MenuConfig,
     permissions: [],
     roles: []
   });
@@ -31,7 +42,7 @@ export const MenuManager: React.FC<MenuManagerProps> = ({ className }) => {
   });
 
   const updateMutation = useMutation({
-    mutationFn: (data: { id: string; menu: any }) => 
+    mutationFn: (data: { id: string; menu: UpdateMenuDto }) => 
       updateMenu(data.id, data.menu),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['menus', 'tree'] });
@@ -54,7 +65,7 @@ export const MenuManager: React.FC<MenuManagerProps> = ({ className }) => {
       if (isEditing && selectedMenu) {
         await updateMutation.mutateAsync({
           id: selectedMenu.id,
-          menu: formData
+          menu: formData as UpdateMenuDto
         });
       } else {
         await createMutation.mutateAsync(formData);
@@ -71,11 +82,11 @@ export const MenuManager: React.FC<MenuManagerProps> = ({ className }) => {
       title: menu.title,
       icon: menu.icon,
       type: menu.type,
-      config: menu.config,
+      config: menu.config || { static: {} },
       parentId: menu.parentId || undefined,
       formId: menu.formId || undefined,
-      permissions: menu.permissions,
-      roles: menu.roles
+      permissions: menu.permissions || [],
+      roles: menu.roles || []
     });
   };
 
@@ -95,7 +106,7 @@ export const MenuManager: React.FC<MenuManagerProps> = ({ className }) => {
     setFormData({
       title: '',
       type: MenuType.STATIC,
-      config: {},
+      config: { static: {} } as MenuConfig,
       permissions: [],
       roles: []
     });
@@ -161,7 +172,7 @@ export const MenuManager: React.FC<MenuManagerProps> = ({ className }) => {
                   config: {
                     ...formData.config,
                     static: {
-                      ...formData.config.static,
+                      ...(formData.config.static || {}),
                       route: e.target.value
                     }
                   }
