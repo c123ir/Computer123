@@ -8,8 +8,9 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        'vazir': ['Vazirmatn', 'sans-serif'],
-        'sans': ['Vazirmatn', 'system-ui', 'sans-serif'],
+        'vazir': ['Vazirmatn', 'Tahoma', 'Arial', 'sans-serif'],
+        'sans': ['Vazirmatn', 'Tahoma', 'Arial', 'system-ui', 'sans-serif'],
+        'persian': ['Vazirmatn', 'Tahoma', 'Arial', 'sans-serif'],
       },
       colors: {
         primary: {
@@ -200,6 +201,7 @@ module.exports = {
       strategy: 'class',
     }),
     require('@tailwindcss/typography'),
+    require('tailwindcss-rtl'),
     function({ addUtilities, addComponents, theme }) {
       const newUtilities = {
         '.text-shadow': {
@@ -246,6 +248,13 @@ module.exports = {
           borderRadius: '10px',
           border: '1px solid rgba(255, 255, 255, 0.18)',
         },
+        // RTL utilities
+        '.rtl-space-x-reverse > :not([hidden]) ~ :not([hidden])': {
+          '--tw-space-x-reverse': '1',
+        },
+        '.rtl-divide-x-reverse > :not([hidden]) ~ :not([hidden])': {
+          '--tw-divide-x-reverse': '1',
+        },
       }
 
       const newComponents = {
@@ -262,6 +271,8 @@ module.exports = {
           justifyContent: 'center',
           border: 'none',
           outline: 'none',
+          fontFamily: theme('fontFamily.vazir'),
+          textAlign: 'center',
           '&:focus': {
             boxShadow: `0 0 0 2px ${theme('colors.blue.500')}`,
           },
@@ -335,6 +346,9 @@ module.exports = {
           fontSize: theme('fontSize.sm'),
           lineHeight: theme('lineHeight.5'),
           transition: 'all 0.2s ease-in-out',
+          fontFamily: theme('fontFamily.vazir'),
+          textAlign: 'right',
+          direction: 'rtl',
           '&:focus': {
             outline: 'none',
             borderColor: theme('colors.blue.500'),
@@ -362,6 +376,7 @@ module.exports = {
           borderRadius: theme('borderRadius.full'),
           textTransform: 'uppercase',
           letterSpacing: theme('letterSpacing.wide'),
+          fontFamily: theme('fontFamily.vazir'),
         },
         '.badge-primary': {
           backgroundColor: theme('colors.blue.100'),
