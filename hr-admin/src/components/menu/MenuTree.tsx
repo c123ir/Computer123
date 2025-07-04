@@ -102,7 +102,7 @@ export const MenuTree: React.FC<MenuTreeProps> = ({ onMenuSelect, className }) =
                     {...provided.droppableProps}
                     className="menu-children"
                   >
-                    {item.children.map((child, index) => 
+                    {(item.children || []).map((child, index) => 
                       renderMenuItem(child, level + 1)
                     )}
                     {provided.placeholder}
