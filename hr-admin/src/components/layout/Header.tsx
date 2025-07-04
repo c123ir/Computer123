@@ -55,7 +55,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuToggle, isMobile, isSidebarOpen }
       }
     `}>
       <div className="flex items-center justify-between px-4 py-3">
-        {/* بخش چپ - منو و جستجو */}
+        {/* بخش راست - منو و جستجو */}
         <div className="flex items-center gap-4 flex-1">
           {/* دکمه منو (موبایل) */}
           {isMobile && (
@@ -88,7 +88,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuToggle, isMobile, isSidebarOpen }
             {!isMobile && (
               <div>
                 <h1 className={`
-                  text-lg font-bold
+                  text-lg font-bold text-right
                   ${isDark ? 'text-white' : 'text-gray-900'}
                 `}>
                   مجتمع کامپیوتر یک دو سه
@@ -99,7 +99,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuToggle, isMobile, isSidebarOpen }
 
           {/* جستجو - دسکتاپ */}
           {!isMobile && (
-            <div className="relative flex-1 max-w-md ml-8">
+            <div className="relative flex-1 max-w-md mr-8">
               <div className={`
                 relative rounded-xl border transition-all duration-200
                 ${isDark 
@@ -120,7 +120,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuToggle, isMobile, isSidebarOpen }
                   onChange={(e) => setSearchQuery(e.target.value)}
                   autoComplete="off"
                   className={`
-                    w-full pl-4 pr-10 py-2 rounded-xl border-0 
+                    w-full pr-10 pl-4 py-2 rounded-xl border-0 text-right
                     ${isDark ? 'bg-transparent text-white placeholder-gray-400' : 'bg-transparent text-gray-900 placeholder-gray-500'}
                     focus:outline-none focus:ring-0
                   `}
@@ -142,7 +142,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuToggle, isMobile, isSidebarOpen }
                     <div
                       key={index}
                       className={`
-                        px-4 py-2 cursor-pointer transition-colors duration-200
+                        px-4 py-2 cursor-pointer transition-colors duration-200 text-right
                         ${isDark 
                           ? 'hover:bg-gray-700 text-gray-300' 
                           : 'hover:bg-gray-50 text-gray-700'
@@ -164,7 +164,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuToggle, isMobile, isSidebarOpen }
           )}
         </div>
 
-        {/* بخش راست - اعلانات، تم، پروفایل */}
+        {/* بخش چپ - اعلانات، تم، پروفایل */}
         <div className="flex items-center gap-2">
           {/* دکمه جستجو موبایل */}
           {isMobile && (
@@ -196,7 +196,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuToggle, isMobile, isSidebarOpen }
             >
               <Bell size={20} />
               {unreadCount > 0 && (
-                <span className="absolute -top-1 -left-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
                   {unreadCount}
                 </span>
               )}
@@ -205,7 +205,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuToggle, isMobile, isSidebarOpen }
             {/* پنل اعلانات */}
             {isNotificationOpen && (
               <div className={`
-                absolute top-full left-0 mt-2 w-80 rounded-xl border shadow-xl z-50
+                absolute top-full right-0 mt-2 w-80 rounded-xl border shadow-xl z-50
                 ${isDark 
                   ? 'bg-gray-800 border-gray-700' 
                   : 'bg-white border-gray-200'
@@ -213,7 +213,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuToggle, isMobile, isSidebarOpen }
                 backdrop-blur-xl
               `}>
                 <div className={`
-                  px-4 py-3 border-b
+                  px-4 py-3 border-b text-right
                   ${isDark ? 'border-gray-700' : 'border-gray-200'}
                 `}>
                   <h3 className={`font-medium ${isDark ? 'text-white' : 'text-gray-900'}`}>
@@ -237,7 +237,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuToggle, isMobile, isSidebarOpen }
                         {notification.unread && (
                           <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
                         )}
-                        <div className="flex-1">
+                        <div className="flex-1 text-right">
                           <p className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
                             {notification.text}
                           </p>
@@ -298,7 +298,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuToggle, isMobile, isSidebarOpen }
             {/* منوی پروفایل */}
             {isProfileOpen && (
               <div className={`
-                absolute top-full left-0 mt-2 w-48 rounded-xl border shadow-xl z-50
+                absolute top-full right-0 mt-2 w-48 rounded-xl border shadow-xl z-50
                 ${isDark 
                   ? 'bg-gray-800 border-gray-700' 
                   : 'bg-white border-gray-200'
@@ -307,7 +307,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuToggle, isMobile, isSidebarOpen }
               `}>
                 <div className="py-2">
                   <button className={`
-                    w-full flex items-center gap-3 px-4 py-2 text-sm transition-colors duration-200
+                    w-full flex items-center gap-3 px-4 py-2 text-sm transition-colors duration-200 text-right
                     ${isDark 
                       ? 'text-gray-300 hover:bg-gray-700' 
                       : 'text-gray-700 hover:bg-gray-50'
@@ -317,7 +317,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuToggle, isMobile, isSidebarOpen }
                     تنظیمات
                   </button>
                   <button className={`
-                    w-full flex items-center gap-3 px-4 py-2 text-sm transition-colors duration-200
+                    w-full flex items-center gap-3 px-4 py-2 text-sm transition-colors duration-200 text-right
                     ${isDark 
                       ? 'text-red-400 hover:bg-gray-700' 
                       : 'text-red-600 hover:bg-gray-50'
@@ -359,7 +359,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuToggle, isMobile, isSidebarOpen }
                 onChange={(e) => setSearchQuery(e.target.value)}
                 autoComplete="off"
                 className={`
-                  w-full p-3 rounded-lg border
+                  w-full p-3 rounded-lg border text-right
                   ${isDark 
                     ? 'bg-gray-800 border-gray-700 text-white placeholder-gray-400' 
                     : 'bg-gray-50 border-gray-200 text-gray-900 placeholder-gray-500'
@@ -379,7 +379,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuToggle, isMobile, isSidebarOpen }
                 <div
                   key={index}
                   className={`
-                    px-4 py-3 cursor-pointer transition-colors duration-200
+                    px-4 py-3 cursor-pointer transition-colors duration-200 text-right
                     ${isDark 
                       ? 'hover:bg-gray-700 text-gray-300' 
                       : 'hover:bg-gray-50 text-gray-700'
