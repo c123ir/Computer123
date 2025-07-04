@@ -202,16 +202,17 @@ export const MenuManager: React.FC<MenuManagerProps> = ({ className }) => {
                 type="text"
                 id="route"
                 value={formData.config.static.route}
-                onChange={e => setFormData({
-                  ...formData,
-                  config: {
-                    ...formData.config,
-                    static: {
-                      ...formData.config.static,
-                      route: e.target.value
+                                  onChange={e => setFormData({
+                    ...formData,
+                    config: {
+                      ...formData.config,
+                      static: {
+                        ...formData.config.static,
+                        route: e.target.value,
+                        component: formData.config.static?.component || 'DefaultComponent'
+                      }
                     }
-                  }
-                })}
+                  })}
               />
             </div>
           )}
