@@ -3,13 +3,42 @@
 // =====================================================
 
 // Form related types
-export * from './form.types';
+export type { 
+  Form, 
+  FormSettings, 
+  FormStyling, 
+  FormMetadata,
+  FormResponse,
+  FormTemplate
+} from './form.types';
 
 // Field types
-export * from './field.types';
+export type { 
+  FormField, 
+  FieldType, 
+  FieldOption, 
+  ValidationRules, 
+  FieldStyling,
+  CustomValidator
+} from './field.types';
 
-// Database types - excluding conflicting ones
-export * from './database.types';
-
-// Re-export FormResponse and FormTemplate from form.types to avoid conflicts
-export type { FormResponse, FormTemplate } from './form.types';
+// Database types - specific exports to avoid conflicts
+export type { 
+  DatabaseType, 
+  DatabaseConfig, 
+  ApiResponse, 
+  PaginatedResponse, 
+  FormFilters, 
+  PaginationOptions, 
+  PaginatedResult, 
+  DatabaseStats, 
+  HealthCheckResult, 
+  CreateFormDto, 
+  UpdateFormDto, 
+  ValidationResult, 
+  ValidationErrorType,
+  SortOptions,
+  ExportOptions,
+  ImportOptions,
+  BatchResult
+} from './database.types';
