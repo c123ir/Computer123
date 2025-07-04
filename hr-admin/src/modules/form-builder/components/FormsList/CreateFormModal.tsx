@@ -78,7 +78,7 @@ const CreateFormModal: React.FC<CreateFormModalProps> = ({
           showProgressBar: false,
           allowSaveDraft: true,
           showFieldNumbers: false,
-        //  formWidth: 'medium'
+          formWidth: 'medium'
         },
         styling: {
           theme: 'default',
