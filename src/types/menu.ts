@@ -1,4 +1,16 @@
-export type MenuType = 'static' | 'dynamic' | 'form';
+export const MenuType = {
+  STATIC: 'STATIC',
+  DYNAMIC: 'DYNAMIC',
+  FORM: 'FORM'
+} as const;
+
+export type MenuType = typeof MenuType[keyof typeof MenuType];
+
+export enum MenuStatus {
+  ACTIVE = 'ACTIVE',
+  INACTIVE = 'INACTIVE',
+  ARCHIVED = 'ARCHIVED'
+}
 
 export interface MenuItem {
   id: string;
