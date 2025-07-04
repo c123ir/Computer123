@@ -7,7 +7,7 @@ import { ThemeProvider } from './contexts/ThemeContext';
 import Layout from './components/layout/Layout';
 import Dashboard from './pages/Dashboard';
 import ComingSoon from './pages/ComingSoon';
-import FormsPage from './pages/forms/Forms';
+import FormsPage from './pages/forms';
 import MenuManagement from './pages/MenuManagement';
 
 // PostgreSQL Backend Connection Test (فقط در development)
