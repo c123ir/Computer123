@@ -193,7 +193,7 @@ model Menu {
   children    Menu[]    @relation("MenuTree")
   
   // Form relation (for form-type menus)
-  formId      String?   @map("form_id")
+  formId      String?   @map("form_id") @unique  // Added @unique for one-to-one relation
   form        Form?     @relation(fields: [formId], references: [id])
   
   // Access control
