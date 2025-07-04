@@ -46,19 +46,19 @@ function App() {
                 {/* صفحات فرم‌ساز */}
                 <Route path="/forms" element={<FormsPage />} />
                 <Route path="/menus" element={<MenuManagement />} />
-                <Route path="/sales" element={<ComingSoon />} />
-                <Route path="/customers" element={<ComingSoon />} />
-                <Route path="/employees" element={<ComingSoon />} />
-                <Route path="/investors" element={<ComingSoon />} />
-                <Route path="/users" element={<ComingSoon />} />
-                <Route path="/tags" element={<ComingSoon />} />
-                <Route path="/settings" element={<ComingSoon />} />
-                <Route path="/sms" element={<ComingSoon />} />
-                <Route path="/documents" element={<ComingSoon />} />
-                <Route path="/ai" element={<ComingSoon />} />
-                <Route path="/reports" element={<ComingSoon />} />
-                <Route path="/workflows" element={<ComingSoon />} />
-                <Route path="/databases" element={<ComingSoon />} />
+                <Route path="/sales" element={<ComingSoon title="مدیریت فروش" />} />
+                <Route path="/customers" element={<ComingSoon title="مدیریت مشتریان" />} />
+                <Route path="/employees" element={<ComingSoon title="مدیریت پرسنل" />} />
+                <Route path="/investors" element={<ComingSoon title="سرمایه گزاران" />} />
+                <Route path="/users" element={<ComingSoon title="مدیریت کاربران" />} />
+                <Route path="/tags" element={<ComingSoon title="مدیریت برچسب‌ها" />} />
+                <Route path="/settings" element={<ComingSoon title="تنظیمات" />} />
+                <Route path="/sms" element={<ComingSoon title="پیامک" />} />
+                <Route path="/documents" element={<ComingSoon title="مدیریت اسناد" />} />
+                <Route path="/ai" element={<ComingSoon title="هوش مصنوعی" />} />
+                <Route path="/reports" element={<ComingSoon title="گزارشات" />} />
+                <Route path="/workflows" element={<ComingSoon title="مدیریت فرایندها" />} />
+                <Route path="/databases" element={<ComingSoon title="پایگاه داده" />} />
               </Routes>
             </Layout>
             
