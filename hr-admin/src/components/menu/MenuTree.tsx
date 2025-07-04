@@ -1,5 +1,5 @@
 import React from 'react';
-import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { MenuItem, MenuType } from '../../types/menu';
 import { fetchMenuTree, reorderMenus, moveMenuItem } from '../../services/menu.service';
@@ -16,7 +16,7 @@ export const MenuTree: React.FC<MenuTreeProps> = ({ onMenuSelect, className }) =
   const { user } = useAuth();
 
   // دریافت ساختار درختی منو
-  const { data: menuTree, isLoading } = useQuery({
+  const { data: menuTree = [], isLoading } = useQuery({
     queryKey: ['menus', 'tree'],
     queryFn: fetchMenuTree
   });
@@ -38,7 +38,7 @@ export const MenuTree: React.FC<MenuTreeProps> = ({ onMenuSelect, className }) =
   });
 
   // مدیریت درگ و دراپ
-  const handleDragEnd = async (result: any) => {
+  const handleDragEnd = async (result: DropResult) => {
     if (!result.destination) return;
 
     const sourceId = result.draggableId;
@@ -129,7 +129,7 @@ export const MenuTree: React.FC<MenuTreeProps> = ({ onMenuSelect, className }) =
             {...provided.droppableProps}
             className={`menu-tree ${className || ''}`}
           >
-            {menuTree?.map((item, index) => renderMenuItem(item, index))}
+            {menuTree.map((item, index) => renderMenuItem(item, index))}
             {provided.placeholder}
           </div>
         )}
@@ -152,18 +152,24 @@ const findMenuItems = (items: MenuItem[] = [], parentId: string | null): MenuIte
   return [];
 };
 
-const reorder = (list: any[], startIndex: number, endIndex: number) => {
+const reorder = <T,>(list: T[], startIndex: number, endIndex: number): T[] => {
   const result = Array.from(list);
   const [removed] = result.splice(startIndex, 1);
   result.splice(endIndex, 0, removed);
   return result;
 };
 
-const checkMenuAccess = (menu: MenuItem, user: any) => {
+interface User {
+  permissions?: string[];
+  roles?: string[];
+}
+
+const checkMenuAccess = (menu: MenuItem, user: User | null) => {
   if (!menu.permissions?.length && !menu.roles?.length) return true;
+  if (!user) return false;
   
-  const hasPermission = menu.permissions?.some(p => user?.permissions?.includes(p));
-  const hasRole = menu.roles?.some(r => user?.roles?.includes(r));
+  const hasPermission = menu.permissions?.some(p => user.permissions?.includes(p));
+  const hasRole = menu.roles?.some(r => user.roles?.includes(r));
   
   return hasPermission || hasRole;
 }; 
