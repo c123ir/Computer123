@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Form } from '../../modules/form-builder/types';
+import { FormEditor } from '../../modules/form-builder/components/FormEditor';
 
 interface FormListItem {
   id: string;
@@ -14,6 +15,7 @@ interface FormListItem {
 const Forms: React.FC = () => {
   const [selectedForm, setSelectedForm] = useState<FormListItem | null>(null);
   const [isCreating, setIsCreating] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
 
   // TODO: Replace with actual API call
   const { data: forms = [], isLoading } = useQuery<FormListItem[]>({
@@ -41,11 +43,32 @@ const Forms: React.FC = () => {
     }
   });
 
+  const handleSave = async (form: Form) => {
+    // TODO: Implement save logic
+    console.log('Saving form:', form);
+    setIsCreating(false);
+    setIsEditing(false);
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
       </div>
+    );
+  }
+
+  if (isCreating || isEditing) {
+    return (
+      <FormEditor
+        form={isEditing ? selectedForm as any : undefined}
+        onSave={handleSave}
+        onCancel={() => {
+          setIsCreating(false);
+          setIsEditing(false);
+          setSelectedForm(null);
+        }}
+      />
     );
   }
 
@@ -102,7 +125,7 @@ const Forms: React.FC = () => {
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    // TODO: Handle edit
+                    setIsEditing(true);
                   }}
                   className="px-3 py-1 text-sm text-green-600 hover:text-green-700 dark:text-green-400 dark:hover:text-green-300"
                 >
@@ -122,65 +145,6 @@ const Forms: React.FC = () => {
           </div>
         ))}
       </div>
-
-      {/* Modal for creating/editing form */}
-      {(isCreating || selectedForm) && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-2xl">
-            <h2 className="text-xl font-bold mb-4">
-              {isCreating ? 'ایجاد فرم جدید' : 'ویرایش فرم'}
-            </h2>
-            
-            {/* Form fields */}
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  عنوان فرم
-                </label>
-                <input
-                  type="text"
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700"
-                  placeholder="عنوان فرم را وارد کنید"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  توضیحات
-                </label>
-                <textarea
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700"
-                  rows={3}
-                  placeholder="توضیحات فرم را وارد کنید"
-                />
-              </div>
-            </div>
-
-            {/* Modal actions */}
-            <div className="flex justify-end gap-3 mt-6">
-              <button
-                onClick={() => {
-                  setIsCreating(false);
-                  setSelectedForm(null);
-                }}
-                className="px-4 py-2 text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-white"
-              >
-                انصراف
-              </button>
-              <button
-                onClick={() => {
-                  // TODO: Handle save
-                  setIsCreating(false);
-                  setSelectedForm(null);
-                }}
-                className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
-              >
-                ذخیره
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
