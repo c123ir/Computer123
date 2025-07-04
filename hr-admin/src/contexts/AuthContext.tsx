@@ -1,19 +1,9 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { User, AuthState, LoginCredentials, AuthResponse } from '../types/auth';
 
-interface User {
-  id: string;
-  email: string;
-  name: string;
-  role: string;
-}
-
-interface AuthContextType {
-  user: User | null;
-  loading: boolean;
-  error: string | null;
-  login: (email: string, password: string) => Promise<void>;
+interface AuthContextType extends AuthState {
+  login: (credentials: LoginCredentials) => Promise<void>;
   logout: () => Promise<void>;
-  isAuthenticated: boolean;
 }
 
 export const AuthContext = createContext<AuthContextType | null>(null);
@@ -32,13 +22,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         id: '1',
         email: 'test@example.com',
         name: 'کاربر تست',
-        role: 'admin'
+        role: 'admin',
+        permissions: ['read', 'write', 'delete'],
+        roles: ['admin']
       });
     }
     setLoading(false);
   }, []);
 
-  const login = async (email: string, password: string) => {
+  const login = async (credentials: LoginCredentials) => {
     try {
       setLoading(true);
       setError(null);
@@ -46,14 +38,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
+        body: JSON.stringify(credentials)
       });
       
       if (!response.ok) {
         throw new Error('خطا در ورود به سیستم');
       }
 
-      const data = await response.json();
+      const data: AuthResponse = await response.json();
       localStorage.setItem('authToken', data.token);
       setUser(data.user);
     } catch (err) {
