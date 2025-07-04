@@ -1,23 +1,12 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { MenuItem, MenuType, CreateMenuDto, UpdateMenuDto } from '../../types/menu';
+import { MenuItem, MenuType, CreateMenuDto, UpdateMenuDto, MenuConfig } from '../../types/menu';
 import { createMenu, updateMenu, deleteMenu } from '../../services/menu.service';
 import { MenuTree } from './MenuTree';
 import { Logger } from '../../utils/logger';
 
 interface MenuManagerProps {
   className?: string;
-}
-
-interface StaticConfig {
-  route?: string;
-  component?: string;
-  params?: Record<string, any>;
-}
-
-interface MenuConfig {
-  static?: StaticConfig;
-  [key: string]: any;
 }
 
 export const MenuManager: React.FC<MenuManagerProps> = ({ className }) => {
@@ -27,7 +16,12 @@ export const MenuManager: React.FC<MenuManagerProps> = ({ className }) => {
   const [formData, setFormData] = useState<CreateMenuDto>({
     title: '',
     type: MenuType.STATIC,
-    config: { static: {} } as MenuConfig,
+    config: {
+      static: {
+        route: '/',
+        component: 'DefaultComponent'
+      }
+    },
     permissions: [],
     roles: []
   });
@@ -82,7 +76,7 @@ export const MenuManager: React.FC<MenuManagerProps> = ({ className }) => {
       title: menu.title,
       icon: menu.icon,
       type: menu.type,
-      config: menu.config || { static: {} },
+      config: menu.config,
       parentId: menu.parentId || undefined,
       formId: menu.formId || undefined,
       permissions: menu.permissions || [],
@@ -106,7 +100,12 @@ export const MenuManager: React.FC<MenuManagerProps> = ({ className }) => {
     setFormData({
       title: '',
       type: MenuType.STATIC,
-      config: { static: {} } as MenuConfig,
+      config: {
+        static: {
+          route: '/',
+          component: 'DefaultComponent'
+        }
+      },
       permissions: [],
       roles: []
     });
@@ -151,7 +150,43 @@ export const MenuManager: React.FC<MenuManagerProps> = ({ className }) => {
             <select
               id="type"
               value={formData.type}
-              onChange={e => setFormData({ ...formData, type: e.target.value as MenuType })}
+              onChange={e => {
+                const newType = e.target.value as MenuType;
+                let newConfig: MenuConfig = {};
+                
+                switch (newType) {
+                  case MenuType.STATIC:
+                    newConfig = {
+                      static: {
+                        route: '/',
+                        component: 'DefaultComponent'
+                      }
+                    };
+                    break;
+                  case MenuType.DYNAMIC:
+                    newConfig = {
+                      dynamic: {
+                        dataSource: '',
+                        template: ''
+                      }
+                    };
+                    break;
+                  case MenuType.FORM:
+                    newConfig = {
+                      form: {
+                        formId: '',
+                        viewType: 'list'
+                      }
+                    };
+                    break;
+                }
+
+                setFormData({ 
+                  ...formData, 
+                  type: newType,
+                  config: newConfig
+                });
+              }}
             >
               <option value={MenuType.STATIC}>استاتیک</option>
               <option value={MenuType.DYNAMIC}>پویا</option>
@@ -160,19 +195,19 @@ export const MenuManager: React.FC<MenuManagerProps> = ({ className }) => {
           </div>
 
           {/* تنظیمات بر اساس نوع */}
-          {formData.type === MenuType.STATIC && (
+          {formData.type === MenuType.STATIC && formData.config.static && (
             <div className="form-group">
               <label htmlFor="route">مسیر</label>
               <input
                 type="text"
                 id="route"
-                value={formData.config.static?.route || ''}
+                value={formData.config.static.route}
                 onChange={e => setFormData({
                   ...formData,
                   config: {
                     ...formData.config,
                     static: {
-                      ...(formData.config.static || {}),
+                      ...formData.config.static,
                       route: e.target.value
                     }
                   }
