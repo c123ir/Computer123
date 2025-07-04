@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, { AxiosResponse } from 'axios';
 import { MenuItem, CreateMenuDto, UpdateMenuDto, ReorderMenusDto, MoveMenuDto } from '../types/menu';
 import { API_URL } from '../config';
 
@@ -6,27 +6,33 @@ const api = axios.create({
   baseURL: `${API_URL}/menus`
 });
 
+interface ApiResponse<T> {
+  data: T;
+  message?: string;
+  status: number;
+}
+
 // دریافت ساختار درختی منو
 export const fetchMenuTree = async (): Promise<MenuItem[]> => {
-  const response = await api.get('/tree');
+  const response: AxiosResponse<ApiResponse<MenuItem[]>> = await api.get('/tree');
   return response.data.data;
 };
 
 // دریافت یک منو با زیرمنوهایش
 export const fetchMenuById = async (id: string): Promise<MenuItem> => {
-  const response = await api.get(`/${id}`);
+  const response: AxiosResponse<ApiResponse<MenuItem>> = await api.get(`/${id}`);
   return response.data.data;
 };
 
 // ایجاد منوی جدید
 export const createMenu = async (data: CreateMenuDto): Promise<MenuItem> => {
-  const response = await api.post('/', data);
+  const response: AxiosResponse<ApiResponse<MenuItem>> = await api.post('/', data);
   return response.data.data;
 };
 
 // به‌روزرسانی منو
 export const updateMenu = async (id: string, data: UpdateMenuDto): Promise<MenuItem> => {
-  const response = await api.put(`/${id}`, data);
+  const response: AxiosResponse<ApiResponse<MenuItem>> = await api.put(`/${id}`, data);
   return response.data.data;
 };
 
@@ -48,7 +54,7 @@ export const moveMenuItem = async (data: MoveMenuDto): Promise<void> => {
 // اینترسپتور برای مدیریت توکن
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('authToken');
-  if (token) {
+  if (token && config.headers) {
     config.headers.Authorization = `Bearer ${token}`;
   }
   return config;
