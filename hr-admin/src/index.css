@@ -23,8 +23,8 @@ html {
 
 body {
   font-family: 'Vazirmatn', 'Tahoma', 'Arial', sans-serif;
-  direction: rtl;
-  text-align: right;
+  direction: rtl !important;
+  text-align: right !important;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
