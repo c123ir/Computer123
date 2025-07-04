@@ -159,7 +159,12 @@ const reorder = <T,>(list: T[], startIndex: number, endIndex: number): T[] => {
   return result;
 };
 
-const checkMenuAccess = (menu: MenuItem, user: ReturnType<typeof useAuth>['user']) => {
+type AuthUser = {
+  permissions?: string[];
+  roles?: string[];
+};
+
+const checkMenuAccess = (menu: MenuItem, user: AuthUser | null) => {
   if (!menu.permissions?.length && !menu.roles?.length) return true;
   if (!user) return false;
   
