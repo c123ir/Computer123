@@ -12,15 +12,15 @@ import {
   FunnelIcon 
 } from '@heroicons/react/24/outline';
 
-// Import types - حذف duplicate Form interface
-import { 
+// Import types - using proper imports to avoid conflicts
+import type { 
   Form, 
   FormFilters, 
   PaginatedResponse 
 } from '../../types';
 
-// Import hooks - رفع خطای import
-import { useFormsAPI } from '../../hooks';
+// Import hooks - using proper import
+import { useFormsAPI } from '../../hooks/useFormsAPI';
 
 // Components
 import FormCard from './FormCard';
