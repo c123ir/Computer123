@@ -5,6 +5,7 @@ import { MenuItem, MenuType } from '../../types/menu';
 import { fetchMenuTree, reorderMenus, moveMenuItem } from '../../services/menu.service';
 import { useAuth } from '../../hooks/useAuth';
 import { Logger } from '../../utils/logger';
+import type { User as AuthUser } from '../../types/auth';
 
 interface MenuTreeProps {
   onSelect: (item: MenuItem) => void;
@@ -102,6 +103,16 @@ const MenuTree: React.FC<MenuTreeProps> = ({ onSelect, selectedId }) => {
       </Droppable>
     </DragDropContext>
   );
+};
+
+const checkMenuAccess = (menu: MenuItem, user: AuthUser | null) => {
+  if (!menu.permissions?.length && !menu.roles?.length) return true;
+  if (!user) return false;
+  
+  const hasPermission = menu.permissions?.some(p => user.permissions?.includes(p));
+  const hasRole = menu.roles?.some(r => user.roles?.includes(r));
+  
+  return hasPermission || hasRole;
 };
 
 export default MenuTree; 
