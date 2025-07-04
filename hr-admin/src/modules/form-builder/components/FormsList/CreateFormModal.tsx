@@ -155,35 +155,25 @@ const CreateFormModal: React.FC<CreateFormModalProps> = ({
       return;
     }
 
-    setErrors({ submit: '' });
-    setIsLoading(true);
-
-    try {
-      const newForm: CreateFormDto = {
-        name: formData.name!,
-        description: formData.description,
-        fields: formData.fields || [],
-        settings: formData.settings!,
-        styling: formData.styling!,
-        category: formData.category,
-        tags: formData.tags || [],
+    const newForm: CreateFormDto = {
+      name: formData.name!,
+      description: formData.description,
+      fields: formData.fields || [],
+      settings: formData.settings!,
+      styling: formData.styling!,
+      category: formData.category,
+      tags: formData.tags || [],
+      status: 'draft',
+      metadata: {
+        createdBy: 'current-user',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
         status: 'draft',
-        metadata: {
-          createdBy: 'current-user',
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-          status: 'draft',
-          version: 1
-        }
-      };
+        version: 1
+      }
+    };
 
-      await createFormMutation.mutateAsync(newForm);
-    } catch (error) {
-      console.error('خطا در ایجاد فرم:', error);
-      setErrors({ submit: 'خطا در ایجاد فرم. لطفاً دوباره تلاش کنید.' });
-    } finally {
-      setIsLoading(false);
-    }
+    createFormMutation.mutate(newForm);
   };
 
   const handleClose = () => {
