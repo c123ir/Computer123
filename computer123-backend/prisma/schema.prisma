@@ -39,6 +39,13 @@ model Form {
   // Relations
   responses   FormResponse[]
   
+  // New relations
+  menu              Menu?
+  fields            FormField[]
+  sourceRelations   FormRelation[] @relation("SourceFormRelations")
+  targetRelations   FormRelation[] @relation("TargetFormRelations")
+  relatedFields     FormField[]    @relation("FormFieldRelation")
+  
   // Indexes for performance
   @@index([status])
   @@index([category])
@@ -167,4 +174,103 @@ enum UserRole {
   ADMIN
   MANAGER
   USER
+}
+
+model Menu {
+  id          String    @id @default(cuid())
+  title       String    @db.VarChar(255)
+  icon        String?   @db.VarChar(100)
+  order       Int       @default(0)
+  type        MenuType  @default(STATIC)
+  status      Status    @default(ACTIVE)
+  
+  // Menu configuration
+  config      Json      // MenuConfig type from frontend
+  
+  // Tree structure
+  parentId    String?   @map("parent_id")
+  parent      Menu?     @relation("MenuTree", fields: [parentId], references: [id])
+  children    Menu[]    @relation("MenuTree")
+  
+  // Form relation (for form-type menus)
+  formId      String?   @map("form_id")
+  form        Form?     @relation(fields: [formId], references: [id])
+  
+  // Access control
+  permissions String[]  // Array of permission keys
+  roles       String[]  // Array of role keys
+  
+  // Metadata
+  createdBy   String    @map("created_by")
+  updatedBy   String?   @map("updated_by")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  
+  @@index([parentId])
+  @@index([formId])
+  @@index([type])
+  @@index([status])
+  @@map("menus")
+}
+
+model FormField {
+  id          String    @id @default(cuid())
+  formId      String    @map("form_id")
+  label       String    @db.VarChar(255)
+  type        String    @db.VarChar(50)
+  required    Boolean   @default(false)
+  order       Int       @default(0)
+  
+  // Field configuration
+  config      Json      // Field specific configuration
+  validation  Json?     // Validation rules
+  permissions String[]  // Field level permissions
+  
+  // Relations
+  form        Form      @relation(fields: [formId], references: [id], onDelete: Cascade)
+  
+  // For relation type fields
+  relatedFormId String? @map("related_form_id")
+  relatedForm   Form?   @relation("FormFieldRelation", fields: [relatedFormId], references: [id])
+  
+  @@index([formId])
+  @@index([type])
+  @@map("form_fields")
+}
+
+model FormRelation {
+  id            String    @id @default(cuid())
+  sourceFormId  String    @map("source_form_id")
+  targetFormId  String    @map("target_form_id")
+  type          RelationType @default(ONE_TO_MANY)
+  
+  // Relation configuration
+  config        Json      // Relation specific configuration
+  
+  // Relations
+  sourceForm    Form      @relation("SourceFormRelations", fields: [sourceFormId], references: [id])
+  targetForm    Form      @relation("TargetFormRelations", fields: [targetFormId], references: [id])
+  
+  @@unique([sourceFormId, targetFormId])
+  @@index([sourceFormId])
+  @@index([targetFormId])
+  @@map("form_relations")
+}
+
+enum MenuType {
+  STATIC
+  DYNAMIC
+  FORM
+}
+
+enum Status {
+  ACTIVE
+  INACTIVE
+  ARCHIVED
+}
+
+enum RelationType {
+  ONE_TO_ONE
+  ONE_TO_MANY
+  MANY_TO_MANY
 }
