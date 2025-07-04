@@ -163,19 +163,41 @@ export const PostgreSQLConnectionTest: React.FC = () => {
     return (
       <button
         onClick={() => setShowFullPanel(true)}
-        className={`fixed bottom-4 right-4 z-50 w-8 h-8 rounded-full ${iconColor} shadow-lg focus:outline-none`}
-        title={`Backend status: ${connectionStatus.status}`}
-      />
+        className={`
+          fixed bottom-4 right-4 z-50 
+          w-10 h-10 rounded-full 
+          ${iconColor}
+          transform transition-all duration-300 ease-in-out
+          hover:scale-110
+          shadow-[0_0_15px_rgba(0,0,0,0.2)]
+          hover:shadow-[0_0_20px_rgba(0,0,0,0.3)]
+          border-2 border-white/20
+          backdrop-blur-sm
+          flex items-center justify-center
+          animate-fade-in
+        `}
+        title={`وضعیت اتصال به Backend: ${connectionStatus.status === 'connected' ? 'متصل' : connectionStatus.status === 'warning' ? 'هشدار' : 'قطع شده'}`}
+      >
+        {getStatusIcon()}
+      </button>
     );
   }
 
   return (
-    <div className="fixed bottom-4 right-4 z-50">
-      <div className={`relative border rounded-lg p-4 max-w-sm shadow-lg ${getStatusColor()}`}> 
+    <div className="fixed bottom-4 right-4 z-50 animate-slide-in">
+      <div className={`
+        relative border-2 rounded-xl p-4 max-w-sm
+        shadow-[0_0_20px_rgba(0,0,0,0.15)]
+        hover:shadow-[0_0_25px_rgba(0,0,0,0.2)]
+        backdrop-blur-xl
+        transform transition-all duration-300 ease-in-out
+        ${getStatusColor()}
+      `}>
         {/* Close button */}
         <button
           onClick={() => setShowFullPanel(false)}
-          className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 focus:outline-none"
+          className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 
+                     transition-colors duration-200 hover:scale-110 transform"
           aria-label="Close status panel"
         >
           ×
@@ -286,3 +308,43 @@ export const FirebaseConnectionTest = PostgreSQLConnectionTest;
 export const useFirebaseStatus = usePostgreSQLStatus;
 
 export default PostgreSQLConnectionTest;
+
+// Add these styles at the top of the file after the imports
+const styles = `
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+      transform: scale(0.9);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  @keyframes slide-in {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-fade-in {
+    animation: fade-in 0.3s ease-out;
+  }
+
+  .animate-slide-in {
+    animation: slide-in 0.3s ease-out;
+  }
+`;
+
+// Add the styles to the document
+if (typeof document !== 'undefined') {
+  const styleSheet = document.createElement('style');
+  styleSheet.textContent = styles;
+  document.head.appendChild(styleSheet);
+}
