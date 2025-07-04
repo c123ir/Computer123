@@ -1,4 +1,4 @@
-export interface User {
+export interface AuthUser {
   id: string;
   email: string;
   name: string;
@@ -7,8 +7,10 @@ export interface User {
   roles?: string[];
 }
 
+export interface User extends AuthUser {}
+
 export interface AuthState {
-  user: User | null;
+  user: AuthUser | null;
   loading: boolean;
   error: string | null;
   isAuthenticated: boolean;
@@ -20,7 +22,7 @@ export interface LoginCredentials {
 }
 
 export interface AuthResponse {
-  user: User;
+  user: AuthUser;
   token: string;
 }
 
