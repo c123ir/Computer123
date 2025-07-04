@@ -39,7 +39,7 @@ function App() {
               v7_relativeSplatPath: true 
             }}
           >
-            <div className="App min-h-screen bg-gray-50 dark:bg-gray-900">
+            <div className="App min-h-screen bg-gray-50 dark:bg-gray-900 ">
               <Layout>
                 <Routes>
                   <Route path="/" element={<Dashboard />} />
