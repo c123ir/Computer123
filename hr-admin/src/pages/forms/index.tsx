@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { FormsList, FormBuilder } from '../../modules/form-builder/components';
-import { Form } from '../../modules/form-builder/types';
+import type { Form } from '../../modules/form-builder/types';
 
 const Forms: React.FC = () => {
   const [selectedForm, setSelectedForm] = useState<Form | null>(null);
@@ -26,7 +26,7 @@ const Forms: React.FC = () => {
   // نمایش لیست فرم‌ها
   return (
     <FormsList
-      onSelectForm={(form) => {
+      onSelectForm={(form: Form) => {
         setSelectedForm(form);
         setIsEditing(true);
       }}
