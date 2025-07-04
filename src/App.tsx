@@ -3,10 +3,11 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ThemeProvider } from './contexts/ThemeContext';
+import { AuthProvider } from './contexts/AuthContext';
 import Layout from './components/layout/Layout';
 import Dashboard from './pages/Dashboard';
 import ComingSoon from './pages/ComingSoon';
-import FormsPage from './pages/forms';
+import FormsPage from './pages/forms/index';
 import MenuManagement from './pages/MenuManagement';
 
 const queryClient = new QueryClient();
