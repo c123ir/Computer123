@@ -10,5 +10,8 @@ export { default as FieldsPanel } from './FormBuilder/FieldsPanel';
 export { default as PreviewPanel } from './FormBuilder/PreviewPanel';
 export { default as SettingsPanel } from './FormBuilder/SettingsPanel';
 
+// Forms List Components
+export { FormsList, FormCard, CreateFormModal } from './FormsList';
+
 // Form Builder Component Types
 export type { default as FormBuilderProps } from './FormBuilder/FormBuilder';
