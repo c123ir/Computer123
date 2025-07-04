@@ -5,6 +5,7 @@ import { MenuItem, MenuType } from '../../types/menu';
 import { fetchMenuTree, reorderMenus, moveMenuItem } from '../../services/menu.service';
 import { useAuth } from '../../hooks/useAuth';
 import { Logger } from '../../utils/logger';
+import type { AuthUser } from '../../types/auth';
 
 interface MenuTreeProps {
   onMenuSelect?: (menu: MenuItem) => void;
@@ -157,11 +158,6 @@ const reorder = <T,>(list: T[], startIndex: number, endIndex: number): T[] => {
   const [removed] = result.splice(startIndex, 1);
   result.splice(endIndex, 0, removed);
   return result;
-};
-
-type AuthUser = {
-  permissions?: string[];
-  roles?: string[];
 };
 
 const checkMenuAccess = (menu: MenuItem, user: AuthUser | null) => {
