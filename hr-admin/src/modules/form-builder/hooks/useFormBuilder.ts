@@ -135,7 +135,7 @@ export const useFormBuilder = (options: UseFormBuilderOptions = {}) => {
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
 
   // Refs
-  const autoSaveTimerRef = useRef<NodeJS.Timeout>();
+  const autoSaveTimerRef = useRef<NodeJS.Timeout | undefined>(undefined);
   const lastSavedFormRef = useRef<Form>(state.form);
 
   // =====================================================
