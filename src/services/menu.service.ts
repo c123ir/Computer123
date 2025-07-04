@@ -1,4 +1,4 @@
-import axios, { AxiosResponse } from 'axios';
+import axios, { AxiosResponse, AxiosRequestConfig } from 'axios';
 import { MenuItem } from '../types/menu';
 
 interface ApiResponse<T> {
@@ -16,7 +16,7 @@ const api = axios.create({
 });
 
 // Add auth token to requests
-api.interceptors.request.use((config) => {
+api.interceptors.request.use((config: AxiosRequestConfig) => {
   const token = localStorage.getItem('authToken');
   if (token && config.headers) {
     config.headers.Authorization = `Bearer ${token}`;
