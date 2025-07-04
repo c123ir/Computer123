@@ -94,31 +94,6 @@ export interface FormFilters {
 }
 
 /**
- * پاسخ فرم
- */
-export interface FormResponse {
-  /** شناسه */
-  id: string;
-  /** شناسه فرم */
-  formId: string;
-  /** پاسخ‌ها */
-  answers: Record<string, any>;
-  /** ارسال کننده */
-  submitter?: any;
-  /** متادیتا */
-  metadata: {
-    submittedAt: string;
-    duration?: number;
-    status: 'completed' | 'draft';
-    formVersion?: number;
-  };
-  /** تاریخ ایجاد */
-  createdAt: string;
-  /** تاریخ بروزرسانی */
-  updatedAt: string;
-}
-
-/**
  * قالب فرم
  */
 export interface FormTemplate {
@@ -271,10 +246,8 @@ export interface HealthCheckResult {
   }>;
 }
 
-// Forward declaration - Import های دقیق در انتها
-
 /**
- * DTO برای ایجاد فرم (موقت بدون وابستگی به Form)
+ * DTO برای ایجاد فرم
  */
 export interface CreateFormDto {
   name: string;
@@ -289,7 +262,7 @@ export interface CreateFormDto {
 }
 
 /**
- * DTO برای بروزرسانی فرم (موقت بدون وابستگی به Form)
+ * DTO برای بروزرسانی فرم
  */
 export interface UpdateFormDto {
   name?: string;
