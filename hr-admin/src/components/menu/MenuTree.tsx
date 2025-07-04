@@ -5,6 +5,7 @@ import { MenuItem, MenuType } from '../../types/menu';
 import { fetchMenuTree, reorderMenus, moveMenuItem } from '../../services/menu.service';
 import { useAuth } from '../../hooks/useAuth';
 import { Logger } from '../../utils/logger';
+import { User } from '../../types/auth';
 
 interface MenuTreeProps {
   onMenuSelect?: (menu: MenuItem) => void;
