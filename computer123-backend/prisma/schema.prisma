@@ -14,11 +14,11 @@ model Form {
   name        String   @db.VarChar(255)
   description String?  @db.Text
   
-  // JSON fields for flexibility (مطابق فرم‌ساز فعلی)
-  fields      Json     // فیلدهای فرم - آرایه FormField[]
-  settings    Json     // تنظیمات عمومی فرم - FormSettings
-  styling     Json     // تنظیمات ظاهری - FormStyling  
-  metadata    Json     // اطلاعات meta - FormMetadata
+  // JSON fields for flexibility
+  fieldsData   Json     @map("fields_data") // فیلدهای فرم - آرایه FormField[]
+  settings     Json     // تنظیمات عمومی فرم - FormSettings
+  styling      Json     // تنظیمات ظاهری - FormStyling  
+  metadata     Json     // اطلاعات meta - FormMetadata
   
   // Status and versioning
   status      FormStatus @default(DRAFT)
