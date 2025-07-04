@@ -118,32 +118,38 @@ export const PostgreSQLConnectionTest: React.FC = () => {
   };
 
   const getStatusIcon = () => {
+    const baseIconClasses = "transition-all duration-300 ease-in-out transform";
     switch (connectionStatus.status) {
       case 'checking':
-        return <Clock className="w-5 h-5 text-blue-500 animate-spin" />;
+        return <Clock className={`w-5 h-5 text-white ${baseIconClasses} animate-spin`} />;
       case 'connected':
-        return <CheckCircle className="w-5 h-5 text-green-500" />;
+        return <CheckCircle className={`w-5 h-5 text-white ${baseIconClasses} hover:scale-110`} 
+                style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))' }} />;
       case 'warning':
-        return <AlertTriangle className="w-5 h-5 text-yellow-500" />;
+        return <AlertTriangle className={`w-5 h-5 text-white ${baseIconClasses} hover:scale-110`}
+                style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))' }} />;
       case 'failed':
-        return <XCircle className="w-5 h-5 text-red-500" />;
+        return <XCircle className={`w-5 h-5 text-white ${baseIconClasses} hover:scale-110`}
+                style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))' }} />;
       default:
-        return <Database className="w-5 h-5 text-gray-500" />;
+        return <Database className={`w-5 h-5 text-white ${baseIconClasses} hover:scale-110`}
+                style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))' }} />;
     }
   };
 
   const getStatusColor = () => {
+    const baseClasses = "border-opacity-20 bg-opacity-95";
     switch (connectionStatus.status) {
       case 'checking':
-        return 'border-blue-200 bg-blue-50';
+        return `border-blue-200 bg-blue-50 ${baseClasses}`;
       case 'connected':
-        return 'border-green-200 bg-green-50';
+        return `border-green-200 bg-green-50 ${baseClasses}`;
       case 'warning':
-        return 'border-yellow-200 bg-yellow-50';
+        return `border-yellow-200 bg-yellow-50 ${baseClasses}`;
       case 'failed':
-        return 'border-red-200 bg-red-50';
+        return `border-red-200 bg-red-50 ${baseClasses}`;
       default:
-        return 'border-gray-200 bg-gray-50';
+        return `border-gray-200 bg-gray-50 ${baseClasses}`;
     }
   };
 
