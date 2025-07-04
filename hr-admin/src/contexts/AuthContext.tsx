@@ -1,10 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { User, AuthState, LoginCredentials, AuthResponse } from '../types/auth';
-
-interface AuthContextType extends AuthState {
-  login: (credentials: LoginCredentials) => Promise<void>;
-  logout: () => Promise<void>;
-}
+import { User, AuthState, LoginCredentials, AuthResponse, AuthContextType } from '../types/auth';
 
 export const AuthContext = createContext<AuthContextType | null>(null);
 
