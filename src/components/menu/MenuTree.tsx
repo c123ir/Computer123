@@ -1,5 +1,5 @@
 import React from 'react';
-import { DragDropContext, Droppable, Draggable, DroppableProvided, DraggableProvided } from 'react-beautiful-dnd';
+import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { MenuItem, MenuType } from '../../types/menu';
 import { fetchMenuTree, reorderMenus, moveMenuItem } from '../../services/menu.service';
@@ -8,70 +8,102 @@ import { Logger } from '../../utils/logger';
 import type { User as AuthUser } from '../../types/auth';
 
 interface MenuTreeProps {
-  onSelect: (item: MenuItem) => void;
-  selectedId?: string;
+  onMenuSelect?: (menu: MenuItem) => void;
+  className?: string;
 }
 
-const MenuTree: React.FC<MenuTreeProps> = ({ onSelect, selectedId }) => {
-  const { data: menuItems, isLoading } = useQuery(['menuTree'], fetchMenuTree);
+export const MenuTree: React.FC<MenuTreeProps> = ({ onMenuSelect, className }) => {
   const queryClient = useQueryClient();
-  const { isAuthenticated } = useAuth();
+  const { user } = useAuth();
 
-  const reorderMutation = useMutation(reorderMenus, {
-    onSuccess: () => {
-      queryClient.invalidateQueries(['menuTree']);
-    },
+  // دریافت ساختار درختی منو
+  const { data: menuTree = [], isLoading } = useQuery({
+    queryKey: ['menus', 'tree'],
+    queryFn: fetchMenuTree
   });
 
-  const moveMutation = useMutation(moveMenuItem, {
+  // میوتیشن برای تغییر ترتیب منوها
+  const reorderMutation = useMutation({
+    mutationFn: reorderMenus,
     onSuccess: () => {
-      queryClient.invalidateQueries(['menuTree']);
-    },
+      queryClient.invalidateQueries({ queryKey: ['menus', 'tree'] });
+    }
   });
 
-  const handleDragEnd = (result: any) => {
+  // میوتیشن برای جابجایی منوها
+  const moveMutation = useMutation({
+    mutationFn: moveMenuItem,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['menus', 'tree'] });
+    }
+  });
+
+  // مدیریت درگ و دراپ
+  const handleDragEnd = async (result: DropResult) => {
     if (!result.destination) return;
 
-    const sourceId = result.source.droppableId;
+    const sourceId = result.draggableId;
     const destinationId = result.destination.droppableId;
-    const itemId = result.draggableId;
+    const sourceIndex = result.source.index;
+    const destinationIndex = result.destination.index;
 
-    if (sourceId === destinationId) {
-      reorderMutation.mutate({
-        parentId: sourceId,
-        itemId,
-        newIndex: result.destination.index,
-      });
-    } else {
-      moveMutation.mutate({
-        itemId,
-        newParentId: destinationId,
-        newIndex: result.destination.index,
-      });
+    try {
+      if (result.type === 'menu') {
+        // جابجایی بین منوها
+        if (result.source.droppableId !== result.destination.droppableId) {
+          await moveMutation.mutateAsync({
+            menuId: sourceId,
+            newParentId: destinationId === 'root' ? null : destinationId
+          });
+        } else {
+          // تغییر ترتیب در یک سطح
+          const parentId = destinationId === 'root' ? null : destinationId;
+          const items = findMenuItems(menuTree, parentId);
+          const newOrder = reorder(items, sourceIndex, destinationIndex);
+          
+          await reorderMutation.mutateAsync({
+            parentId,
+            menuIds: newOrder.map(item => item.id)
+          });
+        }
+      }
+    } catch (error) {
+      Logger.error('Error in drag and drop:', error);
     }
   };
 
-  const renderMenuItem = (item: MenuItem, level: number) => {
+  // رندر آیتم منو
+  const renderMenuItem = (item: MenuItem, level: number = 0) => {
+    const hasAccess = checkMenuAccess(item, user);
+    if (!hasAccess) return null;
+
     return (
       <Draggable key={item.id} draggableId={item.id} index={level}>
-        {(provided: DraggableProvided) => (
+        {(provided) => (
           <div
             ref={provided.innerRef}
             {...provided.draggableProps}
             {...provided.dragHandleProps}
-            className={`menu-item ${selectedId === item.id ? 'selected' : ''}`}
-            onClick={() => onSelect(item)}
+            className="menu-item"
+            onClick={() => onMenuSelect?.(item)}
           >
-            <span className="menu-item-title">{item.title}</span>
+            <div className="menu-item-content" style={{ paddingLeft: `${level * 20}px` }}>
+              {item.icon && <span className="menu-item-icon">{item.icon}</span>}
+              <span className="menu-item-title">{item.title}</span>
+              {item.type === MenuType.FORM && (
+                <span className="menu-item-badge">فرم</span>
+              )}
+            </div>
+
             {item.children && item.children.length > 0 && (
               <Droppable droppableId={item.id} type="menu">
-                {(provided: DroppableProvided) => (
+                {(provided) => (
                   <div
                     ref={provided.innerRef}
                     {...provided.droppableProps}
                     className="menu-children"
                   >
-                    {item.children?.map((child, index) => 
+                    {(item.children || []).map((child, index) => 
                       renderMenuItem(child, level + 1)
                     )}
                     {provided.placeholder}
@@ -85,24 +117,47 @@ const MenuTree: React.FC<MenuTreeProps> = ({ onSelect, selectedId }) => {
     );
   };
 
-  if (isLoading) return <div>در حال بارگذاری...</div>;
+  if (isLoading) {
+    return <div className="loading">در حال بارگذاری...</div>;
+  }
 
   return (
     <DragDropContext onDragEnd={handleDragEnd}>
       <Droppable droppableId="root" type="menu">
-        {(provided: DroppableProvided) => (
+        {(provided) => (
           <div
             ref={provided.innerRef}
             {...provided.droppableProps}
-            className="menu-tree"
+            className={`menu-tree ${className || ''}`}
           >
-            {menuItems?.map((item, index) => renderMenuItem(item, index))}
+            {menuTree.map((item, index) => renderMenuItem(item, index))}
             {provided.placeholder}
           </div>
         )}
       </Droppable>
     </DragDropContext>
   );
+};
+
+// توابع کمکی
+const findMenuItems = (items: MenuItem[] = [], parentId: string | null): MenuItem[] => {
+  if (!parentId) return items;
+
+  for (const item of items) {
+    if (item.id === parentId) return item.children || [];
+    if (item.children) {
+      const result = findMenuItems(item.children, parentId);
+      if (result.length) return result;
+    }
+  }
+  return [];
+};
+
+const reorder = <T,>(list: T[], startIndex: number, endIndex: number): T[] => {
+  const result = Array.from(list);
+  const [removed] = result.splice(startIndex, 1);
+  result.splice(endIndex, 0, removed);
+  return result;
 };
 
 const checkMenuAccess = (menu: MenuItem, user: AuthUser | null) => {
