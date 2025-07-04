@@ -166,6 +166,14 @@ export const PostgreSQLConnectionTest: React.FC = () => {
         : connectionStatus.status === 'warning'
         ? 'bg-yellow-500'
         : 'bg-red-500';
+    
+    const animationClass = 
+      connectionStatus.status === 'checking'
+        ? 'animate-status-checking'
+        : connectionStatus.status === 'connected'
+        ? 'animate-pulse-custom'
+        : '';
+
     return (
       <button
         onClick={() => setShowFullPanel(true)}
@@ -181,7 +189,12 @@ export const PostgreSQLConnectionTest: React.FC = () => {
           backdrop-blur-sm
           flex items-center justify-center
           animate-fade-in
+          ${animationClass}
         `}
+        style={{
+          transform: 'perspective(1000px) rotateX(10deg)',
+          transformStyle: 'preserve-3d'
+        }}
         title={`وضعیت اتصال به Backend: ${connectionStatus.status === 'connected' ? 'متصل' : connectionStatus.status === 'warning' ? 'هشدار' : 'قطع شده'}`}
       >
         {getStatusIcon()}
@@ -198,7 +211,11 @@ export const PostgreSQLConnectionTest: React.FC = () => {
         backdrop-blur-xl
         transform transition-all duration-300 ease-in-out
         ${getStatusColor()}
-      `}>
+      `}
+      style={{
+        transform: 'perspective(1000px) rotateX(5deg)',
+        transformStyle: 'preserve-3d'
+      }}>
         {/* Close button */}
         <button
           onClick={() => setShowFullPanel(false)}
@@ -315,36 +332,68 @@ export const useFirebaseStatus = usePostgreSQLStatus;
 
 export default PostgreSQLConnectionTest;
 
-// Add these styles at the top of the file after the imports
+// Update the styles constant with new animations
 const styles = `
   @keyframes fade-in {
     from {
       opacity: 0;
-      transform: scale(0.9);
+      transform: scale(0.9) translateY(10px);
     }
     to {
       opacity: 1;
-      transform: scale(1);
+      transform: scale(1) translateY(0);
     }
   }
 
   @keyframes slide-in {
     from {
       opacity: 0;
-      transform: translateY(20px);
+      transform: translateY(20px) scale(0.95);
     }
     to {
       opacity: 1;
-      transform: translateY(0);
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  @keyframes pulse {
+    0% {
+      box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4);
+    }
+    70% {
+      box-shadow: 0 0 0 10px rgba(255, 255, 255, 0);
+    }
+    100% {
+      box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+    }
+  }
+
+  @keyframes status-checking {
+    0% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(0.92);
+    }
+    100% {
+      transform: scale(1);
     }
   }
 
   .animate-fade-in {
-    animation: fade-in 0.3s ease-out;
+    animation: fade-in 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .animate-slide-in {
-    animation: slide-in 0.3s ease-out;
+    animation: slide-in 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .animate-pulse-custom {
+    animation: pulse 2s infinite;
+  }
+
+  .animate-status-checking {
+    animation: status-checking 1.5s infinite;
   }
 `;
 
