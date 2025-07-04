@@ -4,7 +4,7 @@ import { useState, useCallback, useRef, useEffect } from 'react';
 import { 
   Form, 
   FormField, 
-  FieldType,
+  FieldType, 
   FormSettings,
   FormStyling,
   FormMetadata 
