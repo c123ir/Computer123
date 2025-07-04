@@ -4,6 +4,8 @@ import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
+import { errorHandler } from './middleware/error.middleware';
+import { notFound } from './middleware/notFound.middleware';
 
 // Load environment variables
 dotenv.config();
@@ -215,37 +217,15 @@ app.get('/api/stats', (req, res) => {
   });
 });
 
-// Global error handler
-app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
-  console.error('Error:', err);
-  
-  res.status(err.status || 500).json({
-    success: false,
-    error: process.env.NODE_ENV === 'development' ? err.message : 'Internal server error',
-    ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
-  });
-});
+// Routes
+import formsRoutes from './routes/forms.routes';
+import menusRoutes from './routes/menus.routes';
 
-// 404 handler
-app.use((req, res) => {
-  res.status(404).json({
-    success: false,
-    error: `Route ${req.method} ${req.originalUrl} not found`,
-    availableRoutes: [
-      'GET /health',
-      'GET /api/health',
-      'GET /api/test',
-      'GET /api/forms',
-      'POST /api/forms',
-      'GET /api/forms/:id',
-      'PUT /api/forms/:id',
-      'DELETE /api/forms/:id',
-      'GET /api/templates',
-      'GET /api/forms/:id/responses',
-      'POST /api/forms/:id/responses',
-      'GET /api/stats'
-    ]
-  });
-});
+app.use('/api/forms', formsRoutes);
+app.use('/api/menus', menusRoutes);
+
+// Error handling
+app.use(notFound);
+app.use(errorHandler);
 
 export default app;
