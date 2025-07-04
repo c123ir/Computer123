@@ -215,13 +215,10 @@ const CreateFormModal: React.FC<CreateFormModalProps> = ({
         />
 
         {/* Modal */}
-        <div className="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-right overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+        <div className="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-right overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full" dir="rtl">
           {/* Header */}
           <div className="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-medium text-gray-900 dark:text-white text-right">
-                ایجاد فرم جدید
-              </h3>
+            <div className="flex items-center justify-between mb-4 flex-row-reverse">
               <button
                 onClick={handleClose}
                 disabled={createFormMutation.isPending}
@@ -229,12 +226,15 @@ const CreateFormModal: React.FC<CreateFormModalProps> = ({
               >
                 <XMarkIcon className="w-6 h-6" />
               </button>
+              <h3 className="text-lg font-medium text-gray-900 dark:text-white text-right">
+                ایجاد فرم جدید
+              </h3>
             </div>
 
             {/* Form */}
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-4" dir="rtl">
               {/* Name */}
-              <div>
+              <div className="text-right">
                 <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 text-right">
                   نام فرم *
                 </label>
@@ -260,7 +260,7 @@ const CreateFormModal: React.FC<CreateFormModalProps> = ({
               </div>
 
               {/* Description */}
-              <div>
+              <div className="text-right">
                 <label htmlFor="description" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 text-right">
                   توضیحات
                 </label>
@@ -286,7 +286,7 @@ const CreateFormModal: React.FC<CreateFormModalProps> = ({
               </div>
 
               {/* Category */}
-              <div>
+              <div className="text-right">
                 <label htmlFor="category" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 text-right">
                   دسته‌بندی
                 </label>
@@ -317,7 +317,7 @@ const CreateFormModal: React.FC<CreateFormModalProps> = ({
               </div>
 
               {/* Tags */}
-              <div>
+              <div className="text-right">
                 <label htmlFor="tags" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 text-right">
                   برچسب‌ها
                 </label>
@@ -338,7 +338,7 @@ const CreateFormModal: React.FC<CreateFormModalProps> = ({
 
               {/* Submit Error */}
               {errors.submit && (
-                <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md p-3">
+                <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md p-3 text-right">
                   <p className="text-sm text-red-600 dark:text-red-400 text-right">
                     {errors.submit}
                   </p>
@@ -348,16 +348,24 @@ const CreateFormModal: React.FC<CreateFormModalProps> = ({
           </div>
 
           {/* Actions */}
-          <div className="bg-gray-50 dark:bg-gray-750 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+          <div className="bg-gray-50 dark:bg-gray-750 px-4 py-3 sm:px-6 flex flex-col-reverse sm:flex-row gap-2" dir="rtl">
+            <button
+              type="button"
+              onClick={handleClose}
+              disabled={createFormMutation.isPending}
+              className="w-full sm:w-auto inline-flex justify-center rounded-md border border-gray-300 dark:border-gray-600 shadow-sm px-4 py-2 bg-white dark:bg-gray-700 text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              انصراف
+            </button>
             <button
               type="submit"
               onClick={handleSubmit}
               disabled={createFormMutation.isPending || !formData.name?.trim()}
-              className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mr-3 sm:w-auto sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full sm:w-auto inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {createFormMutation.isPending ? (
                 <>
-                  <svg className="animate-spin -mr-1 ml-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <svg className="animate-spin ml-2 -mr-1 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
@@ -366,14 +374,6 @@ const CreateFormModal: React.FC<CreateFormModalProps> = ({
               ) : (
                 'ایجاد فرم'
               )}
-            </button>
-            <button
-              type="button"
-              onClick={handleClose}
-              disabled={createFormMutation.isPending}
-              className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 dark:border-gray-600 shadow-sm px-4 py-2 bg-white dark:bg-gray-700 text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              انصراف
             </button>
           </div>
         </div>
