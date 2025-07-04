@@ -5,7 +5,7 @@
 import { DatabaseType, DatabaseConfig } from '../../types';
 import { DatabaseService } from './interface';
 import { PostgreSQLService } from './postgresql.service';
-
+  
 /**
  * Firebase Service Implementation (Disabled)
  */
@@ -58,7 +58,7 @@ class FirebaseService implements DatabaseService {
   async getResponses(): Promise<any> {
     throw new Error('Firebase service disabled - using PostgreSQL instead');
   }
-  
+
   async getResponse(): Promise<any> {
     throw new Error('Firebase service disabled - using PostgreSQL instead');
   }
@@ -121,8 +121,8 @@ class FirebaseService implements DatabaseService {
   
   async testConnection(): Promise<boolean> {
     throw new Error('Firebase service disabled - using PostgreSQL instead');
-  }
-  
+    }
+    
   async clearCache(): Promise<void> {
     throw new Error('Firebase service disabled - using PostgreSQL instead');
   }

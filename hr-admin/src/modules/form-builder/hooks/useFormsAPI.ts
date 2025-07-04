@@ -310,7 +310,7 @@ export const useFormsAPI = () => {
 
     healthCheck: useCallback(async (): Promise<HealthCheckResult> => {
       // FormService doesn't have a healthCheck method, so return a mock response
-      return {
+  return {
         status: 'healthy',
         timestamp: new Date().toISOString(),
         responseTime: 0,

@@ -8,11 +8,11 @@ import { useFormBuilder } from './useFormBuilder';
 
 // Main Hooks
 export { 
-  useFormBuilder,
+    useFormBuilder, 
   type FormBuilderState,
   type FormBuilderActions,
   type UseFormBuilderOptions
-} from './useFormBuilder';
+  } from './useFormBuilder';
 
 export { 
   useFormBuilderShortcuts,
@@ -23,28 +23,28 @@ export {
   useFormsAPI,
   type FormsAPI
 } from './useFormsAPI';
-
-// Hook Types
+  
+  // Hook Types
 export type UseFormBuilderReturn = ReturnType<typeof import('./useFormBuilder').useFormBuilder>;
 
 // Default export
 export default useFormBuilder;
-
-// Placeholder for future hooks
-export const useDragDrop = () => {
-  // TODO: Implement drag and drop hook
-  return {
-    dragStart: () => {},
-    dragEnd: () => {},
-    drop: () => {}
+  
+  // Placeholder for future hooks
+  export const useDragDrop = () => {
+    // TODO: Implement drag and drop hook
+    return {
+      dragStart: () => {},
+      dragEnd: () => {},
+      drop: () => {}
+    };
   };
-};
-
-export const useFormValidation = () => {
-  // TODO: Implement advanced validation hook
-  return {
-    validate: () => true,
-    errors: {},
-    isValid: true
+  
+  export const useFormValidation = () => {
+    // TODO: Implement advanced validation hook
+    return {
+      validate: () => true,
+      errors: {},
+      isValid: true
+    };
   };
-};
