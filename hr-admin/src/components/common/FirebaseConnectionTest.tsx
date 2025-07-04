@@ -20,6 +20,7 @@ export const PostgreSQLConnectionTest: React.FC = () => {
   });
   
   const [backendInfo, setBackendInfo] = useState<any>(null);
+  const [showFullPanel, setShowFullPanel] = useState<boolean>(true);
 
   useEffect(() => {
     testConnection();
@@ -30,6 +31,14 @@ export const PostgreSQLConnectionTest: React.FC = () => {
       databaseType: process.env.REACT_APP_DATABASE_TYPE || 'postgresql'
     });
   }, []);
+
+  // Auto-hide panel after a few seconds upon status change
+  useEffect(() => {
+    if (showFullPanel) {
+      const timer = setTimeout(() => setShowFullPanel(false), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [connectionStatus.status]);
 
   const testConnection = async () => {
     try {
@@ -143,9 +152,34 @@ export const PostgreSQLConnectionTest: React.FC = () => {
     return null;
   }
 
+  // If panel closed, show small status icon
+  if (!showFullPanel) {
+    const iconColor =
+      connectionStatus.status === 'connected'
+        ? 'bg-green-500'
+        : connectionStatus.status === 'warning'
+        ? 'bg-yellow-500'
+        : 'bg-red-500';
+    return (
+      <button
+        onClick={() => setShowFullPanel(true)}
+        className={`fixed bottom-4 right-4 z-50 w-8 h-8 rounded-full ${iconColor} shadow-lg focus:outline-none`}
+        title={`Backend status: ${connectionStatus.status}`}
+      />
+    );
+  }
+
   return (
     <div className="fixed bottom-4 right-4 z-50">
-      <div className={`border rounded-lg p-4 max-w-sm shadow-lg ${getStatusColor()}`}>
+      <div className={`relative border rounded-lg p-4 max-w-sm shadow-lg ${getStatusColor()}`}> 
+        {/* Close button */}
+        <button
+          onClick={() => setShowFullPanel(false)}
+          className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 focus:outline-none"
+          aria-label="Close status panel"
+        >
+          ×
+        </button>
         <div className="flex items-start space-x-3 space-x-reverse">
           {getStatusIcon()}
           <div className="flex-1 min-w-0">
