@@ -138,15 +138,12 @@ import {
     static validateForm(
       fields: FormField[], 
       formData: Record<string, any>
-    ): Record<string, ValidationResult> {
-      const results: Record<string, ValidationResult> = {};
-  
-      fields.forEach(field => {
-        const value = formData[field.id];
-        results[field.id] = this.validateField(field, value, formData);
-      });
-  
-      return results;
+    ): ValidationResult {
+      const results = this.validateBatch(fields, formData, { validateHidden: false });
+      return {
+        isValid: results.isValid,
+        errors: results.errors
+      };
     }
   
     /**
@@ -834,18 +831,13 @@ import {
         stopOnFirst?: boolean;
         validateHidden?: boolean;
       } = {}
-    ): {
-      isValid: boolean;
-      results: Record<string, ValidationResult>;
-      summary: {
-        totalFields: number;
-        validFields: number;
-        invalidFields: number;
-        errors: any[];
-      };
-    } {
+    ): ValidationResult {
       const results: Record<string, ValidationResult> = {};
-      const allErrors: any[] = [];
+      const allErrors: Array<{
+        type: ValidationErrorType;
+        message: string;
+        field: string;
+      }> = [];
       let validCount = 0;
   
       for (const field of fields) {
@@ -876,13 +868,7 @@ import {
   
       return {
         isValid: allErrors.length === 0,
-        results,
-        summary: {
-          totalFields: fields.length,
-          validFields: validCount,
-          invalidFields: fields.length - validCount,
-          errors: allErrors
-        }
+        errors: allErrors
       };
     }
   
