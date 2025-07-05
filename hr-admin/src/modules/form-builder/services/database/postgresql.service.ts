@@ -38,7 +38,7 @@ export class PostgreSQLService implements DatabaseService {
 
   async createForm(form: CreateFormDto): Promise<string> {
     try {
-      const response = await fetch(`${this.baseURL}/forms`, {
+      const response = await fetch(`${this.baseURL}/forms/create`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
