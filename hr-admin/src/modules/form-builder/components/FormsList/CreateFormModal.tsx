@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import { useFormsAPI } from '../../hooks/useFormsAPI';
-import { CreateFormDto, FormField } from '../../types';
+import { CreateFormDto, FormField, FieldType } from '../../types';
 
 interface CreateFormModalProps {
   /** آیا مودال باز است */
