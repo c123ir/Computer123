@@ -616,31 +616,35 @@ export const useFormBuilder = (options: UseFormBuilderOptions = {}) => {
           spacing: 'normal'
         };
 
-        const form = {
-          ...loadedForm,
-          fields: loadedForm.fields || [],
-          settings: {
-            ...defaultSettings,
-            ...loadedForm.settings
-          },
-          styling: {
-            ...defaultStyling,
-            ...loadedForm.styling
-          }
-        };
+        if (loadedForm) {
+          const form = {
+            ...loadedForm,
+            fields: loadedForm.fields || [],
+            settings: {
+              ...defaultSettings,
+              ...loadedForm.settings
+            },
+            styling: {
+              ...defaultStyling,
+              ...loadedForm.styling
+            }
+          } as Form;
 
-        setState(prev => ({
-          ...prev,
-          form,
-          selectedField: null,
-          isEditing: false,
-          hasUnsavedChanges: false,
-          isLoading: false,
-          errors: {},
-          history: [form],
-          historyIndex: 0
-        }));
-        lastSavedFormRef.current = form;
+          setState(prev => ({
+            ...prev,
+            form,
+            selectedField: null,
+            isEditing: false,
+            hasUnsavedChanges: false,
+            isLoading: false,
+            errors: {},
+            history: [form],
+            historyIndex: 0
+          }));
+          lastSavedFormRef.current = form;
+        } else {
+          throw new Error('فرم یافت نشد');
+        }
       } catch (error) {
         console.error('❌ Error loading form:', error);
         const errorMessage = error instanceof Error ? error.message : 'خطا در بارگذاری فرم';
