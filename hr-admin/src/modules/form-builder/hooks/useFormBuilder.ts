@@ -44,7 +44,7 @@ export interface FormBuilderActions {
   
   // Field Management
   /** اضافه کردن فیلد */
-  addField: (type: FieldType, index?: number) => string;
+  addField: (type: FieldType, parentId?: string) => string;
   /** حذف فیلد */
   removeField: (fieldId: string) => void;
   /** کپی فیلد */
@@ -338,7 +338,7 @@ export const useFormBuilder = (options: UseFormBuilderOptions = {}) => {
   // Field Management Actions
   // =====================================================
 
-  const addField = useCallback((type: FieldType, index?: number): string => {
+  const addField = useCallback((type: FieldType, parentId?: string): string => {
     const newField: FormField = {
       id: generateFieldId(),
       type,
@@ -358,13 +358,15 @@ export const useFormBuilder = (options: UseFormBuilderOptions = {}) => {
         { id: 'option_2', label: 'گزینه ۲', value: 'option_2' }
       ] : undefined,
       fieldSettings: getDefaultFieldSettings(type),
-      order: index ?? state.form.fields.length
+      parentId: parentId,
+      order: state.form.fields.length
     };
+
+    console.log('Adding new field:', newField);
 
     updateForm(prev => {
       const newFields = [...prev.fields];
-      const insertIndex = index !== undefined ? index : newFields.length;
-      newFields.splice(insertIndex, 0, newField);
+      newFields.push(newField);
       
       return {
         ...prev,
