@@ -2,31 +2,30 @@
 // 🔧 فایل: src/modules/form-builder/types/index.ts
 // =====================================================
 
-// Form related types
-export * from './form.types';
-
 // Field types
 export * from './field.types';
 
-// Database types - specific exports to avoid conflicts
-export type { 
-  DatabaseType, 
-  DatabaseConfig, 
-  ApiResponse, 
-  PaginatedResponse, 
-  FormFilters, 
-  PaginationOptions, 
-  PaginatedResult, 
-  DatabaseStats, 
-  HealthCheckResult, 
-  CreateFormDto, 
-  UpdateFormDto, 
-  ValidationResult, 
-  ValidationErrorType,
+// Form types
+export * from './form.types';
+
+// Database types
+export type {
+  DatabaseType,
+  DatabaseConfig,
+  ApiResponse,
+  PaginatedResponse,
+  FormFilters,
+  FormTemplate,
+  PaginationOptions,
+  PaginatedResult,
   SortOptions,
   ExportOptions,
   ImportOptions,
-  BatchResult
+  BatchResult,
+  DatabaseStats,
+  HealthCheckResult,
+  ValidationResult,
+  ValidationErrorType
 } from './database.types';
 
 export type FieldType = 
