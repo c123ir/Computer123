@@ -2,7 +2,8 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { DatabaseServiceFactory } from '../services/database/factory';
-import { Form, FormFilters } from '../types';
+import { Form } from '@prisma/client';
+import { FormFilters } from '../services/database/interface';
 
 const getDatabaseService = () => {
   const dbType = process.env.REACT_APP_DATABASE_TYPE as any || 'postgresql';
