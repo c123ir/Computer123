@@ -1,12 +1,14 @@
 // src/modules/form-builder/components/FormBuilder/SettingsPanel.tsx
 
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   Settings, Type, Palette, Plus, Minus, 
-  Asterisk, HelpCircle, Trash2
+  Asterisk, HelpCircle, Trash2, ChevronRight,
+  Save, X, Check, AlertCircle
 } from 'lucide-react';
 import { FormField, ValidationRules, FieldStyling, FieldOption } from '../../types';
 import { PanelSettings } from '../Settings/PanelSettings';
+import { motion, AnimatePresence } from 'framer-motion';
 
 /**
  * پنل تنظیمات فیلد انتخاب شده
@@ -30,38 +32,47 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
   readonly = false
 }) => {
   const [activeTab, setActiveTab] = useState<SettingsTab>('general');
+  const [isDirty, setIsDirty] = useState(false);
 
   // اگر فیلد انتخاب نشده
   if (!selectedField) {
     return (
-      <div className="h-full flex flex-col">
-        <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+      <div className="h-full flex flex-col bg-white/70 backdrop-blur-sm">
+        <div className="p-4 border-b border-gray-200 dark:border-gray-700 bg-white/80 backdrop-blur-md">
+          <h3 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+            <Settings className="w-5 h-5 text-blue-500" />
             تنظیمات فیلد
           </h3>
         </div>
         
         <div className="flex-1 flex items-center justify-center p-6">
-          <div className="text-center">
-            <Settings className="w-12 h-12 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
-            <h4 className="text-lg font-medium text-gray-600 dark:text-gray-400 mb-2">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-center"
+          >
+            <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mx-auto mb-4">
+              <Settings className="w-8 h-8 text-gray-400 dark:text-gray-500" />
+            </div>
+            <h4 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
               فیلدی انتخاب نشده
             </h4>
-            <p className="text-sm text-gray-500 dark:text-gray-500">
+            <p className="text-sm text-gray-500 dark:text-gray-400 max-w-sm">
               برای ویرایش تنظیمات، یک فیلد را از پیش‌نمایش انتخاب کنید
             </p>
-          </div>
+          </motion.div>
         </div>
       </div>
     );
   }
 
   // update field helper
-  const updateField = (updates: Partial<FormField>) => {
+  const updateField = useCallback((updates: Partial<FormField>) => {
     if (!readonly && selectedField) {
+      setIsDirty(true);
       onFieldUpdate?.(selectedField.id, updates);
     }
-  };
+  }, [readonly, selectedField, onFieldUpdate]);
 
   // tabs configuration
   const tabs = [
@@ -76,33 +87,56 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
   ];
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="h-full flex flex-col bg-white/70 backdrop-blur-sm">
       {/* Header */}
-      <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-          تنظیمات فیلد
-        </h3>
-        <p className="text-sm text-gray-600 dark:text-gray-400">
-          {selectedField.label} ({selectedField.type})
-        </p>
+      <div className="p-4 border-b border-gray-200 dark:border-gray-700 bg-white/80 backdrop-blur-md">
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+            <Settings className="w-5 h-5 text-blue-500" />
+            تنظیمات فیلد
+          </h3>
+          {isDirty && !readonly && (
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setIsDirty(false)}
+                className="p-1.5 text-gray-500 hover:text-gray-700 rounded-lg transition-colors"
+                title="انصراف"
+              >
+                <X className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => setIsDirty(false)}
+                className="p-1.5 bg-blue-100 text-blue-700 hover:bg-blue-200 rounded-lg transition-colors"
+                title="ذخیره تغییرات"
+              >
+                <Save className="w-4 h-4" />
+              </button>
+            </div>
+          )}
+        </div>
+        <div className="flex items-center gap-2 text-sm">
+          <span className="text-gray-500">{selectedField.type}</span>
+          <ChevronRight className="w-4 h-4 text-gray-400" />
+          <span className="font-medium text-gray-900">{selectedField.label}</span>
+        </div>
       </div>
 
       {/* Tabs */}
-      <div className="border-b border-gray-200 dark:border-gray-700">
-        <div className="flex">
+      <div className="border-b border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50 backdrop-blur-sm">
+        <div className="flex p-1">
           {tabs.map(tab => {
             const IconComponent = tab.icon;
             return (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex-1 px-3 py-3 text-xs font-medium transition-colors border-b-2 ${
+                className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                   activeTab === tab.id
-                    ? 'border-blue-500 text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20'
-                    : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
+                    ? 'bg-white text-blue-600 shadow-sm ring-1 ring-gray-200'
+                    : 'text-gray-600 hover:text-gray-900 hover:bg-white/50'
                 }`}
               >
-                <div className="flex flex-col items-center space-y-1">
+                <div className="flex items-center justify-center gap-2">
                   <IconComponent className="w-4 h-4" />
                   <span>{tab.label}</span>
                 </div>
@@ -113,46 +147,57 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
       </div>
 
       {/* Tab Content */}
-      <div className="flex-1 overflow-y-auto p-4">
-        {activeTab === 'general' && (
-          <GeneralSettings
-            field={selectedField}
-            onUpdate={updateField}
-            readonly={readonly}
-          />
-        )}
-        
-        {activeTab === 'validation' && selectedField.type !== 'panel' && (
-          <ValidationSettings
-            field={selectedField}
-            onUpdate={updateField}
-            readonly={readonly}
-          />
-        )}
-        
-        {activeTab === 'styling' && selectedField.type !== 'panel' && (
-          <StylingSettings
-            field={selectedField}
-            onUpdate={updateField}
-            readonly={readonly}
-          />
-        )}
-        
-        {activeTab === 'advanced' && selectedField.type !== 'panel' && (
-          <AdvancedSettings
-            field={selectedField}
-            onUpdate={updateField}
-            readonly={readonly}
-          />
-        )}
+      <div className="flex-1 overflow-y-auto">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activeTab}
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.2 }}
+            className="p-4"
+          >
+            {activeTab === 'general' && (
+              <GeneralSettings
+                field={selectedField}
+                onUpdate={updateField}
+                readonly={readonly}
+              />
+            )}
+            
+            {activeTab === 'validation' && selectedField.type !== 'panel' && (
+              <ValidationSettings
+                field={selectedField}
+                onUpdate={updateField}
+                readonly={readonly}
+              />
+            )}
+            
+            {activeTab === 'styling' && selectedField.type !== 'panel' && (
+              <StylingSettings
+                field={selectedField}
+                onUpdate={updateField}
+                readonly={readonly}
+              />
+            )}
+            
+            {activeTab === 'advanced' && selectedField.type !== 'panel' && (
+              <AdvancedSettings
+                field={selectedField}
+                onUpdate={updateField}
+                readonly={readonly}
+              />
+            )}
 
-        {activeTab === 'panel' && selectedField.type === 'panel' && (
-          <PanelSettings
-            field={selectedField}
-            onUpdate={updateField}
-            readonly={readonly}
-          />
-        )}
+            {activeTab === 'panel' && selectedField.type === 'panel' && (
+              <PanelSettings
+                field={selectedField}
+                onUpdate={updateField}
+                readonly={readonly}
+              />
+            )}
+          </motion.div>
+        </AnimatePresence>
       </div>
     </div>
   );
@@ -199,188 +244,121 @@ const GeneralSettings: React.FC<{
           type="text"
           value={field.label}
           onChange={(e) => onUpdate({ label: e.target.value })}
-          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
           disabled={readonly}
+          className="w-full px-3 py-2 border border-gray-200 dark:border-gray-600 rounded-lg 
+                   bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm
+                   text-gray-900 dark:text-white 
+                   placeholder-gray-500 dark:placeholder-gray-400
+                   focus:ring-2 focus:ring-blue-500 focus:border-transparent
+                   disabled:opacity-60 disabled:cursor-not-allowed
+                   transition-all duration-200"
+          placeholder="برچسب فیلد را وارد کنید"
         />
       </div>
 
-      {/* Placeholder */}
+      {/* Description */}
       <div>
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-          متن راهنما (Placeholder)
-        </label>
-        <input
-          type="text"
-          value={field.placeholder || ''}
-          onChange={(e) => onUpdate({ placeholder: e.target.value })}
-          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-          disabled={readonly}
-        />
-      </div>
-
-      {/* Help Text */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-          متن کمکی
+          توضیحات
         </label>
         <textarea
-          value={field.helpText || ''}
-          onChange={(e) => onUpdate({ helpText: e.target.value })}
-          rows={2}
-          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+          value={field.description || ''}
+          onChange={(e) => onUpdate({ description: e.target.value })}
           disabled={readonly}
+          className="w-full px-3 py-2 border border-gray-200 dark:border-gray-600 rounded-lg 
+                   bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm
+                   text-gray-900 dark:text-white 
+                   placeholder-gray-500 dark:placeholder-gray-400
+                   focus:ring-2 focus:ring-blue-500 focus:border-transparent
+                   disabled:opacity-60 disabled:cursor-not-allowed
+                   transition-all duration-200
+                   min-h-[100px] resize-y"
+          placeholder="توضیحات اختیاری برای راهنمایی کاربر"
         />
       </div>
 
-      {/* Required Toggle */}
-      <div>
-        <label className="flex items-center justify-between">
+      {/* Required */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
           <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
             فیلد اجباری
           </span>
-          <button
-            onClick={() => onUpdate({ required: !field.required })}
-            disabled={readonly}
-            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
-              field.required ? 'bg-blue-600' : 'bg-gray-200 dark:bg-gray-700'
-            }`}
-          >
-            <span
-              className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                field.required ? 'translate-x-6' : 'translate-x-1'
-              }`}
-            />
-          </button>
-        </label>
-      </div>
-
-      {/* Default Value */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-          مقدار پیش‌فرض
-        </label>
-        <input
-          type="text"
-          value={field.defaultValue || ''}
-          onChange={(e) => onUpdate({ defaultValue: e.target.value })}
-          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+          <HelpCircle className="w-4 h-4 text-gray-400" />
+        </div>
+        <button
+          onClick={() => onUpdate({ required: !field.required })}
           disabled={readonly}
-        />
+          className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+            field.required
+              ? 'bg-blue-600 hover:bg-blue-700'
+              : 'bg-gray-200 hover:bg-gray-300'
+          } disabled:opacity-60 disabled:cursor-not-allowed`}
+        >
+          <span
+            className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+              field.required ? 'translate-x-6' : 'translate-x-1'
+            }`}
+          />
+        </button>
       </div>
 
-      {/* Options for select, radio, checkbox */}
+      {/* Options (for select, radio, checkbox) */}
       {['select', 'radio', 'checkbox'].includes(field.type) && (
         <div>
-          <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center justify-between mb-4">
             <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
               گزینه‌ها
             </label>
             {!readonly && (
               <button
                 onClick={addOption}
-                className="flex items-center space-x-1 space-x-reverse text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
+                className="inline-flex items-center gap-1 px-2 py-1 text-sm text-blue-600 hover:text-blue-700 transition-colors"
               >
                 <Plus className="w-4 h-4" />
-                <span>افزودن</span>
+                افزودن گزینه
               </button>
             )}
           </div>
-          
-          <div className="space-y-2">
-            {field.options?.map((option, index) => (
-              <div key={option.id} className="flex items-center space-x-2 space-x-reverse">
-                <input
-                  type="text"
-                  value={option.label}
-                  onChange={(e) => updateOption(index, { label: e.target.value })}
-                  className="flex-1 px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                  placeholder="نام گزینه"
-                  disabled={readonly}
-                />
-                {!readonly && field.options && field.options.length > 1 && (
-                  <button
-                    onClick={() => removeOption(index)}
-                    className="p-2 text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
-                  >
-                    <Minus className="w-4 h-4" />
-                  </button>
-                )}
-              </div>
-            ))}
+
+          <div className="space-y-3">
+            <AnimatePresence>
+              {(field.options || []).map((option, index) => (
+                <motion.div
+                  key={option.id}
+                  layout
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="flex items-center gap-3"
+                >
+                  <div className="flex-1">
+                    <input
+                      type="text"
+                      value={option.label}
+                      onChange={(e) => updateOption(index, { label: e.target.value })}
+                      disabled={readonly}
+                      className="w-full px-3 py-2 border border-gray-200 dark:border-gray-600 rounded-lg 
+                               bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm
+                               text-gray-900 dark:text-white 
+                               placeholder-gray-500 dark:placeholder-gray-400
+                               focus:ring-2 focus:ring-blue-500 focus:border-transparent
+                               disabled:opacity-60 disabled:cursor-not-allowed
+                               transition-all duration-200"
+                      placeholder={`گزینه ${index + 1}`}
+                    />
+                  </div>
+                  {!readonly && (
+                    <button
+                      onClick={() => removeOption(index)}
+                      className="p-2 text-gray-400 hover:text-red-500 transition-colors rounded-lg hover:bg-red-50"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  )}
+                </motion.div>
+              ))}
+            </AnimatePresence>
           </div>
-        </div>
-      )}
-
-      {/* Field Settings based on type */}
-      {field.type === 'textarea' && (
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            تعداد خطوط
-          </label>
-          <input
-            type="number"
-            min="2"
-            max="20"
-            value={field.fieldSettings?.rows || 4}
-            onChange={(e) => onUpdate({
-              fieldSettings: {
-                ...field.fieldSettings,
-                rows: parseInt(e.target.value)
-              }
-            })}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-            disabled={readonly}
-          />
-        </div>
-      )}
-
-      {field.type === 'rating' && (
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            حداکثر امتیاز
-          </label>
-          <input
-            type="number"
-            min="3"
-            max="10"
-            value={field.fieldSettings?.maxRating || 5}
-            onChange={(e) => onUpdate({
-              fieldSettings: {
-                ...field.fieldSettings,
-                maxRating: parseInt(e.target.value)
-              }
-            })}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-            disabled={readonly}
-          />
-        </div>
-      )}
-
-      {field.type === 'file' && (
-        <div>
-          <label className="flex items-center justify-between mb-3">
-            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-              انتخاب چندین فایل
-            </span>
-            <button
-              onClick={() => onUpdate({
-                fieldSettings: {
-                  ...field.fieldSettings,
-                  multiple: !field.fieldSettings?.multiple
-                }
-              })}
-              disabled={readonly}
-              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
-                field.fieldSettings?.multiple ? 'bg-blue-600' : 'bg-gray-200 dark:bg-gray-700'
-              }`}
-            >
-              <span
-                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                  field.fieldSettings?.multiple ? 'translate-x-6' : 'translate-x-1'
-                }`}
-              />
-            </button>
-          </label>
         </div>
       )}
     </div>
