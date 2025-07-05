@@ -594,38 +594,16 @@ export const useFormBuilder = (options: UseFormBuilderOptions = {}) => {
         const loadedForm = await FormService.getForm(formId);
         console.log('✅ Form loaded:', loadedForm);
         
-        // اطمینان از وجود تمام فیلدهای ضروری
-        const defaultSettings: FormSettings = {
-          direction: 'rtl',
-          theme: 'light',
-          submitButtonText: 'ارسال',
-          showProgressBar: false,
-          allowSaveDraft: true,
-          showFieldNumbers: false,
-          formWidth: 'medium'
-        };
-
-        const defaultStyling: FormStyling = {
-          theme: 'default',
-          backgroundColor: '#ffffff',
-          textColor: '#374151',
-          primaryColor: '#3b82f6',
-          fontFamily: 'Vazirmatn',
-          fontSize: 14,
-          borderRadius: 8,
-          spacing: 'normal'
-        };
-
         if (loadedForm) {
           const form = {
             ...loadedForm,
             fields: loadedForm.fields || [],
             settings: {
-              ...defaultSettings,
+              ...DEFAULT_FORM_SETTINGS,
               ...loadedForm.settings
             },
             styling: {
-              ...defaultStyling,
+              ...DEFAULT_FORM_STYLING,
               ...loadedForm.styling
             }
           } as Form;
