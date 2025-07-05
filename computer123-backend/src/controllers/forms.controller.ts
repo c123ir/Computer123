@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { prisma } from '../config/database';
 import { Logger } from '../utils/logger';
+import { Prisma } from '@prisma/client';
 
 export class FormsController {
   // Get all forms
@@ -65,7 +66,7 @@ export class FormsController {
           createdBy: 'system', // TODO: Get from auth
           category: formData.category,
           tags: formData.tags || []
-        }
+        } as Prisma.FormCreateInput
       });
 
       res.status(201).json({
@@ -100,7 +101,7 @@ export class FormsController {
           updatedBy: 'system', // TODO: Get from auth
           category: formData.category,
           tags: formData.tags
-        }
+        } as Prisma.FormUpdateInput
       });
 
       res.json({
@@ -160,14 +161,14 @@ export class FormsController {
           settings: originalForm.settings,
           styling: originalForm.styling,
           metadata: {
-            ...originalForm.metadata,
+            ...originalForm.metadata as Record<string, unknown>,
             version: 1
           },
           status: 'DRAFT',
           createdBy: 'system', // TODO: Get from auth
           category: originalForm.category,
           tags: originalForm.tags
-        }
+        } as Prisma.FormCreateInput
       });
 
       res.status(201).json({
