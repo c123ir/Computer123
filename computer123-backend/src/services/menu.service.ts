@@ -1,29 +1,18 @@
 import { PrismaClient, Menu, MenuType, Status } from '@prisma/client';
 import { Logger } from '../utils/logger';
 
-const prisma = new PrismaClient();
-
-export interface CreateMenuDto {
-  title: string;
-  icon?: string;
-  type: MenuType;
-  config: any;
-  parentId?: string;
-  formId?: string;
-  permissions: string[];
-  roles: string[];
-}
-
-export interface UpdateMenuDto extends Partial<CreateMenuDto> {
-  status?: Status;
-}
-
 export class MenuService {
+  private prisma: PrismaClient;
+
+  constructor() {
+    this.prisma = new PrismaClient();
+  }
+
   // دریافت همه منوها با ساختار درختی
-  async getMenuTree() {
+  async getMenuTree(): Promise<Menu[]> {
     try {
       // ابتدا منوهای ریشه را دریافت می‌کنیم
-      const rootMenus = await prisma.menu.findMany({
+      const rootMenus = await this.prisma.menu.findMany({
         where: { parentId: null },
         orderBy: { order: 'asc' }
       });
@@ -41,9 +30,9 @@ export class MenuService {
   }
 
   // دریافت یک منو با تمام زیرمنوهای آن
-  async getMenuWithChildren(menuId: string) {
+  async getMenuWithChildren(menuId: string): Promise<Menu & { children: Menu[] }> {
     try {
-      const menu = await prisma.menu.findUnique({
+      const menu = await this.prisma.menu.findUnique({
         where: { id: menuId },
         include: {
           form: true,
@@ -73,11 +62,21 @@ export class MenuService {
   }
 
   // ایجاد منوی جدید
-  async createMenu(data: CreateMenuDto) {
+  async createMenu(data: {
+    order: number;
+    title: string;
+    icon?: string;
+    type: MenuType;
+    config: any;
+    parentId?: string;
+    formId?: string;
+    permissions: string[];
+    roles: string[];
+  }): Promise<Menu> {
     try {
       // اگر parentId وجود دارد، ابتدا چک می‌کنیم که آیا وجود دارد
       if (data.parentId) {
-        const parentExists = await prisma.menu.findUnique({
+        const parentExists = await this.prisma.menu.findUnique({
           where: { id: data.parentId }
         });
         if (!parentExists) {
@@ -87,7 +86,7 @@ export class MenuService {
 
       // اگر نوع منو form است، چک می‌کنیم که فرم وجود داشته باشد
       if (data.type === 'FORM' && data.formId) {
-        const formExists = await prisma.form.findUnique({
+        const formExists = await this.prisma.form.findUnique({
           where: { id: data.formId }
         });
         if (!formExists) {
@@ -96,16 +95,18 @@ export class MenuService {
       }
 
       // تعیین order برای منوی جدید
-      const lastMenu = await prisma.menu.findFirst({
+      const lastMenu = await this.prisma.menu.findFirst({
         where: { parentId: data.parentId || null },
         orderBy: { order: 'desc' }
       });
       const order = lastMenu ? lastMenu.order + 1 : 0;
 
-      const menu = await prisma.menu.create({
+      const menu = await this.prisma.menu.create({
         data: {
           ...data,
-          order
+          order,
+          status: Status.ACTIVE,
+          createdBy: 'system'
         }
       });
 
@@ -117,11 +118,24 @@ export class MenuService {
   }
 
   // به‌روزرسانی منو
-  async updateMenu(id: string, data: UpdateMenuDto) {
+  async updateMenu(id: string, data: {
+    order?: number;
+    title?: string;
+    icon?: string;
+    type?: MenuType;
+    config?: any;
+    parentId?: string;
+    formId?: string;
+    permissions?: string[];
+    roles?: string[];
+  }): Promise<Menu> {
     try {
-      const menu = await prisma.menu.update({
+      const menu = await this.prisma.menu.update({
         where: { id },
-        data
+        data: {
+          ...data,
+          updatedBy: 'system'
+        }
       });
 
       return menu;
@@ -132,10 +146,10 @@ export class MenuService {
   }
 
   // حذف منو
-  async deleteMenu(id: string) {
+  async deleteMenu(id: string): Promise<Menu> {
     try {
       // ابتدا چک می‌کنیم که آیا این منو زیرمنو دارد
-      const hasChildren = await prisma.menu.count({
+      const hasChildren = await this.prisma.menu.count({
         where: { parentId: id }
       });
 
@@ -143,11 +157,11 @@ export class MenuService {
         throw new Error('Cannot delete menu with children');
       }
 
-      await prisma.menu.delete({
+      const menu = await this.prisma.menu.delete({
         where: { id }
       });
 
-      return true;
+      return menu;
     } catch (error) {
       Logger.error(`Error in deleteMenu for ID ${id}:`, error);
       throw error;
@@ -157,9 +171,9 @@ export class MenuService {
   // تغییر ترتیب منوها
   async reorderMenus(parentId: string | null, menuIds: string[]) {
     try {
-      await prisma.$transaction(
+      await this.prisma.$transaction(
         menuIds.map((id, index) =>
-          prisma.menu.update({
+          this.prisma.menu.update({
             where: { id },
             data: { order: index }
           })
@@ -184,7 +198,7 @@ export class MenuService {
         }
       }
 
-      const menu = await prisma.menu.update({
+      const menu = await this.prisma.menu.update({
         where: { id },
         data: { parentId: newParentId }
       });
@@ -198,7 +212,7 @@ export class MenuService {
 
   // چک می‌کند که آیا یک منو زیرمنوی منوی دیگر است
   private async isChildMenu(parentId: string, childId: string): Promise<boolean> {
-    const parent = await prisma.menu.findUnique({
+    const parent = await this.prisma.menu.findUnique({
       where: { id: parentId },
       include: { children: true }
     });
