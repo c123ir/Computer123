@@ -17,10 +17,10 @@ import {
 import { DatabaseService } from './database/interface';
 import { DatabaseFactory } from './database/factory';
 import { ValidationService } from './validationService';
+import { buildApiUrl } from '../../../utils/api';
 
 /**
- * سرویس اصلی مدیریت فرم‌ها
- * این کلاس layer بالاتری از DatabaseService است و business logic را مدیریت می‌کند
+ * سرویس مدیریت فرم‌ها
  */
 export class FormService {
   private static db: DatabaseService = DatabaseFactory.createService({ type: 'postgresql' });
@@ -31,49 +31,185 @@ export class FormService {
     clear: () => Promise.resolve()
   };
 
-  // =================================
-  // Form CRUD Operations
-  // =================================
+  /**
+   * دریافت فرم با شناسه
+   */
+  static async getForm(id: string): Promise<Form> {
+    console.log('🔍 Fetching form:', id);
+    console.log('🌐 URL:', buildApiUrl(`/forms/${id}`));
+    
+    try {
+      const response = await fetch(buildApiUrl(`/forms/${id}`));
+      console.log('📡 Response status:', response.status);
+      
+      if (!response.ok) {
+        throw new Error(`خطا در دریافت فرم: ${response.statusText}`);
+      }
+      
+      const data = await response.json();
+      console.log('📦 Response data:', data);
+      
+      return {
+        ...data,
+        fields: data.fields || [] // اطمینان از وجود fields
+      };
+    } catch (error) {
+      console.error('❌ Error fetching form:', error);
+      throw error;
+    }
+  }
 
   /**
    * ایجاد فرم جدید
    */
-  static async createForm(formData: CreateFormDto): Promise<string> {
+  static async createForm(form: Partial<Form>): Promise<Form> {
     try {
-      // اعتبارسنجی داده‌های ورودی
-      const validationResult = this.validateFormData(formData);
-      if (!validationResult.isValid) {
-        throw new Error(`Validation failed: ${validationResult.errors.map(e => e.message).join(', ')}`);
+      const response = await fetch(buildApiUrl('/forms/create'), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(form)
+      });
+      
+      if (!response.ok) {
+        throw new Error(`خطا در ایجاد فرم: ${response.statusText}`);
       }
-
-      // تولید ID یکتا برای فیلدها
-      const processedForm = this.processFormFields(formData);
-
-      // ایجاد metadata
-      const formWithMetadata: CreateFormDto = {
-        ...processedForm,
-        metadata: {
-          createdBy: 'current-user-id', // TODO: دریافت از context
-          status: 'draft',
-          version: 1,
-          tags: formData.metadata?.tags || [],
-          category: formData.metadata?.category || 'general',
-          ...formData.metadata
-        }
+      
+      const data = await response.json();
+      return {
+        ...data,
+        fields: data.fields || []
       };
-
-      const formId = await this.db.createForm(formWithMetadata);
-      
-      // پاکسازی cache
-      await this.clearFormsCache();
-      
-      console.log('✅ Form created successfully:', formId);
-      return formId;
     } catch (error) {
       console.error('❌ Error creating form:', error);
       throw error;
     }
   }
+
+  /**
+   * بروزرسانی فرم
+   */
+  static async updateForm(id: string, form: Partial<Form>): Promise<Form> {
+    try {
+      const response = await fetch(buildApiUrl(`/forms/${id}`), {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(form)
+      });
+      
+      if (!response.ok) {
+        throw new Error(`خطا در بروزرسانی فرم: ${response.statusText}`);
+      }
+      
+      const data = await response.json();
+      return {
+        ...data,
+        fields: data.fields || []
+      };
+    } catch (error) {
+      console.error('❌ Error updating form:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * حذف فرم
+   */
+  static async deleteForm(id: string): Promise<void> {
+    try {
+      const response = await fetch(buildApiUrl(`/forms/${id}`), {
+        method: 'DELETE'
+      });
+      
+      if (!response.ok) {
+        throw new Error(`خطا در حذف فرم: ${response.statusText}`);
+      }
+    } catch (error) {
+      console.error('❌ Error deleting form:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * کپی فرم
+   */
+  static async cloneForm(id: string): Promise<Form> {
+    try {
+      const response = await fetch(buildApiUrl(`/forms/${id}/clone`), {
+        method: 'POST'
+      });
+      
+      if (!response.ok) {
+        throw new Error(`خطا در کپی فرم: ${response.statusText}`);
+      }
+      
+      const data = await response.json();
+      return {
+        ...data,
+        fields: data.fields || []
+      };
+    } catch (error) {
+      console.error('❌ Error cloning form:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * تغییر وضعیت فرم
+   */
+  static async updateFormStatus(id: string, status: Form['status']): Promise<Form> {
+    try {
+      const response = await fetch(buildApiUrl(`/forms/${id}/status`), {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ status })
+      });
+      
+      if (!response.ok) {
+        throw new Error(`خطا در تغییر وضعیت فرم: ${response.statusText}`);
+      }
+      
+      const data = await response.json();
+      return {
+        ...data,
+        fields: data.fields || []
+      };
+    } catch (error) {
+      console.error('❌ Error updating form status:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * دریافت لیست فرم‌ها
+   */
+  static async getForms(): Promise<Form[]> {
+    try {
+      const response = await fetch(buildApiUrl('/forms'));
+      
+      if (!response.ok) {
+        throw new Error(`خطا در دریافت لیست فرم‌ها: ${response.statusText}`);
+      }
+      
+      const data = await response.json();
+      return data.map((form: Form) => ({
+        ...form,
+        fields: form.fields || []
+      }));
+    } catch (error) {
+      console.error('❌ Error fetching forms:', error);
+      throw error;
+    }
+  }
+
+  // =================================
+  // Form CRUD Operations
+  // =================================
 
   /**
    * دریافت فرم بر اساس شناسه
@@ -99,46 +235,6 @@ export class FormService {
       return form;
     } catch (error) {
       console.error('❌ Error getting form:', error);
-      throw error;
-    }
-  }
-
-  /**
-   * بروزرسانی فرم
-   */
-  static async updateForm(id: string, updates: UpdateFormDto): Promise<Form | null> {
-    try {
-      await this.db.updateForm(id, {
-        ...updates,
-        updatedAt: new Date().toISOString()
-      });
-      
-      // پاکسازی cache
-      await this.cache.delete();
-      await this.clearFormsCache();
-      
-      console.log('✅ Form updated successfully:', id);
-      return await this.getForm(id, false); // دریافت مجدد بدون cache
-    } catch (error) {
-      console.error('❌ Error updating form:', error);
-      throw error;
-    }
-  }
-
-  /**
-   * حذف فرم
-   */
-  static async deleteForm(id: string): Promise<void> {
-    try {
-      await this.db.deleteForm(id);
-      
-      // پاکسازی cache
-      await this.cache.delete();
-      await this.clearFormsCache();
-      
-      console.log('✅ Form deleted successfully:', id);
-    } catch (error) {
-      console.error('❌ Error deleting form:', error);
       throw error;
     }
   }
@@ -1090,3 +1186,14 @@ export class FormService {
     }
   }
 }
+
+// Export static methods for convenience
+export const {
+  getForm,
+  createForm,
+  updateForm,
+  deleteForm,
+  cloneForm,
+  updateFormStatus,
+  getForms
+} = FormService;
