@@ -6,7 +6,7 @@ import { useFormBuilder, useFormBuilderShortcuts } from '../../hooks';
 import { FormService } from '../../services/formService';
 import SidePanel from './SidePanel';
 import PreviewPanel from './PreviewPanel';
-import { FieldType, FormField, Form } from '../../types';
+import { FieldType, FormField, Form, CreateFormDto, UpdateFormDto } from '../../types';
 
 /**
  * کامپوننت اصلی Form Builder
@@ -36,13 +36,42 @@ export const FormBuilder: React.FC<FormBuilderProps> = ({
     try {
       // اگر فرم جدید است
       if (!form.id) {
-        const newFormId = await FormService.createForm(form);
+        const createDto: CreateFormDto = {
+          name: form.name,
+          description: form.description,
+          fields: form.fields,
+          settings: form.settings,
+          styling: form.styling,
+          category: form.category,
+          tags: form.tags,
+          metadata: {
+            createdBy: 'current-user', // TODO: Get from context
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+            status: 'draft',
+            version: 1
+          }
+        };
+        const newFormId = await FormService.createForm(createDto);
         onSave?.(newFormId);
         return;
       }
       
       // بروزرسانی فرم موجود
-      const updatedForm = await FormService.updateForm(form.id, form);
+      const updateDto: UpdateFormDto = {
+        name: form.name,
+        description: form.description,
+        fields: form.fields,
+        settings: form.settings,
+        styling: form.styling,
+        category: form.category,
+        tags: form.tags,
+        metadata: {
+          ...form.metadata,
+          updatedAt: new Date().toISOString()
+        }
+      };
+      const updatedForm = await FormService.updateForm(form.id, updateDto);
       if (updatedForm) {
         onSave?.(form.id);
       }
