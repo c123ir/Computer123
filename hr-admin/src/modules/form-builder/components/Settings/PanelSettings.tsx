@@ -4,6 +4,7 @@ import { FormField, PanelSettings as PanelSettingsType } from '../../types';
 interface PanelSettingsProps {
   field: FormField;
   onUpdate: (updates: Partial<FormField>) => void;
+  readonly?: boolean;
 }
 
 // مقادیر پیش‌فرض برای تنظیمات پنل
@@ -21,7 +22,7 @@ const defaultPanelSettings: PanelSettingsType = {
   backgroundOpacity: 1
 };
 
-export const PanelSettings: React.FC<PanelSettingsProps> = ({ field, onUpdate }) => {
+export const PanelSettings: React.FC<PanelSettingsProps> = ({ field, onUpdate, readonly = false }) => {
   // ترکیب تنظیمات پیش‌فرض با تنظیمات دریافتی
   const settings = {
     ...defaultPanelSettings,
@@ -29,6 +30,7 @@ export const PanelSettings: React.FC<PanelSettingsProps> = ({ field, onUpdate })
   };
 
   const handleSettingChange = (key: keyof PanelSettingsType, value: any) => {
+    if (readonly) return;
     onUpdate({
       fieldSettings: {
         ...field.fieldSettings,
@@ -53,6 +55,7 @@ export const PanelSettings: React.FC<PanelSettingsProps> = ({ field, onUpdate })
           onChange={(e) => handleSettingChange('title', e.target.value)}
           className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700"
           placeholder="عنوان پنل را وارد کنید"
+          disabled={readonly}
         />
       </div>
 
@@ -65,6 +68,7 @@ export const PanelSettings: React.FC<PanelSettingsProps> = ({ field, onUpdate })
           value={settings.columns}
           onChange={(e) => handleSettingChange('columns', Number(e.target.value))}
           className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700"
+          disabled={readonly}
         >
           {[1, 2, 3, 4, 5, 6].map((num) => (
             <option key={num} value={num}>
@@ -85,6 +89,7 @@ export const PanelSettings: React.FC<PanelSettingsProps> = ({ field, onUpdate })
           onChange={(e) => handleSettingChange('icon', e.target.value)}
           className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700"
           placeholder="نام آیکون را وارد کنید"
+          disabled={readonly}
         />
       </div>
 
@@ -96,6 +101,7 @@ export const PanelSettings: React.FC<PanelSettingsProps> = ({ field, onUpdate })
           checked={settings.collapsible}
           onChange={(e) => handleSettingChange('collapsible', e.target.checked)}
           className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+          disabled={readonly}
         />
         <label htmlFor="collapsible" className="mr-2 block text-sm text-gray-700 dark:text-gray-300">
           قابلیت جمع شدن
@@ -111,6 +117,7 @@ export const PanelSettings: React.FC<PanelSettingsProps> = ({ field, onUpdate })
             checked={settings.defaultCollapsed}
             onChange={(e) => handleSettingChange('defaultCollapsed', e.target.checked)}
             className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+            disabled={readonly}
           />
           <label htmlFor="defaultCollapsed" className="mr-2 block text-sm text-gray-700 dark:text-gray-300">
             به صورت پیش‌فرض بسته باشد
@@ -128,6 +135,7 @@ export const PanelSettings: React.FC<PanelSettingsProps> = ({ field, onUpdate })
           value={settings.backgroundColor || '#ffffff'}
           onChange={(e) => handleSettingChange('backgroundColor', e.target.value)}
           className="w-full h-10 px-1 py-1 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm"
+          disabled={readonly}
         />
       </div>
 
@@ -141,6 +149,7 @@ export const PanelSettings: React.FC<PanelSettingsProps> = ({ field, onUpdate })
           value={settings.borderColor || '#e5e7eb'}
           onChange={(e) => handleSettingChange('borderColor', e.target.value)}
           className="w-full h-10 px-1 py-1 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm"
+          disabled={readonly}
         />
       </div>
 
@@ -156,6 +165,7 @@ export const PanelSettings: React.FC<PanelSettingsProps> = ({ field, onUpdate })
           min="0"
           max="50"
           className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700"
+          disabled={readonly}
         />
       </div>
 
@@ -168,6 +178,7 @@ export const PanelSettings: React.FC<PanelSettingsProps> = ({ field, onUpdate })
           value={settings.shadow || 'md'}
           onChange={(e) => handleSettingChange('shadow', e.target.value)}
           className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700"
+          disabled={readonly}
         >
           <option value="none">بدون سایه</option>
           <option value="sm">کم</option>
@@ -185,6 +196,7 @@ export const PanelSettings: React.FC<PanelSettingsProps> = ({ field, onUpdate })
           value={settings.padding || 'md'}
           onChange={(e) => handleSettingChange('padding', e.target.value)}
           className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700"
+          disabled={readonly}
         >
           <option value="sm">کم</option>
           <option value="md">متوسط</option>
@@ -201,6 +213,7 @@ export const PanelSettings: React.FC<PanelSettingsProps> = ({ field, onUpdate })
           value={settings.margin || 'md'}
           onChange={(e) => handleSettingChange('margin', e.target.value)}
           className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700"
+          disabled={readonly}
         >
           <option value="sm">کم</option>
           <option value="md">متوسط</option>
@@ -219,6 +232,7 @@ export const PanelSettings: React.FC<PanelSettingsProps> = ({ field, onUpdate })
           onChange={(e) => handleSettingChange('backgroundImage', e.target.value)}
           className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700"
           placeholder="آدرس تصویر را وارد کنید"
+          disabled={readonly}
         />
       </div>
 
@@ -232,6 +246,7 @@ export const PanelSettings: React.FC<PanelSettingsProps> = ({ field, onUpdate })
             value={settings.backgroundPosition || 'center'}
             onChange={(e) => handleSettingChange('backgroundPosition', e.target.value)}
             className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700"
+            disabled={readonly}
           >
             <option value="center">وسط</option>
             <option value="top">بالا</option>
@@ -252,6 +267,7 @@ export const PanelSettings: React.FC<PanelSettingsProps> = ({ field, onUpdate })
             value={settings.backgroundSize || 'cover'}
             onChange={(e) => handleSettingChange('backgroundSize', e.target.value)}
             className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700"
+            disabled={readonly}
           >
             <option value="cover">پوشش کامل</option>
             <option value="contain">متناسب با ابعاد</option>
@@ -272,6 +288,7 @@ export const PanelSettings: React.FC<PanelSettingsProps> = ({ field, onUpdate })
           value={(settings.backgroundOpacity || 1) * 100}
           onChange={(e) => handleSettingChange('backgroundOpacity', Number(e.target.value) / 100)}
           className="w-full"
+          disabled={readonly}
         />
         <div className="text-xs text-gray-500 mt-1">
           {Math.round((settings.backgroundOpacity || 1) * 100)}%
