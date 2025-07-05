@@ -812,7 +812,7 @@ export class FormService {
    * پردازش فیلدهای فرم
    */
   private static processFormFields(formData: CreateFormDto): CreateFormDto {
-    const processedFields = this.processFields(formData.fields);
+    const processedFields = this.processFields(formData.fields || []);
     
     return {
       ...formData,
