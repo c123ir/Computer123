@@ -4,22 +4,21 @@ import {
   Form,
   FormField,
   FormResponse,
+  FormTemplate,
   CreateFormDto,
   UpdateFormDto,
-  FormFilters as QueryFilters,
+  FormFilters,
   PaginationOptions,
   PaginatedResult,
   ValidationResult,
-  FieldType,
-  FormTemplate,
   ValidationErrorType
 } from '../types';
 
 import { DatabaseService } from './database/interface';
 import { DatabaseFactory } from './database/factory';
 import { ValidationService } from './validationService';
-import { buildApiUrl } from '../../../utils/api';
 import { PreviewService } from './previewService';
+import { buildApiUrl } from '../../../utils/api';
 
 /**
  * سرویس مدیریت فرم‌ها
@@ -254,7 +253,7 @@ export class FormService {
    * لیست فرم‌ها با فیلتر و صفحه‌بندی
    */
   static async listForms(
-    filters?: QueryFilters,
+    filters?: FormFilters,
     pagination?: PaginationOptions,
     useCache: boolean = true
   ): Promise<PaginatedResult<Form>> {
@@ -288,7 +287,7 @@ export class FormService {
    */
   static async searchForms(
     query: string,
-    filters?: QueryFilters,
+    filters?: FormFilters,
     pagination?: PaginationOptions
   ): Promise<PaginatedResult<Form>> {
     try {
@@ -393,7 +392,7 @@ export class FormService {
    */
   static async getFormResponses(
     formId: string,
-    filters?: QueryFilters,
+    filters?: FormFilters,
     pagination?: PaginationOptions,
     useCache: boolean = true
   ): Promise<PaginatedResult<FormResponse>> {
