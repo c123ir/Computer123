@@ -166,6 +166,8 @@ export interface FormField {
   description?: string;
   /** متن راهنما */
   placeholder?: string;
+  /** متن راهنمای اضافی */
+  helpText?: string;
   /** آیا اجباری است؟ */
   required: boolean;
   /** آیا غیرفعال است؟ */
