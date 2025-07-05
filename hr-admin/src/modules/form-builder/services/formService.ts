@@ -141,23 +141,47 @@ export class FormService {
    */
   static async updateForm(id: string, form: UpdateFormDto): Promise<Form | null> {
     try {
-      const response = await fetch(buildApiUrl(`/forms/${id}`), {
+      // اول در cache ذخیره کن
+      await this.saveFormToCache(id, form as Form);
+
+      const response = await fetch(buildApiUrl(`/api/forms/${id}`), {
         method: 'PUT',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
         },
-        body: JSON.stringify(form)
+        body: JSON.stringify({
+          ...form,
+          metadata: {
+            ...form.metadata,
+            updatedAt: new Date().toISOString()
+          }
+        })
       });
       
       if (!response.ok) {
-        throw new Error(`خطا در بروزرسانی فرم: ${response.statusText}`);
+        const errorData = await response.json().catch(() => null);
+        throw new Error(
+          errorData?.message || 
+          `خطا در بروزرسانی فرم: ${response.statusText}`
+        );
       }
       
       const data = await response.json();
-      return {
+      const updatedForm = {
         ...data,
-        fields: data.fields || []
+        fields: data.fields || [],
+        settings: {
+          ...data.settings,
+          updatedAt: new Date().toISOString()
+        }
       };
+
+      // بروزرسانی cache
+      await this.saveFormToCache(id, updatedForm);
+
+      console.log('✅ Form updated successfully:', id);
+      return updatedForm;
     } catch (error) {
       console.error('❌ Error updating form:', error);
       throw error;
