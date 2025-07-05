@@ -42,7 +42,7 @@ const CreateFormModal: React.FC<CreateFormModalProps> = ({
     },
     styling: {
       direction: 'rtl',
-      theme: 'light',
+      theme: 'default',
       backgroundColor: '#ffffff',
       textColor: '#000000',
       borderColor: '#e5e7eb',
@@ -80,7 +80,7 @@ const CreateFormModal: React.FC<CreateFormModalProps> = ({
         },
         styling: {
           direction: 'rtl',
-          theme: 'light',
+          theme: 'default',
           backgroundColor: '#ffffff',
           textColor: '#000000',
           borderColor: '#e5e7eb',
