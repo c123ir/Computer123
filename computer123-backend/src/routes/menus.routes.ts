@@ -20,12 +20,6 @@ router.put('/:id', validateMenu, menuController.updateMenu.bind(menuController))
 // حذف منو
 router.delete('/:id', menuController.deleteMenu.bind(menuController));
 
-// تغییر ترتیب منوها
-router.post('/reorder', menuController.reorderMenus.bind(menuController));
-
-// انتقال منو
-router.post('/:id/move', menuController.moveMenu.bind(menuController));
-
 // Get all menus
 router.get('/', menuController.getMenus.bind(menuController));
 
