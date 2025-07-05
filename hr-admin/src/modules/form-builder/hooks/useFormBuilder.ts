@@ -749,55 +749,56 @@ export const useFormBuilder = (options: UseFormBuilderOptions = {}) => {
  * تنظیمات پیش‌فرض برای انواع فیلد
  */
 function getDefaultFieldSettings(type: FieldType): FormField['fieldSettings'] {
-  switch (type) {
-    case 'panel':
-      return {
-        panelSettings: {
-          title: 'پنل جدید',
-          columns: 1,
-          collapsible: true,
-          defaultCollapsed: false,
-          padding: 'md',
-          margin: 'md',
-          shadow: 'md',
-          backgroundColor: '#ffffff',
-          borderColor: '#e5e7eb',
-          borderRadius: 8,
-          backgroundOpacity: 1
-        }
-      };
-    case 'select':
-    case 'radio':
-    case 'checkbox':
-      return {
-        multiple: false,
-        searchable: false,
-        layout: 'vertical'
-      };
-    case 'number':
-      return {
-        min: 0,
-        max: 100,
-        step: 1
-      };
-    case 'textarea':
-      return {
-        rows: 4
-      };
-    case 'date':
-      return {
-        minDate: undefined,
-        maxDate: undefined
-      };
-    case 'file':
-      return {
-        multiple: false,
-        maxFileSize: 5 * 1024 * 1024, // 5MB
-        fileTypes: ['image/*', 'application/pdf']
-      };
-    default:
-      return {};
-  }
+  console.log('getDefaultFieldSettings - type:', type);
+  
+  const settings = {
+    panel: {
+      panelSettings: {
+        title: 'پنل جدید',
+        columns: 1,
+        collapsible: true,
+        defaultCollapsed: false,
+        padding: 'md',
+        margin: 'md',
+        shadow: 'md',
+        backgroundColor: '#ffffff',
+        borderColor: '#e5e7eb',
+        borderRadius: 8,
+        backgroundOpacity: 1
+      }
+    },
+    select: {
+      multiple: false,
+      searchable: false,
+      layout: 'vertical'
+    },
+    radio: {
+      layout: 'vertical'
+    },
+    checkbox: {
+      layout: 'vertical'
+    },
+    number: {
+      min: 0,
+      max: 100,
+      step: 1
+    },
+    textarea: {
+      rows: 4
+    },
+    date: {
+      minDate: undefined,
+      maxDate: undefined
+    },
+    file: {
+      multiple: false,
+      maxFileSize: 5 * 1024 * 1024, // 5MB
+      fileTypes: ['image/*', 'application/pdf']
+    }
+  };
+
+  console.log('getDefaultFieldSettings - returning:', settings[type] || {});
+  return settings[type] || {};
 }
 
 export default useFormBuilder;
