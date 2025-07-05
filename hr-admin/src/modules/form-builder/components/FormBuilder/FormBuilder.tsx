@@ -6,7 +6,7 @@ import { useFormBuilder, useFormBuilderShortcuts } from '../../hooks';
 import { FormService } from '../../services/formService';
 import SidePanel from './SidePanel';
 import PreviewPanel from './PreviewPanel';
-import { FieldType, FormField, Form, CreateFormDto, UpdateFormDto } from '../../types';
+import { FieldType, FormField, Form, CreateFormDto, UpdateFormDto, FormSettings } from '../../types';
 
 /**
  * کامپوننت اصلی Form Builder
@@ -36,7 +36,7 @@ export const FormBuilder: React.FC<FormBuilderProps> = ({
     try {
       // اگر فرم جدید است
       if (!form.id) {
-        const defaultSettings = {
+        const defaultSettings: FormSettings = {
           direction: 'rtl',
           theme: 'light',
           submitButtonText: 'ارسال',
@@ -61,7 +61,7 @@ export const FormBuilder: React.FC<FormBuilderProps> = ({
           createdBy: 'current-user',
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
-          status: 'draft',
+          status: 'draft' as const,
           version: 1
         };
 
