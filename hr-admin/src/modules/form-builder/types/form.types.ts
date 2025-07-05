@@ -3,6 +3,7 @@
 // =====================================================
 
 import { FormField } from './field.types';
+import { Form } from './database.types';
 
 /**
  * تنظیمات فرم
@@ -176,26 +177,32 @@ export interface FormTemplate {
   form: Omit<Form, 'id' | 'metadata' | 'createdAt' | 'updatedAt'>;
 }
 
+/**
+ * DTO ایجاد فرم
+ */
 export interface CreateFormDto {
   name: string;
   description?: string;
-  fields?: FormField[];
-  settings?: Partial<FormSettings>;
-  styling?: Partial<FormStyling>;
-  metadata?: Partial<FormMetadata>;
+  fields: Form['fields'];
+  settings: Form['settings'];
+  styling: Form['styling'];
   category?: string;
   tags?: string[];
-  status?: 'draft' | 'published' | 'archived' | 'paused';
+  metadata?: Partial<Form['metadata']>;
 }
 
+/**
+ * DTO بروزرسانی فرم
+ */
 export interface UpdateFormDto {
   name?: string;
   description?: string;
-  fields?: FormField[];
-  settings?: Partial<FormSettings>;
-  styling?: Partial<FormStyling>;
-  metadata?: Partial<FormMetadata>;
+  fields?: Form['fields'];
+  settings?: Partial<Form['settings']>;
+  styling?: Partial<Form['styling']>;
   category?: string;
   tags?: string[];
-  status?: 'draft' | 'published' | 'archived' | 'paused';
+  metadata?: Partial<Form['metadata']>;
 }
+
+export type { Form } from './database.types';
