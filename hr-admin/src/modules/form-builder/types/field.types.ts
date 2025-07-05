@@ -37,6 +37,10 @@ export interface FieldOption {
   selected?: boolean;
   /** غیرفعال */
   disabled?: boolean;
+  /** توضیح کمکی */
+  description?: string;
+  /** آیکون */
+  icon?: string;
 }
 
 /**
@@ -62,10 +66,7 @@ export interface ValidationRules {
   /** حداکثر اندازه فایل (بایت) */
   maxFileSize?: number;
   /** اعتبارسنجی سفارشی */
-  customValidation?: {
-    rule: string;
-    message: string;
-  };
+  customValidators?: CustomValidator[];
 }
 
 /**
@@ -74,6 +75,8 @@ export interface ValidationRules {
 export interface FieldStyling {
   /** عرض فیلد */
   width: string;
+  /** ارتفاع فیلد */
+  height?: string;
   /** کلاس CSS سفارشی */
   className?: string;
   /** رنگ پس‌زمینه */
@@ -92,6 +95,8 @@ export interface FieldStyling {
   padding?: number;
   /** فاصله خارجی */
   margin?: number;
+  /** کد CSS سفارشی */
+  customCSS?: string;
 }
 
 /**
@@ -140,7 +145,7 @@ export interface CustomValidator {
   /** نام */
   name: string;
   /** function اعتبارسنجی */
-  validator: (value: any, field: FormField, form: any) => boolean | string;
+  validator: (value: any, field: FormField, formData: Record<string, any>) => boolean | string;
   /** پیام خطا */
   errorMessage: string;
   /** اولویت اجرا */
@@ -157,26 +162,26 @@ export interface FormField {
   type: FieldType;
   /** برچسب فیلد */
   label: string;
+  /** توضیح کمکی */
+  description?: string;
   /** متن راهنما */
   placeholder?: string;
-  /** توضیح کمکی */
-  helpText?: string;
   /** آیا اجباری است؟ */
   required: boolean;
-  /** مقدار پیش‌فرض */
-  defaultValue?: any;
   /** آیا غیرفعال است؟ */
   disabled: boolean;
   /** آیا فقط‌خواندنی است؟ */
   readonly: boolean;
   /** قوانین اعتبارسنجی */
   validation: ValidationRules;
-  /** تنظیمات ظاهری */
-  styling: FieldStyling;
-  /** گزینه‌ها (برای select, radio, checkbox) */
-  options?: FieldOption[];
-  /** تنظیمات خاص نوع فیلد */
-  fieldSettings?: FieldSettings;
   /** شرایط نمایش */
   conditions?: FieldCondition[];
+  /** گزینه‌ها (برای select, radio, checkbox) */
+  options?: FieldOption[];
+  /** تنظیمات ظاهری */
+  styling: FieldStyling;
+  /** تنظیمات خاص نوع فیلد */
+  fieldSettings?: FieldSettings;
+  /** متادیتا */
+  metadata?: Record<string, any>;
 }
