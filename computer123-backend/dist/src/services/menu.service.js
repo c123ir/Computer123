@@ -3,11 +3,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.MenuService = void 0;
 const client_1 = require("@prisma/client");
 const logger_1 = require("../utils/logger");
-const prisma = new client_1.PrismaClient();
 class MenuService {
+    constructor() {
+        this.prisma = new client_1.PrismaClient();
+    }
     async getMenuTree() {
         try {
-            const rootMenus = await prisma.menu.findMany({
+            const rootMenus = await this.prisma.menu.findMany({
                 where: { parentId: null },
                 orderBy: { order: 'asc' }
             });
@@ -21,7 +23,7 @@ class MenuService {
     }
     async getMenuWithChildren(menuId) {
         try {
-            const menu = await prisma.menu.findUnique({
+            const menu = await this.prisma.menu.findUnique({
                 where: { id: menuId },
                 include: {
                     form: true,
@@ -47,7 +49,7 @@ class MenuService {
     async createMenu(data) {
         try {
             if (data.parentId) {
-                const parentExists = await prisma.menu.findUnique({
+                const parentExists = await this.prisma.menu.findUnique({
                     where: { id: data.parentId }
                 });
                 if (!parentExists) {
@@ -55,22 +57,24 @@ class MenuService {
                 }
             }
             if (data.type === 'FORM' && data.formId) {
-                const formExists = await prisma.form.findUnique({
+                const formExists = await this.prisma.form.findUnique({
                     where: { id: data.formId }
                 });
                 if (!formExists) {
                     throw new Error(`Form with ID ${data.formId} not found`);
                 }
             }
-            const lastMenu = await prisma.menu.findFirst({
+            const lastMenu = await this.prisma.menu.findFirst({
                 where: { parentId: data.parentId || null },
                 orderBy: { order: 'desc' }
             });
             const order = lastMenu ? lastMenu.order + 1 : 0;
-            const menu = await prisma.menu.create({
+            const menu = await this.prisma.menu.create({
                 data: {
                     ...data,
-                    order
+                    order,
+                    status: client_1.Status.ACTIVE,
+                    createdBy: 'system'
                 }
             });
             return menu;
@@ -82,9 +86,12 @@ class MenuService {
     }
     async updateMenu(id, data) {
         try {
-            const menu = await prisma.menu.update({
+            const menu = await this.prisma.menu.update({
                 where: { id },
-                data
+                data: {
+                    ...data,
+                    updatedBy: 'system'
+                }
             });
             return menu;
         }
@@ -95,16 +102,16 @@ class MenuService {
     }
     async deleteMenu(id) {
         try {
-            const hasChildren = await prisma.menu.count({
+            const hasChildren = await this.prisma.menu.count({
                 where: { parentId: id }
             });
             if (hasChildren > 0) {
                 throw new Error('Cannot delete menu with children');
             }
-            await prisma.menu.delete({
+            const menu = await this.prisma.menu.delete({
                 where: { id }
             });
-            return true;
+            return menu;
         }
         catch (error) {
             logger_1.Logger.error(`Error in deleteMenu for ID ${id}:`, error);
@@ -113,7 +120,7 @@ class MenuService {
     }
     async reorderMenus(parentId, menuIds) {
         try {
-            await prisma.$transaction(menuIds.map((id, index) => prisma.menu.update({
+            await this.prisma.$transaction(menuIds.map((id, index) => this.prisma.menu.update({
                 where: { id },
                 data: { order: index }
             })));
@@ -132,7 +139,7 @@ class MenuService {
                     throw new Error('Cannot move menu to one of its children');
                 }
             }
-            const menu = await prisma.menu.update({
+            const menu = await this.prisma.menu.update({
                 where: { id },
                 data: { parentId: newParentId }
             });
@@ -144,7 +151,7 @@ class MenuService {
         }
     }
     async isChildMenu(parentId, childId) {
-        const parent = await prisma.menu.findUnique({
+        const parent = await this.prisma.menu.findUnique({
             where: { id: parentId },
             include: { children: true }
         });
