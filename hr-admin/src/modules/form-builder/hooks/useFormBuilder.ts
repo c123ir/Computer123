@@ -762,6 +762,22 @@ function getDefaultFieldSettings(type: FieldType): FormField['fieldSettings'] {
       return {
         layout: 'vertical'
       };
+    case 'panel':
+      return {
+        panelSettings: {
+          title: 'پنل جدید',
+          columns: 1,
+          collapsible: true,
+          defaultCollapsed: false,
+          padding: 'md',
+          margin: 'md',
+          shadow: 'md',
+          backgroundColor: '#ffffff',
+          borderColor: '#e5e7eb',
+          borderRadius: 8,
+          backgroundOpacity: 1
+        }
+      };
     default:
       return {};
   }
