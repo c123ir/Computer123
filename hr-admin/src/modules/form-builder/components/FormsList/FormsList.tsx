@@ -78,7 +78,7 @@ const FormsList: React.FC<FormsListProps> = ({
 
   // Fetch forms
   const { 
-    data: formsResponse, 
+    data: forms, 
     isLoading, 
     error, 
     refetch 
@@ -91,10 +91,7 @@ const FormsList: React.FC<FormsListProps> = ({
     placeholderData: (previousData) => previousData
   });
 
-  console.log('📦 Forms response:', formsResponse);
-
-  const forms = formsResponse?.data || [];
-  const pagination = formsResponse?.pagination;
+  console.log('📦 Forms response:', forms);
 
   // Mutations
   const deleteFormMutation = useMutation({
@@ -104,8 +101,8 @@ const FormsList: React.FC<FormsListProps> = ({
     }
   });
 
-  const duplicateFormMutation = useMutation({
-    mutationFn: (formId: string) => formsAPI.duplicateForm(formId),
+  const cloneFormMutation = useMutation({
+    mutationFn: (formId: string) => formsAPI.cloneForm(formId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['forms'] });
     }
@@ -160,7 +157,7 @@ const FormsList: React.FC<FormsListProps> = ({
 
   const handleDuplicateForm = async (formId: string) => {
     try {
-      await duplicateFormMutation.mutateAsync(formId);
+      await cloneFormMutation.mutateAsync(formId);
     } catch (error) {
       console.error('خطا در کپی فرم:', error);
     }
@@ -191,7 +188,7 @@ const FormsList: React.FC<FormsListProps> = ({
 
   // دسته‌های موجود
   const categories = Array.from(
-    new Set(forms.map((form: Form) => form.category).filter(Boolean))
+    new Set(forms.data.map((form: Form) => form.category).filter(Boolean))
   ) as string[];
 
   // Loading and Error states
@@ -218,7 +215,7 @@ const FormsList: React.FC<FormsListProps> = ({
   }
 
   // Sorted forms for display
-  const sortedForms = [...forms].sort((a, b) => {
+  const sortedForms = [...forms.data].sort((a, b) => {
     const aValue = a[sortBy as keyof Form];
     const bValue = b[sortBy as keyof Form];
     
@@ -247,7 +244,7 @@ const FormsList: React.FC<FormsListProps> = ({
             مدیریت فرم‌ها
           </h1>
           <p className="text-gray-600 dark:text-gray-400">
-            {forms.length} فرم موجود
+            {forms.data.length} فرم موجود
           </p>
         </div>
         
@@ -356,7 +353,7 @@ const FormsList: React.FC<FormsListProps> = ({
       </div>
 
       {/* Forms Grid/List */}
-      {forms.length === 0 ? (
+      {forms.data.length === 0 ? (
         <div className="text-center py-12">
           <div className="text-gray-500 dark:text-gray-400 mb-4">
             هیچ فرمی یافت نشد
@@ -405,7 +402,7 @@ const FormsList: React.FC<FormsListProps> = ({
           )}
 
           {/* Pagination */}
-          {pagination && pagination.totalPages > 1 && (
+          {forms.pagination && forms.pagination.totalPages > 1 && (
             <div className="flex justify-center items-center space-x-2 space-x-reverse">
               <button
                 onClick={() => handlePageChange(currentPage - 1)}
@@ -416,12 +413,12 @@ const FormsList: React.FC<FormsListProps> = ({
               </button>
               
               <span className="px-4 py-2 text-sm text-gray-700 dark:text-gray-300">
-                صفحه {currentPage} از {pagination.totalPages}
+                صفحه {currentPage} از {forms.pagination.totalPages}
               </span>
               
               <button
                 onClick={() => handlePageChange(currentPage + 1)}
-                disabled={currentPage === pagination.totalPages}
+                disabled={currentPage === forms.pagination.totalPages}
                 className="px-3 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-gray-700"
               >
                 بعدی
