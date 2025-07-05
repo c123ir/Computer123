@@ -2,7 +2,7 @@
 
 import { apiClient } from '../../../../services/api/client';
 import { DatabaseService, FormFilters } from './interface';
-import { Form, FormResponse, FormTemplate } from '../../types';
+import { Form, FormResponse } from '@prisma/client';
 
 export class PostgreSQLService implements DatabaseService {
   
@@ -89,7 +89,7 @@ export class PostgreSQLService implements DatabaseService {
     }
     
     if (collectionName === 'form_templates') {
-      const response = await apiClient.get<{success: boolean, data: FormTemplate[]}>('/templates');
+      const response = await apiClient.get<{success: boolean, data: Form[]}>('/templates');
       return response.data || [];
     }
     
