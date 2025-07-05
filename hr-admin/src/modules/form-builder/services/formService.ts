@@ -230,7 +230,7 @@ export class FormService {
   /**
    * دریافت لیست فرم‌ها
    */
-  static async getForms(): Promise<Form[]> {
+  static async getForms(filters?: FormFilters): Promise<Form[]> {
     try {
       const response = await fetch(buildApiUrl('/forms'));
       
@@ -239,7 +239,21 @@ export class FormService {
       }
       
       const data = await response.json();
-      return data.map((form: Form) => ({
+      
+      // بررسی ساختار داده‌های دریافتی
+      let forms: any[] = [];
+      if (Array.isArray(data)) {
+        forms = data;
+      } else if (data.data && Array.isArray(data.data)) {
+        forms = data.data;
+      } else if (data.forms && Array.isArray(data.forms)) {
+        forms = data.forms;
+      } else {
+        console.error('❌ Unexpected data format:', data);
+        return [];
+      }
+
+      return forms.map((form: Form) => ({
         ...form,
         fields: form.fields || []
       }));
