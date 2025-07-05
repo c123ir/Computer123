@@ -260,7 +260,15 @@ export const useFormsAPI = () => {
     }, []),
 
     getForms: useCallback(async (filters?: FormFilters): Promise<Form[]> => {
-      return await FormService.getForms();
+      try {
+        console.log('🔍 Query filters:', filters);
+        const forms = await FormService.getForms(filters);
+        console.log('📦 Forms response:', forms);
+        return forms;
+      } catch (error) {
+        console.error('❌ Error fetching forms:', error);
+        throw error;
+      }
     }, [])
   };
 
