@@ -43,6 +43,94 @@ export type {
   BatchResult
 } from './database.types';
 
+export type FieldType = 
+  | 'text'
+  | 'textarea'
+  | 'number'
+  | 'email'
+  | 'tel'
+  | 'url'
+  | 'date'
+  | 'time'
+  | 'datetime'
+  | 'select'
+  | 'radio'
+  | 'checkbox'
+  | 'file';
+
+export interface FormField {
+  id: string;
+  type: FieldType;
+  label: string;
+  placeholder?: string;
+  helpText?: string;
+  required: boolean;
+  defaultValue?: any;
+  disabled: boolean;
+  readonly: boolean;
+  validation: Record<string, any>;
+  styling: {
+    width?: string;
+    [key: string]: any;
+  };
+  options?: Array<{
+    id: string;
+    label: string;
+    value: string;
+  }>;
+  fieldSettings?: Record<string, any>;
+}
+
+export interface FormSettings {
+  direction: 'rtl' | 'ltr';
+  theme: 'light' | 'dark';
+  submitButtonText: string;
+  showProgressBar?: boolean;
+  allowSaveDraft?: boolean;
+  showFieldNumbers?: boolean;
+  formWidth?: 'small' | 'medium' | 'large' | 'full';
+  redirectAfterSubmit?: string;
+  thankYouMessage?: string;
+  multiStep?: {
+    enabled: boolean;
+    showStepIndicator: boolean;
+    allowBackNavigation: boolean;
+    steps: {
+      id: string;
+      title: string;
+      fieldIds: string[];
+    }[];
+  };
+}
+
+export interface FormStyling {
+  theme: 'default' | 'modern' | 'dark' | 'minimal';
+  backgroundColor: string;
+  textColor: string;
+  primaryColor: string;
+  fontFamily: string;
+  fontSize: number;
+  borderRadius: number;
+  spacing: 'compact' | 'normal' | 'relaxed';
+}
+
+export interface FormMetadata {
+  createdBy: string;
+  createdAt: string;
+  updatedAt: string;
+  updatedBy?: string;
+  status: 'draft' | 'published' | 'archived' | 'paused';
+  version: number;
+  tags?: string[];
+  category?: string;
+  stats?: {
+    views: number;
+    submissions: number;
+    averageCompletionTime: number;
+    conversionRate: number;
+  };
+}
+
 export interface Form {
   id: string;
   name: string;
