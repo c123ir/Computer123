@@ -5,6 +5,7 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
 import { prisma } from './config/database';
+import formsRouter from './routes/forms.routes';
 
 dotenv.config();
 
@@ -30,7 +31,7 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Health check
-app.get('/api/health', (req, res) => {
+app.get('/health', (req, res) => {
   res.json({ 
     status: 'OK', 
     api: 'PostgreSQL Backend',
@@ -40,6 +41,9 @@ app.get('/api/health', (req, res) => {
   });
 });
 
+// API Routes
+app.use('/api/forms', formsRouter);
+
 // Basic API routes
 app.get('/api/test', (req, res) => {
   res.json({ 
@@ -47,29 +51,6 @@ app.get('/api/test', (req, res) => {
     timestamp: new Date().toISOString(),
     port: PORT
   });
-});
-
-// Forms API
-app.get('/api/forms', async (req, res) => {
-  try {
-    // For now, return empty array with pagination
-    res.json({
-      success: true,
-      data: [],
-      pagination: {
-        page: 1,
-        totalPages: 1,
-        total: 0,
-        limit: 20
-      },
-      message: 'Forms endpoint working'
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      error: 'Internal server error'
-    });
-  }
 });
 
 // Templates API
