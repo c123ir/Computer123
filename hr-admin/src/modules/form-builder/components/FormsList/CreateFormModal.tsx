@@ -4,7 +4,8 @@ import React, { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import { useFormsAPI } from '../../hooks/useFormsAPI';
-import { CreateFormDto, FormField, FieldType } from '../../types';
+import { CreateFormDto } from '../../types/form.types';
+import { FormField, FieldType } from '../../types/field.types';
 import { FormService } from '../../services/formService';
 import { DEFAULT_FORM_SETTINGS, DEFAULT_FORM_STYLING } from '../../constants/defaults';
 
