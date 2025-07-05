@@ -161,15 +161,12 @@ export const useFormBuilder = (options: UseFormBuilderOptions = {}) => {
       updatedAt: now,
       status: 'draft' as const,
       version: 1,
-      formType: 'standard',
-      language: 'fa',
-      isPublic: false,
-      isTemplate: false,
-      isArchived: false,
-      lastPublishedAt: null,
-      lastArchivedAt: null,
-      viewCount: 0,
-      submissionCount: 0
+      stats: {
+        views: 0,
+        submissions: 0,
+        averageCompletionTime: 0,
+        conversionRate: 0
+      }
     };
     
     return {
