@@ -181,10 +181,13 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
       readOnly: field.readonly
     };
 
-    const getOptionProps = (option: FieldOption) => ({
-      ...commonProps,
-      disabled: field.disabled || option.disabled
-    });
+    const getOptionProps = (option: FieldOption) => {
+      const { disabled, ...rest } = commonProps;
+      return {
+        ...rest,
+        disabled: disabled || option.disabled
+      };
+    };
 
     return (
       <div className="space-y-2">
