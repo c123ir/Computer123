@@ -37,17 +37,13 @@ export class FormService {
     try {
       // بررسی cache
       if (useCache) {
-        const cachedForm = await this.getFormFromCache(id);
-        if (cachedForm) {
-          console.log('✅ Form found in cache:', id);
-          return cachedForm;
+        const cached = await this.cache.get(`form_${id}`);
+        if (cached) {
+          console.log('📋 Form loaded from cache:', id);
+          return cached;
         }
       }
 
-      // دریافت از API
-      console.log('🔍 Fetching form:', id);
-      console.log('🌐 URL:', buildApiUrl(`/forms/${id}`));
-      
       const response = await fetch(buildApiUrl(`/forms/${id}`), {
         method: 'GET',
         headers: {
@@ -61,14 +57,14 @@ export class FormService {
 
       const form = await response.json();
       
-      // ذخیره در cache
       if (useCache) {
-        await this.saveFormToCache(id, form);
+        // ذخیره در cache برای 1 ساعت
+        await this.cache.set(`form_${id}`, form);
       }
 
       return form;
     } catch (error) {
-      console.error('❌ Error fetching form:', error);
+      console.error('❌ Error getting form:', error);
       return null;
     }
   }
