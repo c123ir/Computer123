@@ -3,7 +3,7 @@
 // =====================================================
 
 import { FormField } from './field.types';
-import { Form } from './database.types';
+import { Form } from './form.model';
 
 /**
  * تنظیمات فرم
@@ -205,4 +205,4 @@ export interface UpdateFormDto {
   metadata?: Partial<Form['metadata']>;
 }
 
-export type { Form } from './database.types';
+export type { Form } from './form.model';
