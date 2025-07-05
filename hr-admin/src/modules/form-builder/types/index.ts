@@ -33,7 +33,11 @@ export type {
 } from './field.types';
 
 // Form model
-export type { Form } from './form.model';
+export type {
+  Form,
+  FormResponse,
+  FormTemplate
+} from './form.model';
 
 // Form DTOs
 export type {
