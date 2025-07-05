@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import {
   Type, AlignLeft, Hash, Mail, Phone, Link, ChevronDown, Circle, Square,
-  Calendar, Clock, CalendarClock, Upload, PenTool, Star, Sliders, Search
+  Calendar, Clock, CalendarClock, Upload, PenTool, Star, Sliders, Search, List, CheckSquare, Globe
 } from 'lucide-react';
 import { FieldType } from '../../types';
 
@@ -36,43 +36,45 @@ export const FieldsPanel: React.FC<FieldsPanelProps> = ({
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
 
   // تعریف فیلدهای موجود
-  const fieldPalette: FieldPaletteItem[] = [
+  const fieldTypes = [
     // فیلدهای پایه
-    { type: 'text', label: 'متن کوتاه', icon: Type, description: 'ورود متن تک خطی', category: 'basic' },
-    { type: 'textarea', label: 'متن بلند', icon: AlignLeft, description: 'ورود متن چندخطی', category: 'basic' },
-    { type: 'number', label: 'عدد', icon: Hash, description: 'ورود عدد', category: 'basic' },
-    { type: 'email', label: 'ایمیل', icon: Mail, description: 'آدرس ایمیل', category: 'basic' },
-    { type: 'tel', label: 'تلفن', icon: Phone, description: 'شماره تلفن', category: 'basic' },
-    { type: 'url', label: 'وب‌سایت', icon: Link, description: 'آدرس وب‌سایت', category: 'basic' },
-
+    { type: 'text' as FieldType, label: 'متن کوتاه', icon: Type, description: 'متن یک خطی', category: 'basic' },
+    { type: 'textarea' as FieldType, label: 'متن بلند', icon: AlignLeft, description: 'متن چند خطی', category: 'basic' },
+    { type: 'number' as FieldType, label: 'عدد', icon: Hash, description: 'ورودی عددی', category: 'basic' },
+    
+    // فیلدهای تماس
+    { type: 'email' as FieldType, label: 'ایمیل', icon: Mail, description: 'آدرس ایمیل', category: 'contact' },
+    { type: 'tel' as FieldType, label: 'تلفن', icon: Phone, description: 'شماره تلفن', category: 'contact' },
+    { type: 'url' as FieldType, label: 'وب‌سایت', icon: Globe, description: 'آدرس وب‌سایت', category: 'contact' },
+    
     // فیلدهای انتخابی
-    { type: 'select', label: 'انتخاب از لیست', icon: ChevronDown, description: 'انتخاب یک گزینه از لیست', category: 'choice' },
-    { type: 'radio', label: 'دکمه رادیو', icon: Circle, description: 'انتخاب یک گزینه', category: 'choice' },
-    { type: 'checkbox', label: 'چک‌باکس', icon: Square, description: 'انتخاب چند گزینه', category: 'choice' },
-
-    // تاریخ و زمان
-    { type: 'date', label: 'تاریخ', icon: Calendar, description: 'انتخاب تاریخ', category: 'datetime' },
-    { type: 'time', label: 'زمان', icon: Clock, description: 'انتخاب زمان', category: 'datetime' },
-    { type: 'datetime', label: 'تاریخ و زمان', icon: CalendarClock, description: 'انتخاب تاریخ و زمان', category: 'datetime' },
-
+    { type: 'select' as FieldType, label: 'لیست کشویی', icon: List, description: 'انتخاب از لیست', category: 'choice' },
+    { type: 'radio' as FieldType, label: 'رادیو', icon: Circle, description: 'انتخاب یکی از چند', category: 'choice' },
+    { type: 'checkbox' as FieldType, label: 'چک‌باکس', icon: CheckSquare, description: 'انتخاب چند گزینه', category: 'choice' },
+    
+    // فیلدهای تاریخ و زمان
+    { type: 'date' as FieldType, label: 'تاریخ', icon: Calendar, description: 'انتخاب تاریخ', category: 'datetime' },
+    { type: 'time' as FieldType, label: 'زمان', icon: Clock, description: 'انتخاب زمان', category: 'datetime' },
+    { type: 'datetime' as FieldType, label: 'تاریخ و زمان', icon: Calendar, description: 'تاریخ و زمان', category: 'datetime' },
+    
     // فیلدهای پیشرفته
-    { type: 'file', label: 'آپلود فایل', icon: Upload, description: 'آپلود فایل', category: 'advanced', isPro: true },
-    { type: 'signature', label: 'امضا', icon: PenTool, description: 'امضای دیجیتال', category: 'advanced', isPro: true },
-    { type: 'rating', label: 'امتیازدهی', icon: Star, description: 'امتیاز با ستاره', category: 'advanced', isPro: true },
-    { type: 'slider', label: 'اسلایدر', icon: Sliders, description: 'انتخاب مقدار با اسلایدر', category: 'advanced', isPro: true },
+    { type: 'file' as FieldType, label: 'آپلود فایل', icon: Upload, description: 'آپلود فایل', category: 'advanced', isPro: true },
+    { type: 'signature' as FieldType, label: 'امضا', icon: PenTool, description: 'امضای دیجیتال', category: 'advanced', isPro: true },
+    { type: 'rating' as FieldType, label: 'امتیازدهی', icon: Star, description: 'امتیاز با ستاره', category: 'advanced', isPro: true },
+    { type: 'slider' as FieldType, label: 'اسلایدر', icon: Sliders, description: 'انتخاب مقدار با اسلایدر', category: 'advanced', isPro: true },
   ];
 
   // دسته‌بندی‌ها
   const categories = [
-    { id: 'all', label: 'همه فیلدها', count: fieldPalette.length },
-    { id: 'basic', label: 'پایه', count: fieldPalette.filter(f => f.category === 'basic').length },
-    { id: 'choice', label: 'انتخابی', count: fieldPalette.filter(f => f.category === 'choice').length },
-    { id: 'datetime', label: 'تاریخ و زمان', count: fieldPalette.filter(f => f.category === 'datetime').length },
-    { id: 'advanced', label: 'پیشرفته', count: fieldPalette.filter(f => f.category === 'advanced').length },
+    { id: 'all', label: 'همه فیلدها', count: fieldTypes.length },
+    { id: 'basic', label: 'پایه', count: fieldTypes.filter(f => f.category === 'basic').length },
+    { id: 'choice', label: 'انتخابی', count: fieldTypes.filter(f => f.category === 'choice').length },
+    { id: 'datetime', label: 'تاریخ و زمان', count: fieldTypes.filter(f => f.category === 'datetime').length },
+    { id: 'advanced', label: 'پیشرفته', count: fieldTypes.filter(f => f.category === 'advanced').length },
   ];
 
   // فیلتر کردن فیلدها
-  const filteredFields = fieldPalette.filter(field => {
+  const filteredFields = fieldTypes.filter(field => {
     const matchesSearch = field.label.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          field.description.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = selectedCategory === 'all' || field.category === selectedCategory;
