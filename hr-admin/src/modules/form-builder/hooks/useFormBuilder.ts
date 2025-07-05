@@ -582,6 +582,7 @@ export const useFormBuilder = (options: UseFormBuilderOptions = {}) => {
     
     if (!formId) {
       console.log('📝 Creating new form');
+      setState(prev => ({ ...prev, isLoading: false }));
       createNewForm();
       return;
     }
@@ -620,8 +621,18 @@ export const useFormBuilder = (options: UseFormBuilderOptions = {}) => {
           }
         };
 
-        loadForm(form);
-        setState(prev => ({ ...prev, isLoading: false }));
+        setState(prev => ({
+          ...prev,
+          form,
+          selectedField: null,
+          isEditing: false,
+          hasUnsavedChanges: false,
+          isLoading: false,
+          errors: {},
+          history: [form],
+          historyIndex: 0
+        }));
+        lastSavedFormRef.current = form;
       } catch (error) {
         console.error('❌ Error loading form:', error);
         const errorMessage = error instanceof Error ? error.message : 'خطا در بارگذاری فرم';
@@ -635,7 +646,7 @@ export const useFormBuilder = (options: UseFormBuilderOptions = {}) => {
     };
 
     loadFormById();
-  }, [formId, createNewForm, loadForm, onError]);
+  }, [formId, createNewForm, onError]);
 
   // Auto-save effect
   useEffect(() => {
