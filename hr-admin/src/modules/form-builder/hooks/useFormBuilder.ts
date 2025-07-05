@@ -123,16 +123,19 @@ export const useFormBuilder = (options: UseFormBuilderOptions = {}) => {
   // States
   // =====================================================
   
-  const [state, setState] = useState<FormBuilderState>(() => ({
-    form: initialForm || createEmptyForm(),
-    selectedField: null,
-    isEditing: false,
-    hasUnsavedChanges: false,
-    isLoading: false,
-    errors: {},
-    history: [initialForm || createEmptyForm()],
-    historyIndex: 0
-  }));
+  const [state, setState] = useState<FormBuilderState>(() => {
+    const emptyForm = createEmptyForm();
+    return {
+      form: initialForm || emptyForm,
+      selectedField: null,
+      isEditing: false,
+      hasUnsavedChanges: false,
+      isLoading: !!formId, // اگر formId داریم، در حال لود هستیم
+      errors: {},
+      history: [initialForm || emptyForm],
+      historyIndex: 0
+    };
+  });
 
   // Additional States
   const [isAutoSaving, setIsAutoSaving] = useState(false);
@@ -602,38 +605,29 @@ export const useFormBuilder = (options: UseFormBuilderOptions = {}) => {
 
   // Load form when formId changes
   useEffect(() => {
-    const loadFormById = async () => {
-      if (!formId) return;
-
-      setState(prev => ({ ...prev, isLoading: true }));
-
-      try {
-        const form = await getForm(formId);
-        if (form) {
-          setState(prev => ({
-            ...prev,
-            form,
+    if (formId) {
+      const loadFormById = async () => {
+        try {
+          setState(prev => ({ ...prev, isLoading: true }));
+          const loadedForm = await getForm(formId);
+          loadForm({
+            ...loadedForm,
+            fields: loadedForm.fields || [] // اطمینان از وجود fields
+          });
+        } catch (error) {
+          const errorMessage = error instanceof Error ? error.message : 'خطا در بارگذاری فرم';
+          setState(prev => ({ 
+            ...prev, 
             isLoading: false,
-            history: [form],
-            historyIndex: 0
+            errors: { ...prev.errors, load: errorMessage }
           }));
-          lastSavedFormRef.current = form;
-        } else {
-          throw new Error('Form not found');
+          onError?.(errorMessage);
         }
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : 'Failed to load form';
-        setState(prev => ({
-          ...prev,
-          isLoading: false,
-          errors: { ...prev.errors, load: errorMessage }
-        }));
-        onError?.(errorMessage);
-      }
-    };
+      };
 
-    loadFormById();
-  }, [formId, onError]);
+      loadFormById();
+    }
+  }, [formId]);
 
   // =====================================================
   // Return
