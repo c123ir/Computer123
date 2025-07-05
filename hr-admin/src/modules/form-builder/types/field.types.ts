@@ -73,7 +73,7 @@ export interface ValidationRules {
  */
 export interface FieldStyling {
   /** عرض فیلد */
-  width: '25%' | '50%' | '75%' | '100%';
+  width: string;
   /** کلاس CSS سفارشی */
   className?: string;
   /** رنگ پس‌زمینه */
@@ -95,19 +95,40 @@ export interface FieldStyling {
 }
 
 /**
- * اعتبارسنجی سفارشی
+ * شرط نمایش فیلد
  */
-export interface CustomValidator {
-  /** شناسه validator */
-  id: string;
-  /** نام */
-  name: string;
-  /** function اعتبارسنجی */
-  validator: (value: any, field: FormField, form: any) => boolean | string;
-  /** پیام خطا */
-  errorMessage: string;
-  /** اولویت اجرا */
-  priority?: number;
+export interface FieldCondition {
+  /** وابسته به کدام فیلد */
+  dependsOn: string;
+  /** نوع عملگر */
+  operator: 'equals' | 'not_equals' | 'contains' | 'greater' | 'less';
+  /** مقدار مقایسه */
+  value: any;
+  /** عمل در صورت برقراری شرط */
+  action: 'show' | 'hide' | 'require' | 'disable';
+}
+
+/**
+ * تنظیمات خاص نوع فیلد
+ */
+export interface FieldSettings {
+  /** برای file: multiple selection */
+  multiple?: boolean;
+  /** برای rating: تعداد ستاره */
+  maxRating?: number;
+  /** برای slider: مقدار min/max/step */
+  min?: number;
+  max?: number;
+  step?: number;
+  /** برای textarea: تعداد خط */
+  rows?: number;
+  /** برای select: قابلیت جستجو */
+  searchable?: boolean;
+  /** برای date: محدودیت تاریخ */
+  minDate?: string;
+  maxDate?: string;
+  /** تنظیمات اضافی */
+  [key: string]: any;
 }
 
 /**
@@ -129,9 +150,9 @@ export interface FormField {
   /** مقدار پیش‌فرض */
   defaultValue?: any;
   /** آیا غیرفعال است؟ */
-  disabled?: boolean;
+  disabled: boolean;
   /** آیا فقط‌خواندنی است؟ */
-  readonly?: boolean;
+  readonly: boolean;
   /** قوانین اعتبارسنجی */
   validation: ValidationRules;
   /** تنظیمات ظاهری */
@@ -139,34 +160,7 @@ export interface FormField {
   /** گزینه‌ها (برای select, radio, checkbox) */
   options?: FieldOption[];
   /** تنظیمات خاص نوع فیلد */
-  fieldSettings?: {
-    /** برای file: multiple selection */
-    multiple?: boolean;
-    /** برای rating: تعداد ستاره */
-    maxRating?: number;
-    /** برای slider: مقدار min/max/step */
-    min?: number;
-    max?: number;
-    step?: number;
-    /** برای textarea: تعداد خط */
-    rows?: number;
-    /** برای select: قابلیت جستجو */
-    searchable?: boolean;
-    /** برای date: محدودیت تاریخ */
-    minDate?: string;
-    maxDate?: string;
-    /** تنظیمات اضافی */
-    [key: string]: any;
-  };
-  /** شرایط وابستگی */
-  conditions?: Array<{
-    /** وابسته به کدام فیلد */
-    dependsOn: string;
-    /** نوع عملگر */
-    operator: 'equals' | 'not_equals' | 'contains' | 'greater' | 'less';
-    /** مقدار مقایسه */
-    value: any;
-    /** عمل در صورت برقراری شرط */
-    action: 'show' | 'hide' | 'require' | 'disable';
-  }>;
+  fieldSettings?: FieldSettings;
+  /** شرایط نمایش */
+  conditions?: FieldCondition[];
 }
