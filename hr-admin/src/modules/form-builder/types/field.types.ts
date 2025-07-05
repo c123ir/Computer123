@@ -168,6 +168,8 @@ export interface FormField {
   placeholder?: string;
   /** متن راهنمای اضافی */
   helpText?: string;
+  /** مقدار پیش‌فرض */
+  defaultValue?: any;
   /** آیا اجباری است؟ */
   required: boolean;
   /** آیا غیرفعال است؟ */
