@@ -10,7 +10,7 @@ const formsController = new FormsController();
 // Forms CRUD
 router.get('/', formsController.getForms.bind(formsController));
 router.get('/:id', formsController.getFormById.bind(formsController));
-router.post('/', validateFormMiddleware, formsController.createForm.bind(formsController));
+router.post('/create', validateFormMiddleware, formsController.createForm.bind(formsController));
 router.put('/:id', validateFormMiddleware, formsController.updateForm.bind(formsController));
 router.delete('/:id', formsController.deleteForm.bind(formsController));
 
