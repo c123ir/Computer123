@@ -154,6 +154,8 @@ export const useFormBuilder = (options: UseFormBuilderOptions = {}) => {
       description: initial?.description || '',
       fields: initial?.fields || [],
       settings: {
+        direction: 'rtl',
+        theme: 'light',
         submitButtonText: 'ارسال',
         showProgressBar: false,
         allowSaveDraft: true,
