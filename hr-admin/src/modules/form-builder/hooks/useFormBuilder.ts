@@ -576,58 +576,82 @@ export const useFormBuilder = (options: UseFormBuilderOptions = {}) => {
   // Effects
   // =====================================================
 
-  // Auto-save
-  useEffect(() => {
-    if (!autoSave || !state.hasUnsavedChanges || !onSave) return;
-
-    setIsAutoSaving(true);
-    autoSaveTimerRef.current = setTimeout(async () => {
-      await saveForm();
-      setIsAutoSaving(false);
-    }, autoSaveInterval);
-
-    return () => {
-      if (autoSaveTimerRef.current) {
-        clearTimeout(autoSaveTimerRef.current);
-        setIsAutoSaving(false);
-      }
-    };
-  }, [autoSave, state.hasUnsavedChanges, autoSaveInterval, saveForm, onSave]);
-
-  // Cleanup
-  useEffect(() => {
-    return () => {
-      if (autoSaveTimerRef.current) {
-        clearTimeout(autoSaveTimerRef.current);
-      }
-    };
-  }, []);
-
   // Load form when formId changes
   useEffect(() => {
-    if (formId) {
-      const loadFormById = async () => {
-        try {
-          setState(prev => ({ ...prev, isLoading: true }));
-          const loadedForm = await getForm(formId);
-          loadForm({
-            ...loadedForm,
-            fields: loadedForm.fields || [] // اطمینان از وجود fields
-          });
-        } catch (error) {
-          const errorMessage = error instanceof Error ? error.message : 'خطا در بارگذاری فرم';
-          setState(prev => ({ 
-            ...prev, 
-            isLoading: false,
-            errors: { ...prev.errors, load: errorMessage }
-          }));
-          onError?.(errorMessage);
-        }
-      };
-
-      loadFormById();
+    if (!formId) {
+      // اگر formId نداریم، یک فرم خالی ایجاد می‌کنیم
+      createNewForm();
+      return;
     }
-  }, [formId]);
+
+    const loadFormById = async () => {
+      try {
+        setState(prev => ({ ...prev, isLoading: true, errors: {} }));
+        const loadedForm = await getForm(formId);
+        
+        // اطمینان از وجود تمام فیلدهای ضروری
+        const form = {
+          ...loadedForm,
+          fields: loadedForm.fields || [],
+          settings: {
+            direction: 'rtl',
+            theme: 'light',
+            submitButtonText: 'ارسال',
+            showProgressBar: false,
+            allowSaveDraft: true,
+            showFieldNumbers: false,
+            formWidth: 'medium',
+            ...loadedForm.settings
+          },
+          styling: {
+            theme: 'default',
+            backgroundColor: '#ffffff',
+            textColor: '#374151',
+            primaryColor: '#3b82f6',
+            fontFamily: 'Vazirmatn',
+            fontSize: 14,
+            borderRadius: 8,
+            spacing: 'normal',
+            ...loadedForm.styling
+          }
+        };
+
+        loadForm(form);
+        setState(prev => ({ ...prev, isLoading: false }));
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'خطا در بارگذاری فرم';
+        setState(prev => ({ 
+          ...prev, 
+          isLoading: false,
+          errors: { ...prev.errors, load: errorMessage }
+        }));
+        onError?.(errorMessage);
+      }
+    };
+
+    loadFormById();
+  }, [formId, createNewForm, loadForm, onError]);
+
+  // Auto-save effect
+  useEffect(() => {
+    if (!autoSave || !state.hasUnsavedChanges) {
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      setIsAutoSaving(true);
+      saveForm().finally(() => {
+        setIsAutoSaving(false);
+      });
+    }, autoSaveInterval);
+
+    autoSaveTimerRef.current = timer;
+
+    return () => {
+      clearTimeout(timer);
+      autoSaveTimerRef.current = undefined;
+    };
+  }, [autoSave, autoSaveInterval, state.hasUnsavedChanges, saveForm]);
 
   // =====================================================
   // Return
@@ -687,16 +711,32 @@ export const useFormBuilder = (options: UseFormBuilderOptions = {}) => {
  */
 function getDefaultFieldSettings(type: FieldType): FormField['fieldSettings'] {
   switch (type) {
+    case 'text':
+    case 'email':
+    case 'tel':
+    case 'url':
+      return {
+        minLength: 0,
+        maxLength: 255
+      };
     case 'textarea':
-      return { rows: 3 };
-    case 'rating':
-      return { maxRating: 5 };
-    case 'slider':
-      return { min: 0, max: 100, step: 1 };
-    case 'file':
-      return { multiple: false };
+      return {
+        rows: 4,
+        minLength: 0,
+        maxLength: 1000
+      };
+    case 'number':
+      return {
+        min: undefined,
+        max: undefined,
+        step: 1
+      };
     case 'select':
-      return { searchable: false };
+    case 'radio':
+    case 'checkbox':
+      return {
+        layout: 'vertical'
+      };
     default:
       return {};
   }
