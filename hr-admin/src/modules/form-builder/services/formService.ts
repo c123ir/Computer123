@@ -614,6 +614,16 @@ export class FormService {
    * اعتبارسنجی داده‌های فرم
    */
   private static validateFormData(formData: CreateFormDto): ValidationResult {
+    if (!formData.fields) {
+      return {
+        isValid: false,
+        errors: [{
+          type: 'required',
+          message: 'فیلدهای فرم الزامی است',
+          field: 'fields'
+        }]
+      };
+    }
     return ValidationService.validateForm(formData.fields, formData);
   }
 
