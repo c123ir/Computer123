@@ -9,13 +9,13 @@ export class FormsController {
   async getForms(req: Request, res: Response) {
     try {
       const forms = await prisma.form.findMany();
-      res.json({
+      return res.json({
         success: true,
         data: forms
       });
     } catch (error) {
       Logger.error('Error getting forms:', error);
-      res.status(500).json({
+      return res.status(500).json({
         success: false,
         error: 'Failed to get forms'
       });
@@ -37,13 +37,13 @@ export class FormsController {
         });
       }
 
-      res.json({
+      return res.json({
         success: true,
         data: form
       });
     } catch (error) {
       Logger.error('Error getting form by ID:', error);
-      res.status(500).json({
+      return res.status(500).json({
         success: false,
         error: 'Failed to get form'
       });
@@ -76,13 +76,13 @@ export class FormsController {
         }
       });
 
-      res.status(201).json({
+      return res.status(201).json({
         success: true,
         data: form
       });
     } catch (error) {
       Logger.error('Error creating form:', error);
-      res.status(500).json({
+      return res.status(500).json({
         success: false,
         error: 'Failed to create form'
       });
@@ -113,13 +113,13 @@ export class FormsController {
         data: updateData
       });
 
-      res.json({
+      return res.json({
         success: true,
         data: form
       });
     } catch (error) {
       Logger.error('Error updating form:', error);
-      res.status(500).json({
+      return res.status(500).json({
         success: false,
         error: 'Failed to update form'
       });
@@ -134,13 +134,13 @@ export class FormsController {
         where: { id }
       });
 
-      res.json({
+      return res.json({
         success: true,
         message: 'Form deleted successfully'
       });
     } catch (error) {
       Logger.error('Error deleting form:', error);
-      res.status(500).json({
+      return res.status(500).json({
         success: false,
         error: 'Failed to delete form'
       });
@@ -183,13 +183,13 @@ export class FormsController {
         }
       });
 
-      res.status(201).json({
+      return res.status(201).json({
         success: true,
         data: clonedForm
       });
     } catch (error) {
       Logger.error('Error cloning form:', error);
-      res.status(500).json({
+      return res.status(500).json({
         success: false,
         error: 'Failed to clone form'
       });
@@ -207,13 +207,13 @@ export class FormsController {
         data: { status }
       });
 
-      res.json({
+      return res.json({
         success: true,
         data: form
       });
     } catch (error) {
       Logger.error('Error updating form status:', error);
-      res.status(500).json({
+      return res.status(500).json({
         success: false,
         error: 'Failed to update form status'
       });
