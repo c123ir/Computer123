@@ -3,14 +3,7 @@
 // =====================================================
 
 // Form related types
-export type { 
-  Form, 
-  FormSettings, 
-  FormStyling, 
-  FormMetadata,
-  FormResponse,
-  FormTemplate
-} from './form.types';
+export * from './form.types';
 
 // Field types
 export * from './field.types';
