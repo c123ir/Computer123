@@ -227,4 +227,16 @@ export class MenuService {
 
     return false;
   }
+
+  // Get all menus
+  async getMenus(): Promise<Menu[]> {
+    return this.prisma.menu.findMany();
+  }
+
+  // Get menu by ID
+  async getMenu(id: string): Promise<Menu | null> {
+    return this.prisma.menu.findUnique({
+      where: { id }
+    });
+  }
 } 
