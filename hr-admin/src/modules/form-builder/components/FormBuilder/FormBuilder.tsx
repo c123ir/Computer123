@@ -5,7 +5,7 @@ import { Save, X, RotateCcw, Eye, Settings as SettingsIcon } from 'lucide-react'
 import { useFormBuilder, useFormBuilderShortcuts } from '../../hooks';
 import SidePanel from './SidePanel';
 import PreviewPanel from './PreviewPanel';
-import { FieldType, FormField } from '../../types';
+import { FieldType, FormField, Form } from '../../types';
 
 /**
  * کامپوننت اصلی Form Builder
@@ -31,11 +31,11 @@ export const FormBuilder: React.FC<FormBuilderProps> = ({
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   
   // Memoize callbacks
-  const handleFormSave = useCallback(async (savedForm) => {
+  const handleFormSave = useCallback(async (savedForm: Form) => {
     onSave?.(savedForm.id);
   }, [onSave]);
 
-  const handleFormError = useCallback((error) => {
+  const handleFormError = useCallback((error: Error | string) => {
     console.error('Form builder error:', error);
   }, []);
   
