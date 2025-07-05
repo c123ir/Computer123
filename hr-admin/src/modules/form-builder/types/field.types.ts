@@ -21,7 +21,8 @@ export type FieldType =
   | 'file'          // آپلود فایل
   | 'signature'     // امضا
   | 'rating'        // امتیازدهی
-  | 'slider';       // اسلایدر
+  | 'slider'        // اسلایدر
+  | 'panel';       // اضافه کردن نوع پنل
 
 /**
  * گزینه‌های فیلد (برای select, radio, checkbox)
@@ -134,6 +135,8 @@ export interface FieldSettings {
   maxDate?: string;
   /** تنظیمات اضافی */
   [key: string]: any;
+  /** تنظیمات پنل */
+  panelSettings?: PanelSettings;
 }
 
 /**
@@ -150,6 +153,42 @@ export interface CustomValidator {
   errorMessage: string;
   /** اولویت اجرا */
   priority?: number;
+}
+
+/**
+ * تنظیمات پنل
+ */
+export interface PanelSettings {
+  /** عنوان پنل */
+  title: string;
+  /** تعداد ستون‌ها (1-6) */
+  columns: 1 | 2 | 3 | 4 | 5 | 6;
+  /** آیکون پنل */
+  icon?: string;
+  /** قابلیت جمع شدن */
+  collapsible: boolean;
+  /** وضعیت اولیه (باز/بسته) */
+  defaultCollapsed: boolean;
+  /** رنگ پس‌زمینه */
+  backgroundColor?: string;
+  /** رنگ حاشیه */
+  borderColor?: string;
+  /** شعاع گوشه‌ها */
+  borderRadius?: number;
+  /** سایه */
+  shadow?: 'none' | 'sm' | 'md' | 'lg';
+  /** پدینگ داخلی */
+  padding?: 'sm' | 'md' | 'lg';
+  /** حاشیه بیرونی */
+  margin?: 'sm' | 'md' | 'lg';
+  /** تصویر پس‌زمینه */
+  backgroundImage?: string;
+  /** موقعیت تصویر پس‌زمینه */
+  backgroundPosition?: 'center' | 'top' | 'bottom' | 'left' | 'right';
+  /** نحوه نمایش تصویر پس‌زمینه */
+  backgroundSize?: 'cover' | 'contain' | 'auto';
+  /** شفافیت پس‌زمینه */
+  backgroundOpacity?: number;
 }
 
 /**
