@@ -11,7 +11,8 @@ import {
   PaginatedResult,
   ValidationResult,
   FieldType,
-  FormTemplate
+  FormTemplate,
+  ValidationErrorType
 } from '../types';
 
 import { DatabaseService } from './database/interface';
@@ -614,17 +615,37 @@ export class FormService {
    * اعتبارسنجی داده‌های فرم
    */
   private static validateFormData(formData: CreateFormDto): ValidationResult {
-    if (!formData.fields) {
-      return {
-        isValid: false,
-        errors: [{
-          type: 'required',
-          message: 'فیلدهای فرم الزامی است',
-          field: 'fields'
-        }]
-      };
+    const errors: Array<{
+      type: ValidationErrorType;
+      message: string;
+      field: string;
+    }> = [];
+
+    // بررسی نام فرم
+    if (!formData.name || formData.name.trim().length < 2) {
+      errors.push({
+        type: 'required',
+        message: 'نام فرم الزامی است و باید حداقل 2 کاراکتر باشد',
+        field: 'name'
+      });
     }
-    return ValidationService.validateForm(formData.fields, formData);
+
+    // بررسی فیلدها
+    if (!formData.fields || formData.fields.length === 0) {
+      errors.push({
+        type: 'required',
+        message: 'فیلدهای فرم الزامی است',
+        field: 'fields'
+      });
+    } else {
+      const fieldValidation = ValidationService.validateBatch(formData.fields, {}, { validateHidden: false });
+      errors.push(...fieldValidation.errors);
+    }
+
+    return {
+      isValid: errors.length === 0,
+      errors
+    };
   }
 
   /**
@@ -943,101 +964,4 @@ export class FormService {
           field.options?.forEach((option: any) => {
             html += `<option value="${option.value}">${option.label}</option>`;
           });
-          html += `</select>`;
-          break;
-          
-        case 'radio':
-          field.options?.forEach((option: any) => {
-            html += `<label><input type="radio" name="${field.id}" value="${option.value}" /> ${option.label}</label>`;
-          });
-          break;
-          
-        case 'checkbox':
-          field.options?.forEach((option: any) => {
-            html += `<label><input type="checkbox" value="${option.value}" /> ${option.label}</label>`;
-          });
-          break;
-          
-        default:
-          html += `<div>[${field.type} field]</div>`;
-      }
-      
-      if (field.helpText) {
-        html += `<small>${field.helpText}</small>`;
-      }
-      
-      html += `</div>`;
-    });
-
-    html += `<button type="submit">${form.settings.submitButtonText}</button>`;
-    html += `</div>`;
-
-    return html;
-  }
-
-  // =================================
-  // Status Management
-  // =================================
-
-  /**
-   * تغییر وضعیت فرم
-   */
-  static async changeFormStatus(formId: string, status: 'draft' | 'published' | 'archived' | 'paused'): Promise<void> {
-    try {
-      await this.updateForm(formId, {
-        metadata: { status }
-      });
-      
-      console.log(`✅ Form status changed to: ${status}`);
-    } catch (error) {
-      console.error('❌ Error changing form status:', error);
-      throw error;
-    }
-  }
-
-  /**
-   * انتشار فرم
-   */
-  static async publishForm(formId: string): Promise<void> {
-    try {
-      // بررسی آماده بودن فرم برای انتشار
-      const form = await this.getForm(formId, false);
-      if (!form) {
-        throw new Error('Form not found');
-      }
-
-      const validationResult = this.validateFormData(form);
-      if (!validationResult.isValid) {
-        throw new Error('Form is not ready for publishing. Please fix validation errors.');
-      }
-
-      await this.changeFormStatus(formId, 'published');
-    } catch (error) {
-      console.error('❌ Error publishing form:', error);
-      throw error;
-    }
-  }
-
-  /**
-   * آرشیو فرم
-   */
-  static async archiveForm(formId: string): Promise<void> {
-    try {
-      await this.changeFormStatus(formId, 'archived');
-    } catch (error) {
-      console.error('❌ Error archiving form:', error);
-      throw error;
-    }
-  }
-}
-
-// Export static methods for convenience
-export const {
-  getForm,
-  createForm,
-  updateForm,
-  deleteForm,
-  cloneForm,
-  updateFormStatus,
-  getForms
-} = FormService;
+          html += `</select>`
