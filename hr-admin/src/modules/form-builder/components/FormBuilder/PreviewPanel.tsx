@@ -1,12 +1,14 @@
 // src/modules/form-builder/components/FormBuilder/PreviewPanel.tsx
 
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { 
   Eye, Smartphone, Tablet, Monitor, RotateCcw, Settings, 
-  Trash2, Copy, MoveUp, MoveDown, GripVertical, Upload, PenTool, Star 
+  Trash2, Copy, MoveUp, MoveDown, GripVertical, Upload, PenTool, Star,
+  Plus, ArrowUpDown
 } from 'lucide-react';
 import { FormField, Form, FieldType, FieldOption } from '../../types';
 import { FieldRegistry } from '../../registry/FieldRegistry';
+import { motion, AnimatePresence } from 'framer-motion';
 
 /**
  * پنل پیش‌نمایش فرم
@@ -55,6 +57,7 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
 }) => {
   const [viewportMode, setViewportMode] = useState<ViewportMode>('desktop');
   const [showSettings, setShowSettings] = useState(true);
+  const [isDraggingOver, setIsDraggingOver] = useState(false);
 
   // تنظیمات viewport
   const viewportConfig = {
@@ -79,9 +82,10 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
     !field.parentId && field.type !== 'panel'
   );
 
-  // handle drop
-  const handleDrop = (e: React.DragEvent, panelId?: string) => {
+  // handle drop با useCallback
+  const handleDrop = useCallback((e: React.DragEvent<HTMLDivElement>, panelId?: string) => {
     e.preventDefault();
+    setIsDraggingOver(false);
     
     if (readonly) return;
 
@@ -104,22 +108,32 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
     } catch (error) {
       console.error('Error handling drop:', error);
     }
-  };
+  }, [readonly, onFieldDrop, onAddField]);
 
-  const handleDragOver = (e: React.DragEvent) => {
+  const handleDragOver = useCallback((e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'copy';
-  };
+    setIsDraggingOver(true);
+  }, []);
+
+  const handleDragLeave = useCallback((e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDraggingOver(false);
+  }, []);
 
   // render field
-  const renderField = (field: FormField) => {
+  const renderField = useCallback((field: FormField) => {
     const registry = FieldRegistry[field.type];
     if (!registry?.component) return null;
 
     const Component = registry.component;
     return (
-      <div
+      <motion.div
         key={field.id}
+        layout
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -20 }}
         className="relative group"
         draggable={!readonly}
         onDragStart={(e) => {
@@ -130,40 +144,70 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
           };
           console.log('Starting drag with data:', data);
           e.dataTransfer.setData('application/json', JSON.stringify(data));
+          e.currentTarget.classList.add('dragging');
+        }}
+        onDragEnd={(e) => {
+          e.currentTarget.classList.remove('dragging');
         }}
         onDrop={(e) => handleDrop(e)}
         onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
       >
-        <Component
-          field={field}
-          isSelected={selectedField === field.id}
-          onFieldSelect={onFieldSelect}
-          readonly={readonly}
-        />
-        
-        {/* Field Actions */}
-        {!readonly && (
-          <div className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity flex space-x-1">
-            <button
-              onClick={() => onDeleteField?.(field.id)}
-              className="p-1 bg-red-100 hover:bg-red-200 text-red-700 rounded"
-            >
-              حذف
-            </button>
-            <button
-              onClick={() => onDuplicateField?.(field.id)}
-              className="p-1 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded"
-            >
-              تکثیر
-            </button>
-          </div>
-        )}
-      </div>
+        <div className={`relative rounded-lg overflow-hidden transition-all duration-300 ${
+          selectedField === field.id 
+            ? 'ring-2 ring-blue-500 shadow-lg' 
+            : 'hover:shadow-md'
+        }`}>
+          <Component
+            field={field}
+            isSelected={selectedField === field.id}
+            onFieldSelect={onFieldSelect}
+            readonly={readonly}
+          />
+          
+          {/* Field Actions */}
+          {!readonly && (
+            <div className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-all duration-200 flex items-center gap-1">
+              <button
+                onClick={() => onDeleteField?.(field.id)}
+                className="p-1.5 bg-red-100 hover:bg-red-200 text-red-700 rounded-lg transition-colors"
+                title="حذف فیلد"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => onDuplicateField?.(field.id)}
+                className="p-1.5 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-lg transition-colors"
+                title="تکثیر فیلد"
+              >
+                <Copy className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => onMoveField?.(field.id, 'up')}
+                className="p-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors"
+                title="انتقال به بالا"
+              >
+                <MoveUp className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => onMoveField?.(field.id, 'down')}
+                className="p-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors"
+                title="انتقال به پایین"
+              >
+                <MoveDown className="w-4 h-4" />
+              </button>
+              <div className="cursor-move p-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors">
+                <GripVertical className="w-4 h-4" />
+              </div>
+            </div>
+          )}
+        </div>
+      </motion.div>
     );
-  };
+  }, [selectedField, readonly, onDeleteField, onDuplicateField, onMoveField, handleDrop, handleDragOver, handleDragLeave]);
 
   // رندر یک پنل و فیلدهای داخل آن
-  const renderPanel = (panelId: string) => {
+  const renderPanel = useCallback((panelId: string) => {
     const { panel, fields: panelFields } = groupedFields[panelId];
     const registry = FieldRegistry.panel;
     if (!registry?.component) return null;
@@ -172,7 +216,11 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
 
     const PanelComponent = registry.component;
     return (
-      <div key={panel.id} className="mb-4">
+      <motion.div 
+        key={panel.id} 
+        layout
+        className="mb-6"
+      >
         <PanelComponent
           field={panel as FormField & { fieldSettings: { panelSettings: any } }}
           isSelected={selectedField === panel.id}
@@ -183,179 +231,143 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
           }}
           readonly={readonly}
         >
-          {panelFields.map(renderField)}
+          <AnimatePresence>
+            {panelFields.map(renderField)}
+          </AnimatePresence>
+          
           {/* Drop Zone */}
           {!readonly && (
             <div
-              className="min-h-[100px] border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg flex items-center justify-center text-gray-500 dark:text-gray-400"
+              className={`mt-4 transition-all duration-300 ${
+                isDraggingOver
+                  ? 'border-2 border-dashed border-blue-400 bg-blue-50/50'
+                  : 'border-2 border-dashed border-gray-200 hover:border-blue-300 hover:bg-blue-50/30'
+              } dark:border-gray-600 rounded-xl p-8 flex flex-col items-center justify-center gap-3`}
               onDrop={(e) => handleDrop(e, panel.id)}
               onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
             >
-              فیلدها را اینجا رها کنید
+              <div className={`p-3 rounded-full ${
+                isDraggingOver ? 'bg-blue-100' : 'bg-gray-100'
+              } transition-colors`}>
+                <Plus className={`w-6 h-6 ${
+                  isDraggingOver ? 'text-blue-600' : 'text-gray-600'
+                }`} />
+              </div>
+              <div className="text-center">
+                <p className={`text-base font-medium ${
+                  isDraggingOver ? 'text-blue-700' : 'text-gray-700'
+                }`}>
+                  فیلدها را اینجا رها کنید
+                </p>
+                <p className="text-sm text-gray-500 mt-1">
+                  یا از پنل سمت راست انتخاب کنید
+                </p>
+              </div>
             </div>
           )}
         </PanelComponent>
-      </div>
+      </motion.div>
     );
-  };
+  }, [groupedFields, selectedField, readonly, handleDrop, handleDragOver, handleDragLeave, isDraggingOver, onFieldDrop, onFieldSelect, renderField]);
 
   return (
-    <div className="h-full flex flex-col">
-      {/* Header Controls */}
-      <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
-        <div className="flex items-center space-x-3 space-x-reverse">
-          <Eye className="w-5 h-5 text-gray-500 dark:text-gray-400" />
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-            پیش‌نمایش فرم
-          </h3>
-        </div>
-
-        <div className="flex items-center space-x-2 space-x-reverse">
-          {/* Viewport Toggle */}
-          <div className="flex items-center bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
-            {Object.entries(viewportConfig).map(([mode, config]) => {
-              const IconComponent = config.icon;
-              return (
-                <button
-                  key={mode}
-                  onClick={() => setViewportMode(mode as ViewportMode)}
-                  className={`p-2 rounded-md transition-colors ${
-                    viewportMode === mode
-                      ? 'bg-white dark:bg-gray-600 text-blue-600 dark:text-blue-400 shadow-sm'
-                      : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
-                  }`}
-                  title={mode}
-                >
-                  <IconComponent className="w-4 h-4" />
-                </button>
-              );
-            })}
+    <div className="h-full flex flex-col bg-white/70 backdrop-blur-sm">
+      {/* Toolbar */}
+      <div className="p-4 border-b border-gray-200 dark:border-gray-700 bg-white/80 backdrop-blur-md">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <h3 className="text-lg font-bold text-gray-900 dark:text-white">
+              پیش‌نمایش فرم
+            </h3>
+            {!readonly && (
+              <button
+                onClick={() => setShowSettings(!showSettings)}
+                className={`p-1.5 rounded-lg transition-colors ${
+                  showSettings 
+                    ? 'bg-blue-100 text-blue-700' 
+                    : 'bg-gray-100 text-gray-700'
+                }`}
+              >
+                <Settings className="w-4 h-4" />
+              </button>
+            )}
           </div>
 
-          {/* Settings Toggle */}
-          <button
-            onClick={() => setShowSettings(!showSettings)}
-            className={`p-2 rounded-lg transition-colors ${
-              showSettings
-                ? 'bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400'
-                : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
-            }`}
-            title="تنظیمات نمایش"
-          >
-            <Settings className="w-4 h-4" />
-          </button>
-
-          {/* Reset */}
-          <button
-            onClick={() => {}}
-            className="p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 rounded-lg transition-colors"
-            title="بازنشانی"
-          >
-            <RotateCcw className="w-4 h-4" />
-          </button>
-        </div>
-      </div>
-
-      {/* Preview Container */}
-      <div className="flex-1 overflow-auto bg-gray-50 dark:bg-gray-900 p-6">
-        <div className="flex justify-center">
-          <div
-            className="bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 transition-all duration-300"
-            style={{
-              width: viewportConfig[viewportMode].width,
-              maxWidth: viewportConfig[viewportMode].maxWidth
-            }}
-          >
-            {/* Form Header */}
-            <div className="p-6 border-b border-gray-200 dark:border-gray-700">
-              <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-                {form.name || 'فرم بدون نام'}
-              </h2>
-              {form.description && (
-                <p className="text-gray-600 dark:text-gray-400 mt-2">
-                  {form.description}
-                </p>
-              )}
-              
-              {/* Progress Bar */}
-              {form.settings?.showProgressBar && fields.length > 0 && (
-                <div className="mt-4">
-                  <div className="flex justify-between text-sm text-gray-600 dark:text-gray-400 mb-2">
-                    <span>پیشرفت فرم</span>
-                    <span>0 از {fields.length}</span>
-                  </div>
-                  <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                    <div className="bg-blue-600 h-2 rounded-full" style={{ width: '0%' }}></div>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Form Body */}
-            <div 
-              className="p-6 min-h-96"
-              onDrop={handleDrop}
-              onDragOver={handleDragOver}
-              onClick={() => !readonly && onFieldSelect?.('')}
-            >
-              {Object.keys(groupedFields).map(renderPanel)}
-              
-              {/* Orphan Fields */}
-              {orphanFields.map(renderField)}
-            </div>
-
-            {/* Form Footer */}
-            <div className="p-6 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
-              <div className="flex justify-between items-center">
-                {/* Save Draft Button */}
-                {form.settings?.allowSaveDraft && (
-                  <button className="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors text-sm">
-                    ذخیره پیش‌نویس
+          <div className="flex items-center gap-2">
+            {/* Viewport Controls */}
+            <div className="flex items-center bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
+              {Object.entries(viewportConfig).map(([mode, config]) => {
+                const Icon = config.icon;
+                return (
+                  <button
+                    key={mode}
+                    onClick={() => setViewportMode(mode as ViewportMode)}
+                    className={`p-1.5 rounded-md transition-colors ${
+                      viewportMode === mode
+                        ? 'bg-white text-blue-700 shadow-sm'
+                        : 'text-gray-600 hover:text-gray-900'
+                    }`}
+                    title={`نمایش در حالت ${mode}`}
+                  >
+                    <Icon className="w-4 h-4" />
                   </button>
-                )}
-
-                {/* Submit Button */}
-                <button className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors font-medium">
-                  {form.settings?.submitButtonText || 'ارسال فرم'}
-                </button>
-              </div>
-
-              {/* Form Info */}
-              {showSettings && (
-                <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-                  <div className="grid grid-cols-2 gap-4 text-xs text-gray-500 dark:text-gray-400">
-                    <div>
-                      <span className="font-medium">تعداد فیلدها:</span> {fields.length}
-                    </div>
-                    <div>
-                      <span className="font-medium">فیلدهای اجباری:</span> {fields.filter(f => f.required).length}
-                    </div>
-                    <div>
-                      <span className="font-medium">تم:</span> {form.styling?.theme || 'پیش‌فرض'}
-                    </div>
-                    <div>
-                      <span className="font-medium">وضعیت:</span> {form.metadata?.status || 'پیش‌نویس'}
-                    </div>
-                  </div>
-                </div>
-              )}
+                );
+              })}
             </div>
           </div>
         </div>
       </div>
 
-      {/* Floating Action Button for Mobile */}
-      {!readonly && viewportMode === 'mobile' && (
-        <div className="fixed bottom-6 left-6 z-50">
-          <button
-            onClick={() => onAddField?.('text')}
-            className="w-12 h-12 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center"
-            title="اضافه کردن فیلد"
-          >
-            <span className="text-xl">+</span>
-          </button>
+      {/* Form Preview */}
+      <div className="flex-1 overflow-y-auto">
+        <div 
+          className={`mx-auto transition-all duration-300 p-6`}
+          style={{
+            width: viewportConfig[viewportMode].width,
+            maxWidth: viewportConfig[viewportMode].maxWidth
+          }}
+        >
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+            <AnimatePresence>
+              {Object.keys(groupedFields).map(renderPanel)}
+              {orphanFields.map(renderField)}
+            </AnimatePresence>
+
+            {/* Main Drop Zone */}
+            {!readonly && (
+              <div
+                className={`mt-6 transition-all duration-300 ${
+                  isDraggingOver
+                    ? 'border-2 border-dashed border-blue-400 bg-blue-50/50'
+                    : 'border-2 border-dashed border-gray-200 hover:border-blue-300 hover:bg-blue-50/30'
+                } dark:border-gray-600 rounded-xl p-8 flex flex-col items-center justify-center gap-3`}
+                onDrop={(e) => handleDrop(e)}
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+              >
+                <div className={`p-3 rounded-full ${
+                  isDraggingOver ? 'bg-blue-100' : 'bg-gray-100'
+                } transition-colors`}>
+                  <Plus className={`w-6 h-6 ${
+                    isDraggingOver ? 'text-blue-600' : 'text-gray-600'
+                  }`} />
+                </div>
+                <div className="text-center">
+                  <p className={`text-base font-medium ${
+                    isDraggingOver ? 'text-blue-700' : 'text-gray-700'
+                  }`}>
+                    فیلدها را اینجا رها کنید
+                  </p>
+                  <p className="text-sm text-gray-500 mt-1">
+                    یا از پنل سمت راست انتخاب کنید
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
-      )}
+      </div>
     </div>
   );
 };
