@@ -147,9 +147,12 @@ export const FormBuilder: React.FC<FormBuilderProps> = ({
   }, [formId, fields.length, addField, selectField]);
 
   // Handle field selection from FieldsPanel
-  const handleFieldSelect = (fieldType: FieldType): string => {
+  const handleFieldSelect = (fieldType: FieldType, parentId?: string): string => {
     if (!readonly) {
       const newFieldId = addField(fieldType);
+      if (parentId) {
+        handleFieldDrop(newFieldId, parentId);
+      }
       selectField(newFieldId);
       return newFieldId;
     }
@@ -159,6 +162,7 @@ export const FormBuilder: React.FC<FormBuilderProps> = ({
   // Handle field drop into panel
   const handleFieldDropInPanel = (fieldId: string, panelId: string) => {
     if (!readonly) {
+      console.log('Dropping field', fieldId, 'into panel', panelId);
       handleFieldDrop(fieldId, panelId);
     }
   };
