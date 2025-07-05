@@ -6,15 +6,26 @@ interface PanelSettingsProps {
   onUpdate: (updates: Partial<FormField>) => void;
 }
 
+// مقادیر پیش‌فرض برای تنظیمات پنل
+const defaultPanelSettings: PanelSettingsType = {
+  title: 'پنل جدید',
+  columns: 1,
+  collapsible: true,
+  defaultCollapsed: false,
+  padding: 'md',
+  margin: 'md',
+  shadow: 'md',
+  backgroundColor: '#ffffff',
+  borderColor: '#e5e7eb',
+  borderRadius: 8,
+  backgroundOpacity: 1
+};
+
 export const PanelSettings: React.FC<PanelSettingsProps> = ({ field, onUpdate }) => {
-  const settings = field.fieldSettings?.panelSettings || {
-    title: '',
-    columns: 1,
-    collapsible: true,
-    defaultCollapsed: false,
-    padding: 'md',
-    margin: 'md',
-    shadow: 'md'
+  // ترکیب تنظیمات پیش‌فرض با تنظیمات دریافتی
+  const settings = {
+    ...defaultPanelSettings,
+    ...(field.fieldSettings?.panelSettings || {})
   };
 
   const handleSettingChange = (key: keyof PanelSettingsType, value: any) => {
