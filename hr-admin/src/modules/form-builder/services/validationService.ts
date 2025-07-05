@@ -34,6 +34,14 @@ import {
         field: string;
       }> = [];
   
+      // اعتبارسنجی شرطی
+      if (field.conditions && allFormData) {
+        const isVisible = this.isFieldVisible(field, allFormData);
+        if (!isVisible) {
+          return { isValid: true, errors: [] };
+        }
+      }
+  
       // اعتبارسنجی required
       if (field.validation.required && !value) {
         errors.push({
@@ -115,14 +123,6 @@ import {
             message: `حجم فایل نباید بیشتر از ${field.validation.maxFileSize / 1024 / 1024} مگابایت باشد`,
             field: field.id
           });
-        }
-      }
-  
-      // اعتبارسنجی شرطی
-      if (field.conditions && allFormData) {
-        const isVisible = this.isFieldVisible(field, allFormData);
-        if (!isVisible) {
-          return { isValid: true, errors: [] };
         }
       }
   
