@@ -1,12 +1,9 @@
 // src/modules/form-builder/services/database/factory.ts
 
 import { DatabaseService } from './interface';
-import { FirebaseService } from './firebase.service';
 import { PostgreSQLService } from './postgresql.service';
-import { MemoryDatabaseService } from './memory.service';
-import { LocalStorageService } from './localStorage.service';
 
-export type DatabaseType = 'firebase' | 'postgresql' | 'memory' | 'localStorage';
+export type DatabaseType = 'postgresql';
 
 export class DatabaseServiceFactory {
   private static instance: DatabaseService | null = null;
@@ -20,17 +17,8 @@ export class DatabaseServiceFactory {
 
     // Create new instance
     switch (type) {
-      case 'firebase':
-        this.instance = new FirebaseService();
-        break;
       case 'postgresql':
         this.instance = new PostgreSQLService();
-        break;
-      case 'memory':
-        this.instance = new MemoryDatabaseService();
-        break;
-      case 'localStorage':
-        this.instance = new LocalStorageService();
         break;
       default:
         throw new Error(`Database type ${type} not supported`);
