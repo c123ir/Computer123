@@ -29,11 +29,11 @@ export const CreateFormModal: React.FC<CreateFormModalProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const defaultFields = [
+  const defaultFields: FormField[] = [
     {
       id: 'name',
-      type: 'text' as FieldType,
-      label: 'نام',
+      type: 'text',
+      label: 'نام و نام خانوادگی',
       name: 'name',
       placeholder: 'نام خود را وارد کنید',
       required: true,
@@ -41,21 +41,21 @@ export const CreateFormModal: React.FC<CreateFormModalProps> = ({
       readonly: false,
       validation: {
         required: true,
-        minLength: 2,
+        minLength: 3,
         maxLength: 50
       },
       styling: {
-        width: '100%',
-        className: ''
+        width: '100%'
       },
       position: {
         row: 1,
-        column: 1
-      }
+        col: 1
+      },
+      order: 0
     },
     {
       id: 'email',
-      type: 'email' as FieldType,
+      type: 'email',
       label: 'ایمیل',
       name: 'email',
       placeholder: 'ایمیل خود را وارد کنید',
@@ -65,16 +65,16 @@ export const CreateFormModal: React.FC<CreateFormModalProps> = ({
       validation: {
         required: true,
         minLength: 5,
-        maxLength: 100
+        maxLength: 50
       },
       styling: {
-        width: '100%',
-        className: ''
+        width: '100%'
       },
       position: {
         row: 2,
-        column: 1
-      }
+        col: 1
+      },
+      order: 1
     }
   ];
 
