@@ -1,4 +1,4 @@
-import { Form, FormField } from '../types';
+import { Form, FormField, FieldOption } from '../types';
 
 export class PreviewService {
   /**
@@ -48,20 +48,20 @@ export class PreviewService {
         
       case 'select':
         html += `<select>`;
-        field.options?.forEach(option => {
+        field.options?.forEach((option: FieldOption) => {
           html += `<option value="${option.value}">${option.label}</option>`;
         });
         html += `</select>`;
         break;
 
       case 'radio':
-        field.options?.forEach(option => {
+        field.options?.forEach((option: FieldOption) => {
           html += `<label><input type="radio" name="${field.id}" value="${option.value}" /> ${option.label}</label>`;
         });
         break;
         
       case 'checkbox':
-        field.options?.forEach(option => {
+        field.options?.forEach((option: FieldOption) => {
           html += `<label><input type="checkbox" value="${option.value}" /> ${option.label}</label>`;
         });
         break;
