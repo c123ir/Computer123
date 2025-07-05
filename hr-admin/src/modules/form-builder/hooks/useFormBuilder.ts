@@ -338,6 +338,31 @@ export const useFormBuilder = (options: UseFormBuilderOptions = {}) => {
   // Field Management Actions
   // =====================================================
 
+  const handleFieldDrop = useCallback((fieldId: string, panelId: string) => {
+    console.log('handleFieldDrop:', { fieldId, panelId });
+    
+    updateForm(prev => {
+      const field = prev.fields.find(f => f.id === fieldId);
+      const panel = prev.fields.find(f => f.id === panelId && f.type === 'panel');
+      
+      if (!field || !panel) {
+        console.log('Field or panel not found:', { field, panel });
+        return prev;
+      }
+
+      console.log('Moving field to panel:', { field, panel });
+      
+      return {
+        ...prev,
+        fields: prev.fields.map(f => 
+          f.id === fieldId 
+            ? { ...f, parentId: panelId }
+            : f
+        )
+      };
+    });
+  }, [updateForm]);
+
   const addField = useCallback((type: FieldType, parentId?: string): string => {
     const newField: FormField = {
       id: generateFieldId(),
@@ -463,17 +488,6 @@ export const useFormBuilder = (options: UseFormBuilderOptions = {}) => {
       selectedField: prev.selectedField?.id === fieldId 
         ? { ...prev.selectedField, ...updates }
         : prev.selectedField
-    }));
-  }, [updateForm]);
-
-  const handleFieldDrop = useCallback((fieldId: string, panelId: string) => {
-    updateForm(prev => ({
-      ...prev,
-      fields: prev.fields.map(field => 
-        field.id === fieldId 
-          ? { ...field, parentId: panelId }
-          : field
-      )
     }));
   }, [updateForm]);
 
