@@ -5,15 +5,30 @@ import { FormSettings, FormStyling, FormMetadata } from './form.types';
  * فرم
  */
 export interface Form {
+  /** شناسه یکتا */
   id: string;
+  /** نام فرم */
   name: string;
+  /** توضیح */
   description?: string;
+  /** فیلدهای فرم */
   fields: FormField[];
+  /** تنظیمات */
   settings: FormSettings;
+  /** ظاهر */
   styling: FormStyling;
+  /** متادیتا */
   metadata: FormMetadata;
+  /** وضعیت */
+  status: 'draft' | 'published' | 'archived' | 'paused';
+  /** دسته‌بندی */
   category?: string;
+  /** برچسب‌ها */
   tags?: string[];
+  /** تاریخ ایجاد */
+  createdAt: string;
+  /** تاریخ بروزرسانی */
+  updatedAt: string;
 }
 
 /**
@@ -49,8 +64,8 @@ export interface FormTemplate {
   thumbnail?: string;
   content: {
     fields: FormField[];
-    settings: Form['settings'];
-    styling: Form['styling'];
+    settings: FormSettings;
+    styling: FormStyling;
   };
   metadata: {
     createdBy: string;
