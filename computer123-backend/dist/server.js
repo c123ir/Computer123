@@ -9,6 +9,11 @@ const helmet_1 = __importDefault(require("helmet"));
 const morgan_1 = __importDefault(require("morgan"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const database_1 = require("./config/database");
+const forms_routes_1 = __importDefault(require("./routes/forms.routes"));
+const responses_routes_1 = __importDefault(require("./routes/responses.routes"));
+const templates_routes_1 = __importDefault(require("./routes/templates.routes"));
+const error_middleware_1 = require("./middleware/error.middleware");
+const notFound_middleware_1 = require("./middleware/notFound.middleware");
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 const PORT = process.env.PORT || 3995;
@@ -22,34 +27,24 @@ if (process.env.NODE_ENV === 'development') {
 }
 app.use(express_1.default.json({ limit: '10mb' }));
 app.use(express_1.default.urlencoded({ extended: true, limit: '10mb' }));
-app.get('/health', (req, res) => {
+app.get('/api/health', (req, res) => {
     res.json({
         status: 'OK',
+        api: 'PostgreSQL Backend',
         timestamp: new Date().toISOString(),
         environment: process.env.NODE_ENV || 'development',
         database: 'Connected'
     });
 });
+app.use('/api/forms', forms_routes_1.default);
+app.use('/api/responses', responses_routes_1.default);
+app.use('/api/templates', templates_routes_1.default);
 app.get('/api/test', (req, res) => {
     res.json({
         message: 'Backend is working!',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        port: PORT
     });
-});
-app.get('/api/forms', async (req, res) => {
-    try {
-        res.json({
-            success: true,
-            data: [],
-            message: 'Forms endpoint is working (empty for now)'
-        });
-    }
-    catch (error) {
-        res.status(500).json({
-            success: false,
-            error: 'Internal server error'
-        });
-    }
 });
 app.get('/api/templates', (req, res) => {
     res.json({
@@ -60,39 +55,40 @@ app.get('/api/templates', (req, res) => {
                 name: 'فرم تماس با ما',
                 description: 'فرم ساده برای ارتباط مشتریان',
                 category: 'عمومی',
-                popularity: 95
+                popularity: 95,
+                isActive: true
             },
             {
                 id: 'registration',
                 name: 'فرم ثبت‌نام',
                 description: 'ثبت‌نام در دوره‌ها یا رویدادها',
                 category: 'آموزش',
-                popularity: 88
+                popularity: 88,
+                isActive: true
+            },
+            {
+                id: 'feedback',
+                name: 'فرم نظرسنجی',
+                description: 'جمع‌آوری نظرات و پیشنهادات',
+                category: 'بازاریابی',
+                popularity: 76,
+                isActive: true
             }
         ]
     });
 });
-app.use((err, req, res, next) => {
-    console.error('Error:', err);
-    res.status(500).json({
-        success: false,
-        error: 'Internal server error'
-    });
-});
-app.use((req, res) => {
-    res.status(404).json({
-        success: false,
-        error: `Route ${req.originalUrl} not found`
-    });
-});
+app.use(error_middleware_1.errorHandler);
+app.use(notFound_middleware_1.notFound);
 async function connectToDatabase() {
     try {
         await database_1.prisma.$connect();
         console.log('✅ Connected to PostgreSQL database');
+        return true;
     }
     catch (error) {
         console.error('❌ Database connection failed:', error);
-        process.exit(1);
+        console.log('⚠️  Running in demo mode without database');
+        return false;
     }
 }
 async function gracefulShutdown() {
@@ -103,12 +99,18 @@ async function gracefulShutdown() {
 process.on('SIGTERM', gracefulShutdown);
 process.on('SIGINT', gracefulShutdown);
 async function startServer() {
-    await connectToDatabase();
+    const dbConnected = await connectToDatabase();
     app.listen(PORT, () => {
         console.log(`🚀 Server running on port ${PORT}`);
         console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
-        console.log(`🔗 Health check: http://localhost:${PORT}/health`);
+        console.log(`🔗 Health check: http://localhost:${PORT}/api/health`);
         console.log(`🔗 API Test: http://localhost:${PORT}/api/test`);
+        if (dbConnected) {
+            console.log('✅ Database: Connected');
+        }
+        else {
+            console.log('⚠️  Database: Demo mode (no connection)');
+        }
     });
 }
 startServer();
