@@ -11,7 +11,8 @@ import {
   PaginationOptions,
   PaginatedResult,
   ValidationResult,
-  ValidationErrorType
+  ValidationErrorType,
+  FieldType
 } from '../types';
 
 import { DatabaseService } from './database/interface';
@@ -205,15 +206,13 @@ export class FormService {
   /**
    * تغییر وضعیت فرم
    */
-  static async updateFormStatus(id: string, status: Form['status']): Promise<Form | null> {
+  static async updateFormStatus(id: string, status: 'draft' | 'published' | 'archived' | 'paused'): Promise<Form | null> {
     try {
       const now = new Date().toISOString();
       const metadata = {
+        ...form.metadata,
         status,
-        updatedAt: now,
-        createdAt: now,
-        createdBy: 'system',
-        version: 1
+        updatedAt: now
       };
 
       return await this.updateForm(id, { metadata });
