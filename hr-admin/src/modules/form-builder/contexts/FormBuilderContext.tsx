@@ -5,7 +5,7 @@
 import React, { createContext, useContext, useReducer, ReactNode } from 'react';
 import { Form } from '../types/form.types';
 import { FormField } from '../types/field.types';
-import { FormSettings, FormStyling, FormMetadata } from '../types/form.types';
+import { DEFAULT_FORM_SETTINGS, DEFAULT_FORM_STYLING } from '../constants/defaults';
 
 // تعریف تایپ‌های مورد نیاز
 interface FormBuilderState {
@@ -30,25 +30,8 @@ const initialState: FormBuilderState = {
     name: 'فرم جدید',
     description: '',
     fields: [],
-    settings: {
-      direction: 'rtl',
-      theme: 'light',
-      submitButtonText: 'ارسال',
-      showProgressBar: false,
-      allowSaveDraft: false,
-      showFieldNumbers: true,
-      formWidth: 'medium'
-    },
-    styling: {
-      theme: 'default',
-      backgroundColor: '#ffffff',
-      textColor: '#000000',
-      primaryColor: '#3B82F6',
-      fontFamily: 'Vazirmatn',
-      fontSize: 14,
-      borderRadius: 8,
-      spacing: 'normal'
-    },
+    settings: DEFAULT_FORM_SETTINGS,
+    styling: DEFAULT_FORM_STYLING,
     metadata: {
       createdBy: '',
       createdAt: new Date().toISOString(),
@@ -57,6 +40,7 @@ const initialState: FormBuilderState = {
       version: 1,
       tags: [],
     },
+    status: 'draft',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   },
