@@ -55,7 +55,6 @@ const initialState: FormBuilderState = {
       version: 1,
       tags: [],
     },
-    status: 'draft',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   },
