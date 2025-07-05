@@ -1,6 +1,7 @@
 // src/modules/form-builder/hooks/index.ts
 
 import { useFormBuilder } from './useFormBuilder';
+import { useState, useCallback } from 'react';
 
 /**
  * Export تمام Hook های Form Builder
@@ -41,10 +42,55 @@ export default useFormBuilder;
   };
   
   export const useFormValidation = () => {
-    // TODO: Implement advanced validation hook
+    const [errors, setErrors] = useState<Record<string, string>>({});
+    const [isValid, setIsValid] = useState(true);
+
+    const validate = useCallback((form: any) => {
+      const newErrors: Record<string, string> = {};
+
+      // اعتبارسنجی نام فرم
+      if (!form.name?.trim()) {
+        newErrors.name = 'نام فرم الزامی است';
+      } else if (form.name.trim().length < 2) {
+        newErrors.name = 'نام فرم باید حداقل ۲ کاراکتر باشد';
+      }
+
+      // اعتبارسنجی فیلدها
+      if (!form.fields || form.fields.length === 0) {
+        newErrors.fields = 'فرم باید حداقل یک فیلد داشته باشد';
+      } else {
+        form.fields.forEach((field: any, index: number) => {
+          if (!field.id) {
+            newErrors[`field_${index}_id`] = 'شناسه فیلد الزامی است';
+          }
+          if (!field.type) {
+            newErrors[`field_${index}_type`] = 'نوع فیلد الزامی است';
+          }
+          if (!field.label?.trim()) {
+            newErrors[`field_${index}_label`] = 'برچسب فیلد الزامی است';
+          }
+        });
+      }
+
+      // اعتبارسنجی تنظیمات
+      if (!form.settings) {
+        newErrors.settings = 'تنظیمات فرم الزامی است';
+      }
+
+      // اعتبارسنجی استایل
+      if (!form.styling) {
+        newErrors.styling = 'استایل فرم الزامی است';
+      }
+
+      setErrors(newErrors);
+      setIsValid(Object.keys(newErrors).length === 0);
+      return Object.keys(newErrors).length === 0;
+    }, []);
+
     return {
-      validate: () => true,
-      errors: {},
-      isValid: true
+      validate,
+      errors,
+      isValid,
+      setErrors
     };
   };
