@@ -751,7 +751,7 @@ export const useFormBuilder = (options: UseFormBuilderOptions = {}) => {
 function getDefaultFieldSettings(type: FieldType): FormField['fieldSettings'] {
   console.log('getDefaultFieldSettings - type:', type);
   
-  const settings = {
+  const settings: Record<FieldType, FormField['fieldSettings']> = {
     panel: {
       panelSettings: {
         title: 'پنل جدید',
@@ -794,11 +794,20 @@ function getDefaultFieldSettings(type: FieldType): FormField['fieldSettings'] {
       multiple: false,
       maxFileSize: 5 * 1024 * 1024, // 5MB
       fileTypes: ['image/*', 'application/pdf']
-    }
+    },
+    text: {},
+    email: {},
+    tel: {},
+    url: {},
+    time: {},
+    datetime: {},
+    signature: {},
+    rating: {},
+    slider: {}
   };
 
-  console.log('getDefaultFieldSettings - returning:', settings[type] || {});
-  return settings[type] || {};
+  console.log('getDefaultFieldSettings - returning:', settings[type]);
+  return settings[type];
 }
 
 export default useFormBuilder;
