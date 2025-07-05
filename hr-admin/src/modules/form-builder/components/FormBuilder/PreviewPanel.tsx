@@ -203,8 +203,6 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
                     type={field.type}
                     className={inputClassName}
                     placeholder={field.placeholder}
-                    disabled={field.disabled}
-                    readOnly={field.readonly}
                     {...commonProps}
                   />
                 );
@@ -215,8 +213,6 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
                     className={inputClassName}
                     placeholder={field.placeholder}
                     rows={field.fieldSettings?.rows || 3}
-                    disabled={field.disabled}
-                    readOnly={field.readonly}
                     {...commonProps}
                   />
                 );
@@ -225,7 +221,6 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
                 return (
                   <select
                     className={inputClassName}
-                    disabled={field.disabled}
                     {...commonProps}
                   >
                     <option value="">{field.placeholder || 'انتخاب کنید...'}</option>
@@ -245,7 +240,7 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
                         <input
                           type="radio"
                           value={option.value}
-                          disabled={field.disabled || option.disabled}
+                          disabled={option.disabled}
                           {...commonProps}
                         />
                         <span>{option.label}</span>
@@ -262,7 +257,7 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
                         <input
                           type="checkbox"
                           value={option.value}
-                          disabled={field.disabled || option.disabled}
+                          disabled={option.disabled}
                           {...commonProps}
                         />
                         <span>{option.label}</span>
@@ -278,8 +273,6 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
                   <input
                     type={field.type === 'datetime' ? 'datetime-local' : field.type}
                     className={inputClassName}
-                    disabled={field.disabled}
-                    readOnly={field.readonly}
                     {...commonProps}
                   />
                 );
@@ -290,8 +283,6 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
                     <input
                       type="file"
                       className="hidden"
-                      disabled={field.disabled}
-                      readOnly={field.readonly}
                       multiple={field.fieldSettings?.multiple}
                       accept={field.validation.fileTypes?.join(',')}
                       {...commonProps}
@@ -326,7 +317,7 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
                         key={i}
                         type="button"
                         className="text-yellow-400 hover:text-yellow-500 disabled:opacity-50"
-                        disabled={field.disabled}
+                        {...commonProps}
                       >
                         <Star className="h-6 w-6" />
                       </button>
@@ -343,8 +334,6 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
                       min={field.fieldSettings?.min || 0}
                       max={field.fieldSettings?.max || 100}
                       step={field.fieldSettings?.step || 1}
-                      disabled={field.disabled}
-                      readOnly={field.readonly}
                       {...commonProps}
                     />
                     <div className="flex justify-between text-sm text-gray-500">
