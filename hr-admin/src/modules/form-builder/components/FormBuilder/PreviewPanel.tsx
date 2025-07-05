@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { 
   Eye, Smartphone, Tablet, Monitor, RotateCcw, Settings, 
-  Trash2, Copy, MoveUp, MoveDown, GripVertical 
+  Trash2, Copy, MoveUp, MoveDown, GripVertical, Upload, PenTool, Star 
 } from 'lucide-react';
 import { FormField, Form, FieldType } from '../../types';
 
@@ -175,6 +175,11 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
   // render field content based on type
   const renderFieldContent = (field: FormField) => {
     const baseClasses = "w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400";
+    const inputClassName = `${baseClasses} ${field.disabled ? 'opacity-50 cursor-not-allowed' : ''}`;
+    const commonProps = {
+      disabled: field.disabled,
+      readOnly: field.readonly
+    };
 
     return (
       <div className="space-y-2">
@@ -192,40 +197,37 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
               case 'email':
               case 'tel':
               case 'url':
+              case 'number':
                 return (
                   <input
                     type={field.type}
+                    className={inputClassName}
                     placeholder={field.placeholder}
-                    className={baseClasses}
-                    disabled
+                    disabled={field.disabled}
+                    readOnly={field.readonly}
+                    {...commonProps}
                   />
                 );
 
               case 'textarea':
                 return (
                   <textarea
+                    className={inputClassName}
                     placeholder={field.placeholder}
-                    rows={field.fieldSettings?.rows || 4}
-                    className={baseClasses}
-                    disabled
-                  />
-                );
-
-              case 'number':
-                return (
-                  <input
-                    type="number"
-                    min={field.validation.min}
-                    max={field.validation.max}
-                    placeholder={field.placeholder}
-                    className={baseClasses}
-                    disabled
+                    rows={field.fieldSettings?.rows || 3}
+                    disabled={field.disabled}
+                    readOnly={field.readonly}
+                    {...commonProps}
                   />
                 );
 
               case 'select':
                 return (
-                  <select className={baseClasses} disabled>
+                  <select
+                    className={inputClassName}
+                    disabled={field.disabled}
+                    {...commonProps}
+                  >
                     <option value="">{field.placeholder || 'انتخاب کنید...'}</option>
                     {field.options?.map(option => (
                       <option key={option.id} value={option.value}>
@@ -242,14 +244,11 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
                       <label key={option.id} className="flex items-center space-x-2 space-x-reverse">
                         <input
                           type="radio"
-                          name={field.id}
                           value={option.value}
-                          className="text-blue-600"
-                          disabled
+                          disabled={field.disabled || option.disabled}
+                          {...commonProps}
                         />
-                        <span className="text-sm text-gray-700 dark:text-gray-300">
-                          {option.label}
-                        </span>
+                        <span>{option.label}</span>
                       </label>
                     ))}
                   </div>
@@ -263,57 +262,58 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
                         <input
                           type="checkbox"
                           value={option.value}
-                          className="text-blue-600 rounded"
-                          disabled
+                          disabled={field.disabled || option.disabled}
+                          {...commonProps}
                         />
-                        <span className="text-sm text-gray-700 dark:text-gray-300">
-                          {option.label}
-                        </span>
+                        <span>{option.label}</span>
                       </label>
                     ))}
                   </div>
                 );
 
               case 'date':
-                return (
-                  <input
-                    type="date"
-                    className={baseClasses}
-                    disabled
-                  />
-                );
-
               case 'time':
-                return (
-                  <input
-                    type="time"
-                    className={baseClasses}
-                    disabled
-                  />
-                );
-
               case 'datetime':
                 return (
                   <input
-                    type="datetime-local"
-                    className={baseClasses}
-                    disabled
+                    type={field.type === 'datetime' ? 'datetime-local' : field.type}
+                    className={inputClassName}
+                    disabled={field.disabled}
+                    readOnly={field.readonly}
+                    {...commonProps}
                   />
                 );
 
               case 'file':
                 return (
-                  <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-4 text-center">
+                  <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-8 text-center">
+                    <input
+                      type="file"
+                      className="hidden"
+                      disabled={field.disabled}
+                      readOnly={field.readonly}
+                      multiple={field.fieldSettings?.multiple}
+                      accept={field.validation.fileTypes?.join(',')}
+                      {...commonProps}
+                    />
                     <div className="text-gray-500 dark:text-gray-400">
-                      <div className="mb-2">📁</div>
-                      <div className="text-sm">
-                        {field.fieldSettings?.multiple ? 'انتخاب فایل‌ها' : 'انتخاب فایل'}
-                      </div>
+                      <Upload className="mx-auto h-12 w-12 mb-4" />
+                      <p>برای آپلود فایل کلیک کنید یا فایل را اینجا رها کنید</p>
                       {field.validation.fileTypes && (
-                        <div className="text-xs mt-1">
+                        <p className="text-sm mt-2">
                           فرمت‌های مجاز: {field.validation.fileTypes.join(', ')}
-                        </div>
+                        </p>
                       )}
+                    </div>
+                  </div>
+                );
+
+              case 'signature':
+                return (
+                  <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-8 text-center">
+                    <div className="text-gray-500 dark:text-gray-400">
+                      <PenTool className="mx-auto h-12 w-12 mb-4" />
+                      <p>برای امضا کلیک کنید</p>
                     </div>
                   </div>
                 );
@@ -322,8 +322,13 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
                 return (
                   <div className="flex space-x-1 space-x-reverse">
                     {Array.from({ length: field.fieldSettings?.maxRating || 5 }, (_, i) => (
-                      <button key={i} className="text-gray-300 hover:text-yellow-400 text-xl" disabled>
-                        ⭐
+                      <button
+                        key={i}
+                        type="button"
+                        className="text-yellow-400 hover:text-yellow-500 disabled:opacity-50"
+                        disabled={field.disabled}
+                      >
+                        <Star className="h-6 w-6" />
                       </button>
                     ))}
                   </div>
@@ -334,35 +339,23 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
                   <div className="space-y-2">
                     <input
                       type="range"
+                      className="w-full"
                       min={field.fieldSettings?.min || 0}
                       max={field.fieldSettings?.max || 100}
                       step={field.fieldSettings?.step || 1}
-                      className="w-full"
-                      disabled
+                      disabled={field.disabled}
+                      readOnly={field.readonly}
+                      {...commonProps}
                     />
-                    <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400">
+                    <div className="flex justify-between text-sm text-gray-500">
                       <span>{field.fieldSettings?.min || 0}</span>
                       <span>{field.fieldSettings?.max || 100}</span>
                     </div>
                   </div>
                 );
 
-              case 'signature':
-                return (
-                  <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-8 text-center">
-                    <div className="text-gray-500 dark:text-gray-400">
-                      <div className="mb-2">✍️</div>
-                      <div className="text-sm">محل امضا</div>
-                    </div>
-                  </div>
-                );
-
               default:
-                return (
-                  <div className="p-4 border border-gray-300 dark:border-gray-600 rounded-lg text-center text-gray-500 dark:text-gray-400">
-                    فیلد نوع {field.type}
-                  </div>
-                );
+                return null;
             }
           })()}
         </div>
