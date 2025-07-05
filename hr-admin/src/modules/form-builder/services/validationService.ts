@@ -138,12 +138,15 @@ import {
     static validateForm(
       fields: FormField[], 
       formData: Record<string, any>
-    ): ValidationResult {
-      const results = this.validateBatch(fields, formData, { validateHidden: false });
-      return {
-        isValid: results.isValid,
-        errors: results.errors
-      };
+    ): Record<string, ValidationResult> {
+      const results: Record<string, ValidationResult> = {};
+  
+      fields.forEach(field => {
+        const value = formData[field.id];
+        results[field.id] = this.validateField(field, value, formData);
+      });
+  
+      return results;
     }
   
     /**
