@@ -208,6 +208,11 @@ export class FormService {
    */
   static async updateFormStatus(id: string, status: 'draft' | 'published' | 'archived' | 'paused'): Promise<Form | null> {
     try {
+      const form = await this.getForm(id, false);
+      if (!form) {
+        throw new Error('Form not found');
+      }
+
       const now = new Date().toISOString();
       const metadata = {
         ...form.metadata,
