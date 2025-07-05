@@ -155,11 +155,11 @@ export const useFormBuilder = (options: UseFormBuilderOptions = {}) => {
    */
   function createEmptyForm(initial?: Partial<Form>): Form {
     const now = new Date().toISOString();
-    const defaultMetadata = {
+    const defaultMetadata: FormMetadata = {
       createdBy: 'current-user', // TODO: Get from context
       createdAt: now,
       updatedAt: now,
-      status: 'draft',
+      status: 'draft' as const,
       version: 1,
       formType: 'standard',
       language: 'fa',
