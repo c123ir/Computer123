@@ -2,7 +2,7 @@
 // 🔧 فایل: src/modules/form-builder/types/form.types.ts
 // =====================================================
 
-import type { FormField } from './field.types';
+import { FormField } from './field.types';
 
 /**
  * تنظیمات فرم
@@ -185,6 +185,7 @@ export interface CreateFormDto {
   metadata?: Partial<FormMetadata>;
   category?: string;
   tags?: string[];
+  status?: 'draft' | 'published' | 'archived' | 'paused';
 }
 
 export interface UpdateFormDto {
@@ -196,4 +197,5 @@ export interface UpdateFormDto {
   metadata?: Partial<FormMetadata>;
   category?: string;
   tags?: string[];
+  status?: 'draft' | 'published' | 'archived' | 'paused';
 }
