@@ -9,6 +9,7 @@ import Layout from './components/layout/Layout';
 import Dashboard from './pages/Dashboard';
 import ComingSoon from './pages/ComingSoon';
 import FormsPage from './pages/forms';
+import FormBuilderPage from './pages/FormBuilderPage';
 import MenuManagement from './pages/MenuManagement';
 
 // PostgreSQL Backend Connection Test (فقط در development)
@@ -39,7 +40,7 @@ function App() {
               v7_relativeSplatPath: true 
             }}
           >
-            <div className="App min-h-screen bg-gray-50 dark:bg-gray-900 " dir="rtl">
+            <div className="App min-h-screen bg-gray-50 dark:bg-gray-900" dir="rtl">
               <Layout>
                 <Routes>
                   <Route path="/" element={<Dashboard />} />
@@ -47,6 +48,11 @@ function App() {
                   
                   {/* صفحات فرم‌ساز */}
                   <Route path="/forms" element={<FormsPage />} />
+                  <Route path="/forms/create" element={<FormBuilderPage />} />
+                  <Route path="/forms/:id/edit" element={<FormBuilderPage />} />
+                  <Route path="/forms/:id/preview" element={<FormBuilderPage readonly />} />
+                  
+                  {/* سایر صفحات */}
                   <Route path="/menus" element={<MenuManagement />} />
                   <Route path="/sales" element={<ComingSoon title="مدیریت فروش" />} />
                   <Route path="/customers" element={<ComingSoon title="مدیریت مشتریان" />} />
