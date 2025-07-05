@@ -1,10 +1,10 @@
 // src/routes/forms.routes.ts
 
-import { Router } from 'express';
+import express from 'express';
 import { FormsController } from '../controllers/forms.controller';
 import { validateForm } from '../middleware/validate.middleware';
 
-const router = Router();
+const router = express.Router();
 const formsController = new FormsController();
 
 // Forms CRUD
