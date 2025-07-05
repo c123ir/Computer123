@@ -49,4 +49,5 @@ const SidePanel: FC<SidePanelProps> = ({ className = '' }) => {
   );
 };
 
-export default SidePanel; 
+export default SidePanel;
+export type { SidePanelProps }; 
