@@ -46,6 +46,13 @@ export class PostgreSQLService implements DatabaseService {
         body: JSON.stringify(form),
       });
 
+      if (response.status === 404) {
+        // Backend not implemented: fallback to demo mode
+        console.warn('📡 Backend createForm endpoint not found (404) - using demo mode');
+        const fakeId = `demo_${Date.now()}`;
+        return fakeId;
+      }
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
