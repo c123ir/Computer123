@@ -222,7 +222,7 @@ async function main() {
             {
                 name: 'فرم ثبت‌نام دوره برنامه‌نویسی',
                 description: 'فرم ثبت‌نام برای دوره‌های آموزشی برنامه‌نویسی',
-                fields: [
+                fieldsData: [
                     {
                         id: 'name',
                         type: 'text',
@@ -269,7 +269,7 @@ async function main() {
             {
                 name: 'فرم نظرسنجی رضایت مشتری',
                 description: 'نظرسنجی از رضایت مشتریان از خدمات ارائه شده',
-                fields: [
+                fieldsData: [
                     {
                         id: 'rating',
                         type: 'radio',
@@ -315,7 +315,7 @@ async function main() {
             {
                 name: 'فرم درخواست پشتیبانی فنی',
                 description: 'فرم ثبت درخواست پشتیبانی فنی و رفع مشکل',
-                fields: [
+                fieldsData: [
                     {
                         id: 'issue',
                         type: 'textarea',
@@ -404,10 +404,4 @@ main()
     .finally(async () => {
     await prisma.$disconnect();
 });
--- -
-    {
-        "scripts": {
-            "db:seed": "tsx prisma/seed.ts"
-        }
-    };
 //# sourceMappingURL=seed.js.map
