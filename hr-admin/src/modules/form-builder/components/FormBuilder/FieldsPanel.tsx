@@ -98,7 +98,7 @@ export const FieldsPanel: React.FC<FieldsPanelProps> = ({
   }, [readonly, onFieldSelect]);
 
   // handle drag start با useCallback
-  const handleDragStart = useCallback((e: React.DragEvent, fieldType: FieldType) => {
+  const handleDragStart = useCallback((e: React.DragEvent<HTMLDivElement>, fieldType: FieldType) => {
     if (readonly) return;
     
     e.dataTransfer.setData('application/json', JSON.stringify({
@@ -113,7 +113,7 @@ export const FieldsPanel: React.FC<FieldsPanelProps> = ({
   }, [readonly]);
 
   // handle drag end
-  const handleDragEnd = useCallback((e: React.DragEvent) => {
+  const handleDragEnd = useCallback((e: React.DragEvent<HTMLDivElement>) => {
     const dragElement = e.target as HTMLElement;
     dragElement.classList.remove('dragging');
   }, []);
@@ -204,12 +204,8 @@ export const FieldsPanel: React.FC<FieldsPanelProps> = ({
                 const IconComponent = field.icon;
                 
                 return (
-                  <motion.div
+                  <div
                     key={field.type}
-                    layout
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
                     className={`group relative p-4 border border-gray-200 dark:border-gray-600 
                               rounded-xl bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm 
                               cursor-pointer transition-all duration-300 
@@ -260,7 +256,7 @@ export const FieldsPanel: React.FC<FieldsPanelProps> = ({
                         </p>
                       </div>
                     </div>
-                  </motion.div>
+                  </div>
                 );
               })}
             </div>
