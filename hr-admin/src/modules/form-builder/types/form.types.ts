@@ -175,3 +175,25 @@ export interface FormTemplate {
   /** داده‌های فرم */
   form: Omit<Form, 'id' | 'metadata' | 'createdAt' | 'updatedAt'>;
 }
+
+export interface CreateFormDto {
+  name: string;
+  description?: string;
+  fields?: FormField[];
+  settings?: Partial<FormSettings>;
+  styling?: Partial<FormStyling>;
+  metadata?: Partial<FormMetadata>;
+  category?: string;
+  tags?: string[];
+}
+
+export interface UpdateFormDto {
+  name?: string;
+  description?: string;
+  fields?: FormField[];
+  settings?: Partial<FormSettings>;
+  styling?: Partial<FormStyling>;
+  metadata?: Partial<FormMetadata>;
+  category?: string;
+  tags?: string[];
+}
