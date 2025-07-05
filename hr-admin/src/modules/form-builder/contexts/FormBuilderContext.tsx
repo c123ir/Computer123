@@ -3,7 +3,7 @@
 // =====================================================
 
 import React, { createContext, useContext, useReducer, ReactNode } from 'react';
-import { Form, FormField } from '../types';
+import { Form, FormField, FormSettings, FormStyling, FormMetadata } from '../types';
 
 // تعریف تایپ‌های مورد نیاز
 interface FormBuilderState {
@@ -32,7 +32,32 @@ const initialState: FormBuilderState = {
       direction: 'rtl',
       theme: 'light',
       submitButtonText: 'ارسال',
+      showProgressBar: false,
+      allowSaveDraft: false,
+      showFieldNumbers: true,
+      formWidth: 'medium'
     },
+    styling: {
+      theme: 'default',
+      backgroundColor: '#ffffff',
+      textColor: '#000000',
+      primaryColor: '#3B82F6',
+      fontFamily: 'Vazirmatn',
+      fontSize: 14,
+      borderRadius: 8,
+      spacing: 'normal'
+    },
+    metadata: {
+      createdBy: '',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      status: 'draft',
+      version: 1,
+      tags: [],
+    },
+    status: 'draft',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
   },
   selectedField: null,
   isDragging: false,
