@@ -9,10 +9,10 @@ export const FieldRegistry = {
   // ... existing fields ...
 
   panel: {
-    type: 'panel',
+    type: 'panel' as FieldType,
     icon: LayoutDashboard,
     label: 'پنل',
-    description: 'یک پنل با قابلیت تنظیم ستون‌ها و استایل',
+    description: 'پنل با قابلیت تنظیم ستون‌ها',
     component: PanelField,
     settingsComponent: PanelSettings,
     defaultSettings: {
