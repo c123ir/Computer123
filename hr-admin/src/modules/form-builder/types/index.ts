@@ -42,3 +42,40 @@ export type {
   ImportOptions,
   BatchResult
 } from './database.types';
+
+export interface Form {
+  id: string;
+  name: string;
+  description?: string;
+  fields: FormField[];
+  settings: FormSettings;
+  styling: FormStyling;
+  metadata: FormMetadata;
+  status: 'draft' | 'published' | 'archived' | 'paused';
+  category?: string;
+  tags?: string[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateFormDto {
+  name: string;
+  description?: string;
+  fields?: FormField[];
+  settings?: Partial<FormSettings>;
+  styling?: Partial<FormStyling>;
+  metadata?: Partial<FormMetadata>;
+  category?: string;
+  tags?: string[];
+}
+
+export interface UpdateFormDto {
+  name?: string;
+  description?: string;
+  fields?: FormField[];
+  settings?: Partial<FormSettings>;
+  styling?: Partial<FormStyling>;
+  metadata?: Partial<FormMetadata>;
+  category?: string;
+  tags?: string[];
+}
