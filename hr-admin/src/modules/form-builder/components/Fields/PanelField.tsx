@@ -39,6 +39,9 @@ export const PanelField: React.FC<PanelFieldProps> = ({
     ...defaultPanelSettings,
     ...(field.fieldSettings?.panelSettings || {})
   };
+
+  console.log('PanelField - field:', field);
+  console.log('PanelField - panelSettings:', panelSettings);
   
   const [isCollapsed, setIsCollapsed] = useState(panelSettings.defaultCollapsed);
 
