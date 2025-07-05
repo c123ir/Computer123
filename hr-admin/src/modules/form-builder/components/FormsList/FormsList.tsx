@@ -78,7 +78,7 @@ const FormsList: React.FC<FormsListProps> = ({
 
   // Fetch forms
   const { 
-    data: forms, 
+    data: forms = [], 
     isLoading, 
     error, 
     refetch 
@@ -188,7 +188,7 @@ const FormsList: React.FC<FormsListProps> = ({
 
   // دسته‌های موجود
   const categories = Array.from(
-    new Set(forms.data.map((form: Form) => form.category).filter(Boolean))
+    new Set(forms.map(form => form.category).filter(Boolean))
   ) as string[];
 
   // Loading and Error states
@@ -215,7 +215,7 @@ const FormsList: React.FC<FormsListProps> = ({
   }
 
   // Sorted forms for display
-  const sortedForms = [...forms.data].sort((a, b) => {
+  const sortedForms = [...forms].sort((a, b) => {
     const aValue = a[sortBy as keyof Form];
     const bValue = b[sortBy as keyof Form];
     
@@ -244,7 +244,7 @@ const FormsList: React.FC<FormsListProps> = ({
             مدیریت فرم‌ها
           </h1>
           <p className="text-gray-600 dark:text-gray-400">
-            {forms.data.length} فرم موجود
+            {forms.length} فرم موجود
           </p>
         </div>
         
@@ -253,7 +253,7 @@ const FormsList: React.FC<FormsListProps> = ({
             onClick={handleCreateForm}
             className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
           >
-            <PlusIcon className="w-5 h-5 mr-2" />
+            <PlusIcon className="w-5 h-5 ml-2" />
             فرم جدید
           </button>
         )}
@@ -353,7 +353,7 @@ const FormsList: React.FC<FormsListProps> = ({
       </div>
 
       {/* Forms Grid/List */}
-      {forms.data.length === 0 ? (
+      {forms.length === 0 ? (
         <div className="text-center py-12">
           <div className="text-gray-500 dark:text-gray-400 mb-4">
             هیچ فرمی یافت نشد
