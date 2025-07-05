@@ -6,6 +6,10 @@ import morgan from 'morgan';
 import dotenv from 'dotenv';
 import { prisma } from './config/database';
 import formsRouter from './routes/forms.routes';
+import responsesRouter from './routes/responses.routes';
+import templatesRouter from './routes/templates.routes';
+import { errorHandler } from './middleware/error.middleware';
+import { notFound } from './middleware/notFound.middleware';
 
 dotenv.config();
 
@@ -43,6 +47,8 @@ app.get('/health', (req, res) => {
 
 // API Routes
 app.use('/api/forms', formsRouter);
+app.use('/api/responses', responsesRouter);
+app.use('/api/templates', templatesRouter);
 
 // Basic API routes
 app.get('/api/test', (req, res) => {
@@ -87,21 +93,10 @@ app.get('/api/templates', (req, res) => {
 });
 
 // Error handling
-app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
-  console.error('Error:', err);
-  res.status(500).json({
-    success: false,
-    error: 'Internal server error'
-  });
-});
+app.use(errorHandler);
 
 // 404 handler
-app.use((req, res) => {
-  res.status(404).json({
-    success: false,
-    error: `Route ${req.originalUrl} not found`
-  });
-});
+app.use(notFound);
 
 // Database connection test
 async function connectToDatabase() {
