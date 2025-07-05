@@ -3,6 +3,7 @@
 import React, { useState, useCallback } from 'react';
 import { Save, X, RotateCcw, Eye, Settings as SettingsIcon } from 'lucide-react';
 import { useFormBuilder, useFormBuilderShortcuts } from '../../hooks';
+import { FormService } from '../../services/formService';
 import SidePanel from './SidePanel';
 import PreviewPanel from './PreviewPanel';
 import { FieldType, FormField, Form } from '../../types';
@@ -31,8 +32,24 @@ export const FormBuilder: React.FC<FormBuilderProps> = ({
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   
   // Memoize callbacks
-  const handleFormSave = useCallback(async (savedForm: Form) => {
-    onSave?.(savedForm.id);
+  const handleFormSave = useCallback(async (form: Form) => {
+    try {
+      // اگر فرم جدید است
+      if (!form.id) {
+        const newFormId = await FormService.createForm(form);
+        onSave?.(newFormId);
+        return;
+      }
+      
+      // بروزرسانی فرم موجود
+      const updatedForm = await FormService.updateForm(form.id, form);
+      if (updatedForm) {
+        onSave?.(form.id);
+      }
+    } catch (error) {
+      console.error('Error saving form:', error);
+      throw error;
+    }
   }, [onSave]);
 
   const handleFormError = useCallback((error: Error | string) => {
