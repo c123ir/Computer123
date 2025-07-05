@@ -355,7 +355,8 @@ export const useFormBuilder = (options: UseFormBuilderOptions = {}) => {
         { id: 'option_1', label: 'گزینه ۱', value: 'option_1' },
         { id: 'option_2', label: 'گزینه ۲', value: 'option_2' }
       ] : undefined,
-      fieldSettings: getDefaultFieldSettings(type)
+      fieldSettings: getDefaultFieldSettings(type),
+      order: index ?? state.form.fields.length
     };
 
     updateForm(prev => {
@@ -373,7 +374,7 @@ export const useFormBuilder = (options: UseFormBuilderOptions = {}) => {
     setState(prev => ({ ...prev, selectedField: newField }));
     
     return newField.id;
-  }, [updateForm]);
+  }, [updateForm, state.form.fields.length]);
 
   const removeField = useCallback((fieldId: string) => {
     updateForm(prev => ({
