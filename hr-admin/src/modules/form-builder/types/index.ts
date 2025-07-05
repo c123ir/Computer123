@@ -28,44 +28,6 @@ export type {
   ValidationErrorType
 } from './database.types';
 
-export type FieldType = 
-  | 'text'
-  | 'textarea'
-  | 'number'
-  | 'email'
-  | 'tel'
-  | 'url'
-  | 'date'
-  | 'time'
-  | 'datetime'
-  | 'select'
-  | 'radio'
-  | 'checkbox'
-  | 'file';
-
-export interface FormField {
-  id: string;
-  type: FieldType;
-  label: string;
-  placeholder?: string;
-  helpText?: string;
-  required: boolean;
-  defaultValue?: any;
-  disabled: boolean;
-  readonly: boolean;
-  validation: Record<string, any>;
-  styling: {
-    width?: string;
-    [key: string]: any;
-  };
-  options?: Array<{
-    id: string;
-    label: string;
-    value: string;
-  }>;
-  fieldSettings?: Record<string, any>;
-}
-
 export interface FormSettings {
   direction: 'rtl' | 'ltr';
   theme: 'light' | 'dark';
