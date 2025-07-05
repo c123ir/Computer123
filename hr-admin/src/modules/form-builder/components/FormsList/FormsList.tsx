@@ -384,7 +384,6 @@ const FormsList: React.FC<FormsListProps> = ({
               ))}
             </div>
           ) : (
-            // List View
             <div className="space-y-3">
               {sortedForms.map((form: Form) => (
                 <FormCard
@@ -398,31 +397,6 @@ const FormsList: React.FC<FormsListProps> = ({
                   readonly={readonly}
                 />
               ))}
-            </div>
-          )}
-
-          {/* Pagination */}
-          {forms.pagination && forms.pagination.totalPages > 1 && (
-            <div className="flex justify-center items-center space-x-2 space-x-reverse">
-              <button
-                onClick={() => handlePageChange(currentPage - 1)}
-                disabled={currentPage === 1}
-                className="px-3 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-gray-700"
-              >
-                قبلی
-              </button>
-              
-              <span className="px-4 py-2 text-sm text-gray-700 dark:text-gray-300">
-                صفحه {currentPage} از {forms.pagination.totalPages}
-              </span>
-              
-              <button
-                onClick={() => handlePageChange(currentPage + 1)}
-                disabled={currentPage === forms.pagination.totalPages}
-                className="px-3 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-gray-700"
-              >
-                بعدی
-              </button>
             </div>
           )}
         </>
