@@ -128,7 +128,8 @@ export const FormBuilder: React.FC<FormBuilderProps> = ({
     resetForm,
     validateForm,
     undo,
-    redo
+    redo,
+    handleFieldDrop
   } = useFormBuilder({
     formId,
     autoSave: true,
@@ -154,16 +155,9 @@ export const FormBuilder: React.FC<FormBuilderProps> = ({
   };
 
   // Handle field drop into panel
-  const handleFieldDrop = (fieldId: string, panelId: string) => {
+  const handleFieldDropInPanel = (fieldId: string, panelId: string) => {
     if (!readonly) {
-      const field = fields.find(f => f.id === fieldId);
-      const panel = fields.find(f => f.id === panelId);
-      
-      if (field && panel && panel.type === 'panel') {
-        updateField(fieldId, {
-          parentId: panelId
-        });
-      }
+      handleFieldDrop(fieldId, panelId);
     }
   };
 
@@ -364,7 +358,7 @@ export const FormBuilder: React.FC<FormBuilderProps> = ({
             fields={fields}
             selectedField={selectedField?.id}
             onFieldSelect={selectField}
-            onFieldDrop={handleFieldDrop}
+            onFieldDrop={handleFieldDropInPanel}
             onAddField={handleFieldSelect}
             onDeleteField={removeField}
             onDuplicateField={duplicateField}
