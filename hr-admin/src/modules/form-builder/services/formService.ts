@@ -116,19 +116,66 @@ export class FormService {
    */
   static async createForm(form: CreateFormDto): Promise<string> {
     try {
+      // اعتبارسنجی داده‌های ورودی
+      if (!form.name || !form.name.trim()) {
+        throw new Error('نام فرم الزامی است');
+      }
+
+      // اطمینان از وجود فیلدهای ضروری
+      const formData = {
+        ...form,
+        fields: form.fields || [],
+        settings: {
+          direction: 'rtl',
+          theme: 'light',
+          submitButtonText: 'ارسال',
+          ...form.settings
+        },
+        styling: {
+          theme: 'default',
+          backgroundColor: '#ffffff',
+          textColor: '#374151',
+          primaryColor: '#3b82f6',
+          fontFamily: 'Vazirmatn',
+          fontSize: 14,
+          borderRadius: 8,
+          spacing: 'normal',
+          ...form.styling
+        },
+        metadata: {
+          createdBy: 'current-user',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          status: 'draft',
+          version: 1,
+          ...form.metadata
+        }
+      };
+
       const response = await fetch(buildApiUrl('/forms/create'), {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
         },
-        body: JSON.stringify(form)
+        body: JSON.stringify(formData)
       });
       
       if (!response.ok) {
-        throw new Error(`خطا در ایجاد فرم: ${response.statusText}`);
+        const errorData = await response.json().catch(() => null);
+        const errorMessage = errorData?.message || response.statusText;
+        console.error('API Error:', errorData);
+        throw new Error(`خطا در ایجاد فرم: ${errorMessage}`);
       }
       
       const data = await response.json();
+      
+      if (!data.id) {
+        console.error('Invalid API Response:', data);
+        throw new Error('خطا: شناسه فرم از سرور دریافت نشد');
+      }
+
+      console.log('✅ Form created successfully:', data.id);
       return data.id;
     } catch (error) {
       console.error('❌ Error creating form:', error);
