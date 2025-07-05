@@ -160,7 +160,7 @@ const CreateFormModal: React.FC<CreateFormModalProps> = ({
     const defaultFields = [
       {
         id: 'name',
-        type: 'text',
+        type: 'text' as FieldType,
         label: 'نام',
         name: 'name',
         placeholder: 'نام خود را وارد کنید',
@@ -183,7 +183,7 @@ const CreateFormModal: React.FC<CreateFormModalProps> = ({
       },
       {
         id: 'email',
-        type: 'email',
+        type: 'email' as FieldType,
         label: 'ایمیل',
         name: 'email',
         placeholder: 'ایمیل خود را وارد کنید',
