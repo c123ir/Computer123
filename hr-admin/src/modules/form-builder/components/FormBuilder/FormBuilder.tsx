@@ -1,6 +1,6 @@
 // src/modules/form-builder/components/FormBuilder/FormBuilder.tsx
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { Save, X, RotateCcw, Eye, Settings as SettingsIcon } from 'lucide-react';
 import { useFormBuilder, useFormBuilderShortcuts } from '../../hooks';
 import { FormService } from '../../services/formService';
@@ -41,17 +41,16 @@ export const FormBuilder: React.FC<FormBuilderProps> = ({
           description: form.description || '',
           fields: form.fields || [],
           settings: {
-            ...form.settings,
             direction: 'rtl',
             theme: 'light',
             submitButtonText: 'ارسال',
             showProgressBar: false,
             allowSaveDraft: true,
             showFieldNumbers: false,
-            formWidth: 'medium'
+            formWidth: 'medium',
+            ...form.settings
           },
           styling: {
-            ...form.styling,
             theme: 'default',
             backgroundColor: '#ffffff',
             textColor: '#374151',
@@ -59,44 +58,18 @@ export const FormBuilder: React.FC<FormBuilderProps> = ({
             fontFamily: 'Vazirmatn',
             fontSize: 14,
             borderRadius: 8,
-            spacing: 'normal'
+            spacing: 'normal',
+            ...form.styling
           },
           metadata: {
-            ...form.metadata,
             createdBy: 'current-user',
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
             status: 'draft',
-            version: 1
+            version: 1,
+            ...form.metadata
           }
         };
-
-        // اطمینان از وجود مقادیر پیش‌فرض
-        if (!createDto.settings) {
-          createDto.settings = {
-            direction: 'rtl',
-            theme: 'light',
-            submitButtonText: 'ارسال',
-            showProgressBar: false,
-            allowSaveDraft: true,
-            showFieldNumbers: false,
-            formWidth: 'medium'
-          };
-        }
-
-        if (!createDto.styling) {
-          createDto.styling = {
-            theme: 'default',
-            backgroundColor: '#ffffff',
-            textColor: '#374151',
-            primaryColor: '#3b82f6',
-            fontFamily: 'Vazirmatn',
-            fontSize: 14,
-            borderRadius: 8,
-            spacing: 'normal'
-          };
-        }
-
         const newFormId = await FormService.createForm(createDto);
         onSave?.(newFormId);
         return;
@@ -114,7 +87,6 @@ export const FormBuilder: React.FC<FormBuilderProps> = ({
           updatedAt: new Date().toISOString()
         }
       };
-
       const updatedForm = await FormService.updateForm(form.id, updateDto);
       if (updatedForm) {
         onSave?.(form.id);
@@ -162,36 +134,33 @@ export const FormBuilder: React.FC<FormBuilderProps> = ({
     onError: handleFormError
   });
 
-  // Keyboard shortcuts
-  useFormBuilderShortcuts({
-    saveForm,
-    undo,
-    redo,
-    selectField,
-    removeField,
-    duplicateField
-  }, {
-    enabled: !readonly,
-    onSave: () => saveForm(),
-    onUndo: () => undo(),
-    onRedo: () => redo(),
-    onDelete: () => {
-      if (selectedField) {
-        removeField(selectedField.id);
-      }
-    },
-    onDuplicate: () => {
-      if (selectedField) {
-        duplicateField(selectedField.id);
-      }
+  // ایجاد پنل پیش‌فرض برای فرم جدید
+  useEffect(() => {
+    if (!formId && fields.length === 0) {
+      const defaultPanelId = addField('panel');
+      selectField(defaultPanelId);
     }
-  });
+  }, [formId, fields.length, addField, selectField]);
 
   // Handle field selection from FieldsPanel
   const handleFieldSelect = (fieldType: FieldType) => {
     if (!readonly) {
       const newFieldId = addField(fieldType);
       selectField(newFieldId);
+    }
+  };
+
+  // Handle field drop into panel
+  const handleFieldDrop = (fieldId: string, panelId: string) => {
+    if (!readonly) {
+      const field = fields.find(f => f.id === fieldId);
+      const panel = fields.find(f => f.id === panelId);
+      
+      if (field && panel && panel.type === 'panel') {
+        updateField(fieldId, {
+          parentId: panelId
+        });
+      }
     }
   };
 
@@ -392,6 +361,7 @@ export const FormBuilder: React.FC<FormBuilderProps> = ({
             fields={fields}
             selectedField={selectedField?.id}
             onFieldSelect={selectField}
+            onFieldDrop={handleFieldDrop}
             onAddField={handleFieldSelect}
             onDeleteField={removeField}
             onDuplicateField={duplicateField}
