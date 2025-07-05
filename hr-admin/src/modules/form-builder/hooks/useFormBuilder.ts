@@ -9,7 +9,7 @@ import {
   FormStyling,
   FormMetadata 
 } from '../types';
-import { getForm } from '../services/form.service';
+import * as formService from '../services/form.service';
 
 export interface FormBuilderState {
   /** فرم فعلی */
@@ -591,7 +591,7 @@ export const useFormBuilder = (options: UseFormBuilderOptions = {}) => {
       console.log('⏳ Loading form:', formId);
       try {
         setState(prev => ({ ...prev, isLoading: true, errors: {} }));
-        const loadedForm = await getForm(formId);
+        const loadedForm = await formService.getForm(formId);
         console.log('✅ Form loaded:', loadedForm);
         
         // اطمینان از وجود تمام فیلدهای ضروری
