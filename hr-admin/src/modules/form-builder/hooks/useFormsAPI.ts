@@ -259,7 +259,7 @@ export const useFormsAPI = () => {
       return form;
     }, []),
 
-    getForms: useCallback(async (): Promise<Form[]> => {
+    getForms: useCallback(async (filters?: FormFilters): Promise<Form[]> => {
       return await FormService.getForms();
     }, [])
   };
