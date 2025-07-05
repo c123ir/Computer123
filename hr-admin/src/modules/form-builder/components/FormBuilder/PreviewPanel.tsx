@@ -150,14 +150,14 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
   // رندر یک پنل و فیلدهای داخل آن
   const renderPanel = (panelId: string) => {
     const { panel, fields: panelFields } = groupedFields[panelId];
-    const PanelComponent = FieldRegistry.panel.component;
+    const registry = FieldRegistry.panel;
+    if (!registry?.component) return null;
 
-    if (!PanelComponent) return null;
-
+    const PanelComponent = registry.component;
     return (
       <div key={panel.id} className="mb-4">
         <PanelComponent
-          field={panel}
+          field={panel as FormField & { fieldSettings: { panelSettings: any } }}
           isSelected={selectedField === panel.id}
           onFieldSelect={onFieldSelect}
           onFieldDrop={onFieldDrop}
