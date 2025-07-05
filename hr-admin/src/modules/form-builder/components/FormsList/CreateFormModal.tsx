@@ -157,31 +157,54 @@ const CreateFormModal: React.FC<CreateFormModalProps> = ({
     // Default Field Handling - ensure at least one field exists
     // =====================================================
 
-    const defaultFields = formData.fields && formData.fields.length > 0
-      ? formData.fields
-      : [
-          {
-            id: `field_${Date.now()}`,
-            type: 'text',
-            label: 'نام',
-            name: 'name',
-            placeholder: 'نام خود را وارد کنید',
-            required: true,
-            validation: {
-              required: true,
-              minLength: 2,
-              maxLength: 50
-            },
-            styling: {
-              width: '100%',
-              className: ''
-            },
-            position: {
-              row: 0,
-              column: 0
-            }
-          }
-        ];
+    const defaultFields = [
+      {
+        id: 'name',
+        type: 'text',
+        label: 'نام',
+        name: 'name',
+        placeholder: 'نام خود را وارد کنید',
+        required: true,
+        disabled: false,
+        readonly: false,
+        validation: {
+          required: true,
+          minLength: 2,
+          maxLength: 50
+        },
+        styling: {
+          width: '100%',
+          className: ''
+        },
+        position: {
+          row: 1,
+          column: 1
+        }
+      },
+      {
+        id: 'email',
+        type: 'email',
+        label: 'ایمیل',
+        name: 'email',
+        placeholder: 'ایمیل خود را وارد کنید',
+        required: true,
+        disabled: false,
+        readonly: false,
+        validation: {
+          required: true,
+          minLength: 5,
+          maxLength: 100
+        },
+        styling: {
+          width: '100%',
+          className: ''
+        },
+        position: {
+          row: 2,
+          column: 1
+        }
+      }
+    ];
 
     const newForm: CreateFormDto = {
       name: formData.name!,
