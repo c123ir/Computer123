@@ -33,46 +33,43 @@ export class FormService {
   /**
    * دریافت فرم با شناسه
    */
-  static async getForm(id: string, useCache: boolean = false): Promise<Form | null> {
-    console.log('🔍 Fetching form:', id);
-    console.log('🌐 URL:', buildApiUrl(`/forms/${id}`));
-    
+  static async getForm(id: string, useCache: boolean = true): Promise<Form | null> {
     try {
       // بررسی cache
       if (useCache) {
-        const cached = await this.cache.get();
-        if (cached) {
-          console.log('📋 Form loaded from cache:', id);
-          return cached;
+        const cachedForm = await this.getFormFromCache(id);
+        if (cachedForm) {
+          console.log('✅ Form found in cache:', id);
+          return cachedForm;
         }
       }
 
-      const response = await fetch(buildApiUrl(`/forms/${id}`));
-      console.log('📡 Response status:', response.status);
+      // دریافت از API
+      console.log('🔍 Fetching form:', id);
+      console.log('🌐 URL:', buildApiUrl(`/forms/${id}`));
       
-      if (!response.ok) {
-        if (response.status === 404) {
-          return null;
+      const response = await fetch(buildApiUrl(`/forms/${id}`), {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
         }
+      });
+
+      if (!response.ok) {
         throw new Error(`خطا در دریافت فرم: ${response.statusText}`);
       }
-      
-      const data = await response.json();
-      console.log('📦 Response data:', data);
-      
-      const form = {
-        ...data,
-        fields: data.fields || []
-      };
 
+      const form = await response.json();
+      
+      // ذخیره در cache
       if (useCache) {
-        await this.cache.set();
+        await this.saveFormToCache(id, form);
       }
 
       return form;
     } catch (error) {
       console.error('❌ Error fetching form:', error);
-      throw error;
+      return null;
     }
   }
 
