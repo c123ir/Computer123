@@ -184,9 +184,9 @@ export class FormsController {
         data: {
           name: `${originalForm.name} (کپی)`,
           description: originalForm.description,
-          fieldsData: JSON.stringify(JSON.parse(originalForm.fieldsData || '[]')) as any,
-          settings: JSON.stringify(JSON.parse(originalForm.settings || '{}')) as any,
-          styling: JSON.stringify(JSON.parse(originalForm.styling || '{}')) as any,
+          fieldsData: JSON.stringify(JSON.parse(originalForm.fieldsData as string || '[]')) as any,
+          settings: JSON.stringify(JSON.parse(originalForm.settings as string || '{}')) as any,
+          styling: JSON.stringify(JSON.parse(originalForm.styling as string || '{}')) as any,
           metadata: JSON.stringify({
             createdBy: 'system',
             createdAt: new Date().toISOString(),
