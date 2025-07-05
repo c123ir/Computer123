@@ -317,13 +317,22 @@ export interface FormField {
   id: string;
   type: FieldType;
   label: string;
-  placeholder?: string;
   description?: string;
-  required?: boolean;
+  placeholder?: string;
+  required: boolean;
+  disabled: boolean;
+  readonly: boolean;
   validation: ValidationRules;
   conditions?: FieldCondition[];
   options?: FieldOption[];
-  styling?: FieldStyling;
+  styling: FieldStyling;
+  fieldSettings?: {
+    rows?: number;
+    maxRating?: number;
+    min?: number;
+    max?: number;
+    step?: number;
+  };
   metadata?: Record<string, any>;
 }
 
