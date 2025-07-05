@@ -6,6 +6,7 @@ import {
   Trash2, Copy, MoveUp, MoveDown, GripVertical, Upload, PenTool, Star 
 } from 'lucide-react';
 import { FormField, Form, FieldType, FieldOption } from '../../types';
+import { FieldRegistry } from '../../registry/FieldRegistry';
 
 /**
  * پنل پیش‌نمایش فرم
@@ -14,7 +15,7 @@ import { FormField, Form, FieldType, FieldOption } from '../../types';
 
 interface PreviewPanelProps {
   /** فرم برای نمایش */
-  form?: Partial<Form>;
+  form: Form;
   /** فیلدهای فرم */
   fields: FormField[];
   /** فیلد انتخاب شده */
@@ -22,7 +23,7 @@ interface PreviewPanelProps {
   /** callback تغییر فیلد انتخاب شده */
   onFieldSelect?: (fieldId: string) => void;
   /** callback اضافه کردن فیلد جدید */
-  onAddField?: (fieldType: FieldType, index?: number) => void;
+  onAddField?: (type: FieldType) => void;
   /** callback حذف فیلد */
   onDeleteField?: (fieldId: string) => void;
   /** callback کپی فیلد */
@@ -30,16 +31,18 @@ interface PreviewPanelProps {
   /** callback جابجایی فیلد */
   onMoveField?: (fieldId: string, direction: 'up' | 'down') => void;
   /** callback تغییر ترتیب فیلدها */
-  onReorderFields?: (newOrder: string[]) => void;
+  onReorderFields?: (fieldIds: string[]) => void;
   /** حالت فقط خواندنی */
   readonly?: boolean;
+  /** callback انتقال فیلد بین پنلها */
+  onFieldDrop?: (fieldId: string, panelId: string) => void;
 }
 
 type ViewportMode = 'desktop' | 'tablet' | 'mobile';
 
 export const PreviewPanel: React.FC<PreviewPanelProps> = ({
   form,
-  fields = [],
+  fields,
   selectedField,
   onFieldSelect,
   onAddField,
@@ -47,7 +50,8 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
   onDuplicateField,
   onMoveField,
   onReorderFields,
-  readonly = false
+  readonly,
+  onFieldDrop
 }) => {
   const [viewportMode, setViewportMode] = useState<ViewportMode>('desktop');
   const [showSettings, setShowSettings] = useState(true);
@@ -58,6 +62,22 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
     tablet: { width: '768px', maxWidth: '768px', icon: Tablet },
     mobile: { width: '375px', maxWidth: '375px', icon: Smartphone }
   };
+
+  // گروه‌بندی فیلدها بر اساس پنل
+  const groupedFields = fields.reduce((acc, field) => {
+    if (field.type === 'panel') {
+      acc[field.id] = {
+        panel: field,
+        fields: fields.filter(f => f.parentId === field.id)
+      };
+    }
+    return acc;
+  }, {} as Record<string, { panel: FormField, fields: FormField[] }>);
+
+  // فیلدهای بدون پنل
+  const orphanFields = fields.filter(field => 
+    !field.parentId && field.type !== 'panel'
+  );
 
   // handle drop
   const handleDrop = (e: React.DragEvent) => {
@@ -82,285 +102,66 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
   };
 
   // render field
-  const renderField = (field: FormField, index: number) => {
-    const isSelected = selectedField === field.id;
-    
+  const renderField = (field: FormField) => {
+    const FieldComponent = FieldRegistry[field.type]?.component;
+    if (!FieldComponent) return null;
+
     return (
       <div
         key={field.id}
-        className={`relative group mb-4 ${
-          isSelected ? 'ring-2 ring-blue-500 ring-opacity-50' : ''
-        }`}
-        onClick={(e) => {
-          e.stopPropagation();
-          if (!readonly) {
-            onFieldSelect?.(field.id);
-          }
+        className="relative group"
+        draggable={!readonly}
+        onDragStart={(e) => {
+          e.dataTransfer.setData('application/json', JSON.stringify({
+            type: 'field',
+            fieldId: field.id
+          }));
         }}
       >
-        {/* Field Actions Overlay */}
-        {!readonly && isSelected && (
-          <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 flex items-center space-x-1 space-x-reverse bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg px-2 py-1 z-10">
-            {/* Move Up */}
+        <FieldComponent
+          field={field}
+          isSelected={selectedField === field.id}
+          onFieldSelect={onFieldSelect}
+          readonly={readonly}
+        />
+        
+        {/* Field Actions */}
+        {!readonly && (
+          <div className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity flex space-x-1">
             <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onMoveField?.(field.id, 'up');
-              }}
-              disabled={index === 0}
-              className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
-              title="انتقال به بالا"
+              onClick={() => onDeleteField?.(field.id)}
+              className="p-1 bg-red-100 hover:bg-red-200 text-red-700 rounded"
             >
-              <MoveUp className="w-4 h-4" />
+              حذف
             </button>
-
-            {/* Move Down */}
             <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onMoveField?.(field.id, 'down');
-              }}
-              disabled={index === fields.length - 1}
-              className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
-              title="انتقال به پایین"
+              onClick={() => onDuplicateField?.(field.id)}
+              className="p-1 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded"
             >
-              <MoveDown className="w-4 h-4" />
+              تکثیر
             </button>
-
-            <div className="w-px h-4 bg-gray-300 dark:bg-gray-600"></div>
-
-            {/* Duplicate */}
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onDuplicateField?.(field.id);
-              }}
-              className="p-1 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400"
-              title="کپی کردن"
-            >
-              <Copy className="w-4 h-4" />
-            </button>
-
-            {/* Delete */}
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onDeleteField?.(field.id);
-              }}
-              className="p-1 text-gray-400 hover:text-red-600 dark:hover:text-red-400"
-              title="حذف"
-            >
-              <Trash2 className="w-4 h-4" />
-            </button>
-
-            {/* Drag Handle */}
-            <div className="p-1 text-gray-400 cursor-move" title="جابجایی">
-              <GripVertical className="w-4 h-4" />
-            </div>
           </div>
         )}
-
-        {/* Field Content */}
-        <div className={`p-3 border-2 border-dashed transition-all ${
-          isSelected 
-            ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' 
-            : 'border-transparent hover:border-gray-300 dark:hover:border-gray-600'
-        }`}>
-          {renderFieldContent(field)}
-        </div>
       </div>
     );
   };
 
-  // render field content based on type
-  const renderFieldContent = (field: FormField) => {
-    const baseClasses = "w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400";
-    const inputClassName = `${baseClasses} ${field.disabled ? 'opacity-50 cursor-not-allowed' : ''}`;
-    const commonProps = {
-      disabled: field.disabled,
-      readOnly: field.readonly
-    };
-
-    const getOptionProps = (option: FieldOption) => {
-      const { disabled, ...rest } = commonProps;
-      return {
-        ...rest,
-        disabled: disabled || option.disabled
-      };
-    };
+  // رندر یک پنل و فیلدهای داخل آن
+  const renderPanel = (panelId: string) => {
+    const { panel, fields: panelFields } = groupedFields[panelId];
+    const PanelComponent = FieldRegistry.panel.component;
 
     return (
-      <div className="space-y-2">
-        {/* Label */}
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-          {field.label}
-          {field.required && <span className="text-red-500 mr-1">*</span>}
-        </label>
-
-        {/* Field Input */}
-        <div>
-          {(() => {
-            switch (field.type) {
-              case 'text':
-              case 'email':
-              case 'tel':
-              case 'url':
-              case 'number':
-                return (
-                  <input
-                    type={field.type}
-                    className={inputClassName}
-                    placeholder={field.placeholder}
-                    {...commonProps}
-                  />
-                );
-
-              case 'textarea':
-                return (
-                  <textarea
-                    className={inputClassName}
-                    placeholder={field.placeholder}
-                    rows={field.fieldSettings?.rows || 3}
-                    {...commonProps}
-                  />
-                );
-
-              case 'select':
-                return (
-                  <select
-                    className={inputClassName}
-                    {...commonProps}
-                  >
-                    <option value="">{field.placeholder || 'انتخاب کنید...'}</option>
-                    {field.options?.map(option => (
-                      <option key={option.id} value={option.value}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </select>
-                );
-
-              case 'radio':
-                return (
-                  <div className="space-y-2">
-                    {field.options?.map(option => (
-                      <label key={option.id} className="flex items-center space-x-2 space-x-reverse">
-                        <input
-                          type="radio"
-                          value={option.value}
-                          {...getOptionProps(option)}
-                        />
-                        <span>{option.label}</span>
-                      </label>
-                    ))}
-                  </div>
-                );
-
-              case 'checkbox':
-                return (
-                  <div className="space-y-2">
-                    {field.options?.map(option => (
-                      <label key={option.id} className="flex items-center space-x-2 space-x-reverse">
-                        <input
-                          type="checkbox"
-                          value={option.value}
-                          {...getOptionProps(option)}
-                        />
-                        <span>{option.label}</span>
-                      </label>
-                    ))}
-                  </div>
-                );
-
-              case 'date':
-              case 'time':
-              case 'datetime':
-                return (
-                  <input
-                    type={field.type === 'datetime' ? 'datetime-local' : field.type}
-                    className={inputClassName}
-                    {...commonProps}
-                  />
-                );
-
-              case 'file':
-                return (
-                  <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-8 text-center">
-                    <input
-                      type="file"
-                      className="hidden"
-                      multiple={field.fieldSettings?.multiple}
-                      accept={field.validation.fileTypes?.join(',')}
-                      {...commonProps}
-                    />
-                    <div className="text-gray-500 dark:text-gray-400">
-                      <Upload className="mx-auto h-12 w-12 mb-4" />
-                      <p>برای آپلود فایل کلیک کنید یا فایل را اینجا رها کنید</p>
-                      {field.validation.fileTypes && (
-                        <p className="text-sm mt-2">
-                          فرمت‌های مجاز: {field.validation.fileTypes.join(', ')}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                );
-
-              case 'signature':
-                return (
-                  <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-8 text-center">
-                    <div className="text-gray-500 dark:text-gray-400">
-                      <PenTool className="mx-auto h-12 w-12 mb-4" />
-                      <p>برای امضا کلیک کنید</p>
-                    </div>
-                  </div>
-                );
-
-              case 'rating':
-                return (
-                  <div className="flex space-x-1 space-x-reverse">
-                    {Array.from({ length: field.fieldSettings?.maxRating || 5 }, (_, i) => (
-                      <button
-                        key={i}
-                        type="button"
-                        className="text-yellow-400 hover:text-yellow-500 disabled:opacity-50"
-                        {...commonProps}
-                      >
-                        <Star className="h-6 w-6" />
-                      </button>
-                    ))}
-                  </div>
-                );
-
-              case 'slider':
-                return (
-                  <div className="space-y-2">
-                    <input
-                      type="range"
-                      className="w-full"
-                      min={field.fieldSettings?.min || 0}
-                      max={field.fieldSettings?.max || 100}
-                      step={field.fieldSettings?.step || 1}
-                      {...commonProps}
-                    />
-                    <div className="flex justify-between text-sm text-gray-500">
-                      <span>{field.fieldSettings?.min || 0}</span>
-                      <span>{field.fieldSettings?.max || 100}</span>
-                    </div>
-                  </div>
-                );
-
-              default:
-                return null;
-            }
-          })()}
-        </div>
-
-        {/* Help Text */}
-        {field.helpText && (
-          <p className="text-xs text-gray-500 dark:text-gray-400">
-            {field.helpText}
-          </p>
-        )}
+      <div key={panel.id} className="mb-4">
+        <PanelComponent
+          field={panel}
+          isSelected={selectedField === panel.id}
+          onFieldSelect={onFieldSelect}
+          onFieldDrop={onFieldDrop}
+          readonly={readonly}
+        >
+          {panelFields.map(renderField)}
+        </PanelComponent>
       </div>
     );
   };
@@ -435,16 +236,16 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
             {/* Form Header */}
             <div className="p-6 border-b border-gray-200 dark:border-gray-700">
               <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-                {form?.name || 'فرم بدون نام'}
+                {form.name || 'فرم بدون نام'}
               </h2>
-              {form?.description && (
+              {form.description && (
                 <p className="text-gray-600 dark:text-gray-400 mt-2">
                   {form.description}
                 </p>
               )}
               
               {/* Progress Bar */}
-              {form?.settings?.showProgressBar && fields.length > 0 && (
+              {form.settings?.showProgressBar && fields.length > 0 && (
                 <div className="mt-4">
                   <div className="flex justify-between text-sm text-gray-600 dark:text-gray-400 mb-2">
                     <span>پیشرفت فرم</span>
@@ -464,84 +265,17 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
               onDragOver={handleDragOver}
               onClick={() => !readonly && onFieldSelect?.('')}
             >
-              {fields.length === 0 ? (
-                /* Empty State */
-                <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-12 text-center">
-                  <div className="text-gray-400 dark:text-gray-500 mb-4">
-                    <div className="text-4xl mb-2">📝</div>
-                    <h3 className="text-lg font-medium">فرم خالی است</h3>
-                    <p className="text-sm mt-2">
-                      {readonly 
-                        ? 'این فرم هیچ فیلدی ندارد'
-                        : 'فیلدی را از سمت چپ بکشید و اینجا رها کنید'
-                      }
-                    </p>
-                  </div>
-                  
-                  {!readonly && (
-                    <div className="flex justify-center space-x-2 space-x-reverse">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onAddField?.('text');
-                        }}
-                        className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
-                      >
-                        + اضافه کردن متن
-                      </button>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onAddField?.('email');
-                        }}
-                        className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors text-sm"
-                      >
-                        + اضافه کردن ایمیل
-                      </button>
-                    </div>
-                  )}
-                </div>
-              ) : (
-                /* Fields List */
-                <div className="space-y-4">
-                  {fields.map((field, index) => renderField(field, index))}
-                  
-                  {/* Add Field Zone */}
-                  {!readonly && (
-                    <div 
-                      className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-6 text-center hover:border-blue-400 dark:hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors cursor-pointer"
-                      onDrop={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        handleDrop(e);
-                      }}
-                      onDragOver={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        e.dataTransfer.dropEffect = 'copy';
-                      }}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onAddField?.('text');
-                      }}
-                    >
-                      <div className="text-gray-400 dark:text-gray-500">
-                        <div className="text-2xl mb-2">+</div>
-                        <p className="text-sm">
-                          فیلد جدید اضافه کنید
-                        </p>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
+              {Object.keys(groupedFields).map(renderPanel)}
+              
+              {/* Orphan Fields */}
+              {orphanFields.map(renderField)}
             </div>
 
             {/* Form Footer */}
             <div className="p-6 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
               <div className="flex justify-between items-center">
                 {/* Save Draft Button */}
-                {form?.settings?.allowSaveDraft && (
+                {form.settings?.allowSaveDraft && (
                   <button className="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors text-sm">
                     ذخیره پیش‌نویس
                   </button>
@@ -549,7 +283,7 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
 
                 {/* Submit Button */}
                 <button className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors font-medium">
-                  {form?.settings?.submitButtonText || 'ارسال فرم'}
+                  {form.settings?.submitButtonText || 'ارسال فرم'}
                 </button>
               </div>
 
@@ -564,10 +298,10 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
                       <span className="font-medium">فیلدهای اجباری:</span> {fields.filter(f => f.required).length}
                     </div>
                     <div>
-                      <span className="font-medium">تم:</span> {form?.styling?.theme || 'پیش‌فرض'}
+                      <span className="font-medium">تم:</span> {form.styling?.theme || 'پیش‌فرض'}
                     </div>
                     <div>
-                      <span className="font-medium">وضعیت:</span> {form?.metadata?.status || 'پیش‌نویس'}
+                      <span className="font-medium">وضعیت:</span> {form.metadata?.status || 'پیش‌نویس'}
                     </div>
                   </div>
                 </div>
