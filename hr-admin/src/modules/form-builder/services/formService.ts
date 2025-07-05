@@ -614,194 +614,21 @@ export class FormService {
    * اعتبارسنجی داده‌های فرم
    */
   private static validateFormData(formData: CreateFormDto): ValidationResult {
-    const errors: any[] = [];
-
-    // بررسی نام فرم
-    if (!formData.name || formData.name.trim().length < 2) {
-      errors.push({
-        type: 'required',
-        message: 'Form name is required and must be at least 2 characters',
-        field: 'name'
-      });
-    }
-
-    // بررسی فیلدها
-    if (!formData.fields || formData.fields.length === 0) {
-      errors.push({
-        type: 'required',
-        message: 'Form must have at least one field',
-        field: 'fields'
-      });
-    } else {
-      const fieldValidation = this.validateFields(formData.fields);
-      errors.push(...fieldValidation.errors);
-    }
-
-    return {
-      isValid: errors.length === 0,
-      errors
-    };
+    return ValidationService.validateForm(formData.fields, formData);
   }
 
   /**
    * اعتبارسنجی فیلدها
    */
   private static validateFields(fields: FormField[]): ValidationResult {
-    const errors: any[] = [];
-
-    fields.forEach((field, index) => {
-      // بررسی ID فیلد
-      if (!field.id) {
-        errors.push({
-          type: 'required',
-          message: `Field ${index + 1} must have an ID`,
-          field: `fields[${index}].id`
-        });
-      }
-
-      // بررسی نوع فیلد
-      const validTypes: FieldType[] = ['text', 'textarea', 'number', 'email', 'tel', 'url', 'select', 'radio', 'checkbox', 'date', 'time', 'datetime', 'file', 'signature', 'rating', 'slider'];
-      if (!validTypes.includes(field.type)) {
-        errors.push({
-          type: 'invalid',
-          message: `Invalid field type: ${field.type}`,
-          field: `fields[${index}].type`
-        });
-      }
-
-      // بررسی برچسب فیلد
-      if (!field.label || field.label.trim().length === 0) {
-        errors.push({
-          type: 'required',
-          message: `Field ${index + 1} must have a label`,
-          field: `fields[${index}].label`
-        });
-      }
-
-      // بررسی گزینه‌ها برای فیلدهای select, radio, checkbox
-      if (['select', 'radio', 'checkbox'].includes(field.type)) {
-        if (!field.options || field.options.length === 0) {
-          errors.push({
-            type: 'required',
-            message: `Field ${index + 1} (${field.type}) must have options`,
-            field: `fields[${index}].options`
-          });
-        }
-      }
-    });
-
-    return {
-      isValid: errors.length === 0,
-      errors
-    };
+    return ValidationService.validateBatch(fields, {}, { validateHidden: false });
   }
 
   /**
    * اعتبارسنجی پاسخ فرم
    */
   private static validateFormResponse(form: Form, answers: Record<string, any>): ValidationResult {
-    const errors: any[] = [];
-
-    form.fields.forEach(field => {
-      const value = answers[field.id];
-
-      // بررسی فیلدهای اجباری
-      if (field.required && (value === undefined || value === null || value === '')) {
-        errors.push({
-          type: 'required',
-          message: `${field.label} is required`,
-          field: field.id
-        });
-        return;
-      }
-
-      // اعتبارسنجی بر اساس نوع فیلد
-      if (value !== undefined && value !== null && value !== '') {
-        switch (field.type) {
-          case 'email':
-            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
-              errors.push({
-                type: 'email',
-                message: `${field.label} must be a valid email`,
-                field: field.id
-              });
-            }
-            break;
-
-          case 'url':
-            try {
-              new URL(value);
-            } catch {
-              errors.push({
-                type: 'url',
-                message: `${field.label} must be a valid URL`,
-                field: field.id
-              });
-            }
-            break;
-
-          case 'number':
-            if (isNaN(Number(value))) {
-              errors.push({
-                type: 'number',
-                message: `${field.label} must be a number`,
-                field: field.id
-              });
-            } else {
-              const numValue = Number(value);
-              if (field.validation.min !== undefined && numValue < field.validation.min) {
-                errors.push({
-                  type: 'min',
-                  message: `${field.label} must be at least ${field.validation.min}`,
-                  field: field.id
-                });
-              }
-              if (field.validation.max !== undefined && numValue > field.validation.max) {
-                errors.push({
-                  type: 'max',
-                  message: `${field.label} must be at most ${field.validation.max}`,
-                  field: field.id
-                });
-              }
-            }
-            break;
-
-          case 'text':
-          case 'textarea':
-            const strValue = String(value);
-            if (field.validation.minLength && strValue.length < field.validation.minLength) {
-              errors.push({
-                type: 'minLength',
-                message: `${field.label} must be at least ${field.validation.minLength} characters`,
-                field: field.id
-              });
-            }
-            if (field.validation.maxLength && strValue.length > field.validation.maxLength) {
-              errors.push({
-                type: 'maxLength',
-                message: `${field.label} must be at most ${field.validation.maxLength} characters`,
-                field: field.id
-              });
-            }
-            if (field.validation.pattern) {
-              const regex = new RegExp(field.validation.pattern);
-              if (!regex.test(strValue)) {
-                errors.push({
-                  type: 'pattern',
-                  message: field.validation.patternMessage || `${field.label} format is invalid`,
-                  field: field.id
-                });
-              }
-            }
-            break;
-        }
-      }
-    });
-
-    return {
-      isValid: errors.length === 0,
-      errors
-    };
+    return ValidationService.validateBatch(form.fields, answers, { validateHidden: true });
   }
 
   // =================================
