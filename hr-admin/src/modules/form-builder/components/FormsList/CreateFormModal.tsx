@@ -5,6 +5,7 @@ import { useMutation } from '@tanstack/react-query';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import { useFormsAPI } from '../../hooks/useFormsAPI';
 import { CreateFormDto, FormField, FieldType } from '../../types';
+import { formService } from '../../services/formService';
 
 interface CreateFormModalProps {
   /** آیا مودال باز است */
@@ -12,21 +13,69 @@ interface CreateFormModalProps {
   /** callback بستن مودال */
   onClose: () => void;
   /** callback موفقیت */
-  onSuccess?: (formId: string) => void;
+  onSuccess: (form: any) => void;
   /** قالب پیش‌فرض */
   template?: Partial<CreateFormDto>;
 }
 
-const CreateFormModal: React.FC<CreateFormModalProps> = ({
+export const CreateFormModal: React.FC<CreateFormModalProps> = ({
   isOpen,
   onClose,
   onSuccess,
   template
 }) => {
-  // =====================================================
-  // States
-  // =====================================================
-  
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const defaultFields = [
+    {
+      id: 'name',
+      type: 'text' as FieldType,
+      label: 'نام',
+      name: 'name',
+      placeholder: 'نام خود را وارد کنید',
+      required: true,
+      disabled: false,
+      readonly: false,
+      validation: {
+        required: true,
+        minLength: 2,
+        maxLength: 50
+      },
+      styling: {
+        width: '100%',
+        className: ''
+      },
+      position: {
+        row: 1,
+        column: 1
+      }
+    },
+    {
+      id: 'email',
+      type: 'email' as FieldType,
+      label: 'ایمیل',
+      name: 'email',
+      placeholder: 'ایمیل خود را وارد کنید',
+      required: true,
+      disabled: false,
+      readonly: false,
+      validation: {
+        required: true,
+        minLength: 5,
+        maxLength: 100
+      },
+      styling: {
+        width: '100%',
+        className: ''
+      },
+      position: {
+        row: 2,
+        column: 1
+      }
+    }
+  ];
+
   const [formData, setFormData] = useState<Partial<CreateFormDto>>({
     name: template?.name || '',
     description: template?.description || '',
@@ -63,7 +112,7 @@ const CreateFormModal: React.FC<CreateFormModalProps> = ({
   const createFormMutation = useMutation({
     mutationFn: (data: CreateFormDto) => formsAPI.createForm(data),
     onSuccess: (newForm) => {
-      onSuccess?.(newForm.id);
+      onSuccess(newForm);
       onClose();
       setFormData({
         name: '',
@@ -217,6 +266,7 @@ const CreateFormModal: React.FC<CreateFormModalProps> = ({
         spacing: 'normal'
       }
     });
+    setError(null);
   };
 
   // =====================================================
