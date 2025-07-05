@@ -144,7 +144,7 @@ export class FormService {
       // اول در cache ذخیره کن
       await this.saveFormToCache(id, form as Form);
 
-      const response = await fetch(buildApiUrl(`/api/forms/${id}`), {
+      const response = await fetch(buildApiUrl(`/forms/${id}`), {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
