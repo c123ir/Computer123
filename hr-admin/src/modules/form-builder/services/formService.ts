@@ -25,9 +25,29 @@ import { buildApiUrl } from '../../../utils/api';
 export class FormService {
   private static db: DatabaseService = DatabaseFactory.createService({ type: 'postgresql' });
   private static cache = {
-    get: async () => null,
-    set: async () => {},
-    delete: async () => {}
+    get: async (key: string): Promise<any> => {
+      try {
+        const value = localStorage.getItem(key);
+        return value ? JSON.parse(value) : null;
+      } catch (error) {
+        console.error('❌ Error reading from cache:', error);
+        return null;
+      }
+    },
+    set: async (key: string, value: any): Promise<void> => {
+      try {
+        localStorage.setItem(key, JSON.stringify(value));
+      } catch (error) {
+        console.error('❌ Error saving to cache:', error);
+      }
+    },
+    delete: async (key: string): Promise<void> => {
+      try {
+        localStorage.removeItem(key);
+      } catch (error) {
+        console.error('❌ Error deleting from cache:', error);
+      }
+    }
   };
 
   /**
