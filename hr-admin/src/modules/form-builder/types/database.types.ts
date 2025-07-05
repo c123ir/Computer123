@@ -2,7 +2,7 @@
 // 🔧 فایل: src/modules/form-builder/types/database.types.ts
 // =====================================================
 
-import { Form, CreateFormDto, UpdateFormDto } from './form.types';
+import { CreateFormDto, UpdateFormDto } from './form.types';
 
 /**
  * نوع پایگاه داده
