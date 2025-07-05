@@ -146,85 +146,27 @@ const CreateFormModal: React.FC<CreateFormModalProps> = ({
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!validateForm()) {
-      return;
+  const handleSubmit = async () => {
+    try {
+      setIsSubmitting(true);
+      const response = await formService.createForm({
+        name: formData.name!,
+        description: formData.description,
+        fields: defaultFields,
+        settings: formData.settings!,
+        styling: formData.styling!,
+        category: formData.category,
+        tags: formData.tags
+      });
+      onSuccess(response);
+      resetForm();
+    } catch (error) {
+      console.error('❌ Error creating form:', error);
+      const errorMessage = error instanceof Error ? error.message : 'خطا در ایجاد فرم';
+      setError(errorMessage);
+    } finally {
+      setIsSubmitting(false);
     }
-
-    // =====================================================
-    // Default Field Handling - ensure at least one field exists
-    // =====================================================
-
-    const defaultFields = [
-      {
-        id: 'name',
-        type: 'text' as FieldType,
-        label: 'نام',
-        name: 'name',
-        placeholder: 'نام خود را وارد کنید',
-        required: true,
-        disabled: false,
-        readonly: false,
-        validation: {
-          required: true,
-          minLength: 2,
-          maxLength: 50
-        },
-        styling: {
-          width: '100%',
-          className: ''
-        },
-        position: {
-          row: 1,
-          column: 1
-        }
-      },
-      {
-        id: 'email',
-        type: 'email' as FieldType,
-        label: 'ایمیل',
-        name: 'email',
-        placeholder: 'ایمیل خود را وارد کنید',
-        required: true,
-        disabled: false,
-        readonly: false,
-        validation: {
-          required: true,
-          minLength: 5,
-          maxLength: 100
-        },
-        styling: {
-          width: '100%',
-          className: ''
-        },
-        position: {
-          row: 2,
-          column: 1
-        }
-      }
-    ];
-
-    const newForm: CreateFormDto = {
-      name: formData.name!,
-      description: formData.description,
-      fields: defaultFields,
-      settings: formData.settings!,
-      styling: formData.styling!,
-      category: formData.category,
-      tags: formData.tags || [],
-      status: 'draft',
-      metadata: {
-        createdBy: 'current-user',
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        status: 'draft',
-        version: 1
-      }
-    };
-
-    createFormMutation.mutate(newForm);
   };
 
   const handleClose = () => {
