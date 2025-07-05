@@ -909,6 +909,8 @@ export class FormService {
       type,
       label,
       required: false,
+      disabled: false,
+      readonly: false,
       validation: {},
       styling: {
         width: '100%'
