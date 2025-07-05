@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { prisma } from '../config/database';
 import { Logger } from '../utils/logger';
-import { Prisma } from '@prisma/client';
+import { Prisma, FormStatus } from '@prisma/client';
 import { Form, FormField, FormSettings, FormStyling, FormMetadata } from '../types/form.types';
 
 export class FormsController {
@@ -59,16 +59,16 @@ export class FormsController {
         data: {
           name: formData.name,
           description: formData.description || '',
-          fieldsData: formData.fields as unknown as Prisma.JsonValue,
-          settings: formData.settings as unknown as Prisma.JsonValue,
-          styling: formData.styling as unknown as Prisma.JsonValue,
+          fieldsData: formData.fields || [],
+          settings: formData.settings || {},
+          styling: formData.styling || {},
           metadata: {
             createdBy: 'system',
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
             status: 'DRAFT',
             version: 1
-          } as unknown as Prisma.JsonValue,
+          },
           status: 'DRAFT',
           createdBy: 'system', // TODO: Get from auth
           category: formData.category,
@@ -95,13 +95,13 @@ export class FormsController {
       const { id } = req.params;
       const formData = req.body;
 
-      const updateData: Prisma.FormUpdateInput = {
+      const updateData = {
         ...(formData.name && { name: formData.name }),
         ...(formData.description && { description: formData.description }),
-        ...(formData.fields && { fieldsData: formData.fields as unknown as Prisma.JsonValue }),
-        ...(formData.settings && { settings: formData.settings as unknown as Prisma.JsonValue }),
-        ...(formData.styling && { styling: formData.styling as unknown as Prisma.JsonValue }),
-        ...(formData.metadata && { metadata: formData.metadata as unknown as Prisma.JsonValue }),
+        ...(formData.fields && { fieldsData: formData.fields }),
+        ...(formData.settings && { settings: formData.settings }),
+        ...(formData.styling && { styling: formData.styling }),
+        ...(formData.metadata && { metadata: formData.metadata }),
         ...(formData.status && { status: formData.status }),
         updatedBy: 'system', // TODO: Get from auth
         ...(formData.category && { category: formData.category }),
@@ -175,7 +175,7 @@ export class FormsController {
             updatedAt: new Date().toISOString(),
             status: 'DRAFT',
             version: 1
-          } as unknown as Prisma.JsonValue,
+          },
           status: 'DRAFT',
           createdBy: 'system', // TODO: Get from auth
           category: originalForm.category,
