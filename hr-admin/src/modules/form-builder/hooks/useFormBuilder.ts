@@ -559,7 +559,8 @@ export const useFormBuilder = (options: UseFormBuilderOptions = {}) => {
 
     const errors: Record<string, string> = {};
 
-    if (!field.label.trim()) {
+    // بررسی وجود و معتبر بودن برچسب
+    if (!field.label || !field.label.trim()) {
       errors[`field_${fieldId}_label`] = 'برچسب فیلد الزامی است';
     }
 
