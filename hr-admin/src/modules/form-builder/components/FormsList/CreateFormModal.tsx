@@ -34,7 +34,6 @@ export const CreateFormModal: React.FC<CreateFormModalProps> = ({
       id: 'name',
       type: 'text',
       label: 'نام و نام خانوادگی',
-      name: 'name',
       placeholder: 'نام خود را وارد کنید',
       required: true,
       disabled: false,
@@ -47,17 +46,12 @@ export const CreateFormModal: React.FC<CreateFormModalProps> = ({
       styling: {
         width: '100%'
       },
-      position: {
-        row: 1,
-        col: 1
-      },
       order: 0
     },
     {
       id: 'email',
       type: 'email',
       label: 'ایمیل',
-      name: 'email',
       placeholder: 'ایمیل خود را وارد کنید',
       required: true,
       disabled: false,
@@ -69,10 +63,6 @@ export const CreateFormModal: React.FC<CreateFormModalProps> = ({
       },
       styling: {
         width: '100%'
-      },
-      position: {
-        row: 2,
-        col: 1
       },
       order: 1
     }
