@@ -37,21 +37,66 @@ export const FormBuilder: React.FC<FormBuilderProps> = ({
       // اگر فرم جدید است
       if (!form.id) {
         const createDto: CreateFormDto = {
-          name: form.name,
-          description: form.description,
-          fields: form.fields,
-          settings: form.settings,
-          styling: form.styling,
-          category: form.category,
-          tags: form.tags,
+          name: form.name || 'فرم جدید',
+          description: form.description || '',
+          fields: form.fields || [],
+          settings: {
+            direction: 'rtl',
+            theme: 'light',
+            submitButtonText: 'ارسال',
+            showProgressBar: false,
+            allowSaveDraft: true,
+            showFieldNumbers: false,
+            formWidth: 'medium',
+            ...form.settings
+          },
+          styling: {
+            theme: 'default',
+            backgroundColor: '#ffffff',
+            textColor: '#374151',
+            primaryColor: '#3b82f6',
+            fontFamily: 'Vazirmatn',
+            fontSize: 14,
+            borderRadius: 8,
+            spacing: 'normal',
+            ...form.styling
+          },
           metadata: {
-            createdBy: 'current-user', // TODO: Get from context
+            createdBy: 'current-user',
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
             status: 'draft',
-            version: 1
+            version: 1,
+            ...form.metadata
           }
         };
+
+        // اطمینان از وجود مقادیر پیش‌فرض
+        if (!createDto.settings) {
+          createDto.settings = {
+            direction: 'rtl',
+            theme: 'light',
+            submitButtonText: 'ارسال',
+            showProgressBar: false,
+            allowSaveDraft: true,
+            showFieldNumbers: false,
+            formWidth: 'medium'
+          };
+        }
+
+        if (!createDto.styling) {
+          createDto.styling = {
+            theme: 'default',
+            backgroundColor: '#ffffff',
+            textColor: '#374151',
+            primaryColor: '#3b82f6',
+            fontFamily: 'Vazirmatn',
+            fontSize: 14,
+            borderRadius: 8,
+            spacing: 'normal'
+          };
+        }
+
         const newFormId = await FormService.createForm(createDto);
         onSave?.(newFormId);
         return;
@@ -61,16 +106,15 @@ export const FormBuilder: React.FC<FormBuilderProps> = ({
       const updateDto: UpdateFormDto = {
         name: form.name,
         description: form.description,
-        fields: form.fields,
+        fields: form.fields || [],
         settings: form.settings,
         styling: form.styling,
-        category: form.category,
-        tags: form.tags,
         metadata: {
           ...form.metadata,
           updatedAt: new Date().toISOString()
         }
       };
+
       const updatedForm = await FormService.updateForm(form.id, updateDto);
       if (updatedForm) {
         onSave?.(form.id);
