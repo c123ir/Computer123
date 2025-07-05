@@ -249,6 +249,48 @@ export interface HealthCheckResult {
 }
 
 /**
+ * انواع خطاهای اعتبارسنجی
+ */
+export type ValidationErrorType = 
+  | 'required'
+  | 'minLength'
+  | 'maxLength'
+  | 'pattern'
+  | 'min'
+  | 'max'
+  | 'email'
+  | 'url'
+  | 'tel'
+  | 'fileType'
+  | 'fileSize'
+  | 'custom';
+
+/**
+ * قوانین اعتبارسنجی
+ */
+export interface ValidationRules {
+  required?: boolean;
+  minLength?: number;
+  maxLength?: number;
+  min?: number;
+  max?: number;
+  pattern?: string;
+  patternMessage?: string;
+  fileTypes?: string[];
+  maxFileSize?: number;
+  customValidators?: CustomValidator[];
+}
+
+/**
+ * اعتبارسنج سفارشی
+ */
+export interface CustomValidator {
+  name: string;
+  validator: (value: any, field: FormField, formData: Record<string, any>) => boolean | string;
+  errorMessage: string;
+}
+
+/**
  * نتیجه اعتبارسنجی
  */
 export interface ValidationResult {
@@ -271,18 +313,5 @@ export interface ValidationResult {
 // =====================================================
 // 🔧 انواع خطاهای Validation
 // =====================================================
-
-export type ValidationErrorType = 
-  | 'required'
-  | 'minLength'
-  | 'maxLength'
-  | 'pattern'
-  | 'min'
-  | 'max'
-  | 'email'
-  | 'url'
-  | 'fileType'
-  | 'fileSize'
-  | 'custom';
 
 // Note: Form type will be imported where needed to avoid circular dependencies
