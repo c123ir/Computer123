@@ -2,7 +2,7 @@
 
 import express from 'express';
 import { FormsController } from '../controllers/forms.controller';
-import { validateForm } from '../middleware/validate.middleware';
+import { validateForm as validateFormMiddleware } from '../middleware/validate.middleware';
 
 const router = express.Router();
 const formsController = new FormsController();
@@ -10,8 +10,8 @@ const formsController = new FormsController();
 // Forms CRUD
 router.get('/', formsController.getForms.bind(formsController));
 router.get('/:id', formsController.getFormById.bind(formsController));
-router.post('/', validateForm, formsController.createForm.bind(formsController));
-router.put('/:id', validateForm, formsController.updateForm.bind(formsController));
+router.post('/', validateFormMiddleware, formsController.createForm.bind(formsController));
+router.put('/:id', validateFormMiddleware, formsController.updateForm.bind(formsController));
 router.delete('/:id', formsController.deleteForm.bind(formsController));
 
 // Form operations
