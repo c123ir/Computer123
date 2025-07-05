@@ -6,6 +6,7 @@ import { XMarkIcon } from '@heroicons/react/24/outline';
 import { useFormsAPI } from '../../hooks/useFormsAPI';
 import { CreateFormDto, FormField, FieldType } from '../../types';
 import { FormService } from '../../services/formService';
+import { DEFAULT_FORM_SETTINGS, DEFAULT_FORM_STYLING } from '../../constants/defaults';
 
 interface CreateFormModalProps {
   /** آیا مودال باز است */
@@ -82,23 +83,8 @@ export const CreateFormModal: React.FC<CreateFormModalProps> = ({
     category: template?.category || '',
     tags: template?.tags || [],
     fields: template?.fields || [],
-    settings: template?.settings || {
-      submitButtonText: 'ارسال',
-      showProgressBar: false,
-      allowSaveDraft: true,
-      showFieldNumbers: false,
-      formWidth: 'medium'
-    },
-    styling: {
-      theme: 'default',
-      backgroundColor: '#ffffff',
-      textColor: '#000000',
-      primaryColor: '#3b82f6',
-      fontFamily: 'Vazirmatn',
-      fontSize: 14,
-      borderRadius: 8,
-      spacing: 'normal'
-    }
+    settings: template?.settings || DEFAULT_FORM_SETTINGS,
+    styling: DEFAULT_FORM_STYLING
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -120,23 +106,8 @@ export const CreateFormModal: React.FC<CreateFormModalProps> = ({
         category: '',
         tags: [],
         fields: [],
-        settings: {
-          submitButtonText: 'ارسال',
-          showProgressBar: false,
-          allowSaveDraft: true,
-          showFieldNumbers: false,
-          formWidth: 'medium'
-        },
-        styling: {
-          theme: 'default',
-          backgroundColor: '#ffffff',
-          textColor: '#000000',
-          primaryColor: '#3b82f6',
-          fontFamily: 'Vazirmatn',
-          fontSize: 14,
-          borderRadius: 8,
-          spacing: 'normal'
-        }
+        settings: DEFAULT_FORM_SETTINGS,
+        styling: DEFAULT_FORM_STYLING
       });
       setErrors({});
     },
@@ -248,23 +219,8 @@ export const CreateFormModal: React.FC<CreateFormModalProps> = ({
       category: '',
       tags: [],
       fields: [],
-      settings: {
-        submitButtonText: 'ارسال',
-        showProgressBar: false,
-        allowSaveDraft: true,
-        showFieldNumbers: false,
-        formWidth: 'medium'
-      },
-      styling: {
-        theme: 'default',
-        backgroundColor: '#ffffff',
-        textColor: '#000000',
-        primaryColor: '#3b82f6',
-        fontFamily: 'Vazirmatn',
-        fontSize: 14,
-        borderRadius: 8,
-        spacing: 'normal'
-      }
+      settings: DEFAULT_FORM_SETTINGS,
+      styling: DEFAULT_FORM_STYLING
     });
     setError(null);
   };
