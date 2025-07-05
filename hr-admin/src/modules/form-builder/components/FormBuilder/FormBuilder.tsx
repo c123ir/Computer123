@@ -309,7 +309,7 @@ export const FormBuilder: React.FC<FormBuilderProps> = ({
         {/* Side Panel */}
         <div className="w-80">
           <SidePanel
-            selectedField={selectedField}
+            selectedField={selectedField || undefined}
             onFieldSelect={handleFieldSelect}
             onFieldUpdate={updateField}
             readonly={readonly}
