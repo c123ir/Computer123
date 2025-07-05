@@ -5,15 +5,28 @@ import { buildApiUrl } from '../../../utils/api';
  * دریافت فرم با شناسه
  */
 export async function getForm(id: string): Promise<Form> {
-  const response = await fetch(buildApiUrl(`/forms/${id}`));
-  if (!response.ok) {
-    throw new Error(`خطا در دریافت فرم: ${response.statusText}`);
+  console.log('🔍 Fetching form:', id);
+  console.log('🌐 URL:', buildApiUrl(`/forms/${id}`));
+  
+  try {
+    const response = await fetch(buildApiUrl(`/forms/${id}`));
+    console.log('📡 Response status:', response.status);
+    
+    if (!response.ok) {
+      throw new Error(`خطا در دریافت فرم: ${response.statusText}`);
+    }
+    
+    const data = await response.json();
+    console.log('📦 Response data:', data);
+    
+    return {
+      ...data,
+      fields: data.fields || [] // اطمینان از وجود fields
+    };
+  } catch (error) {
+    console.error('❌ Error fetching form:', error);
+    throw error;
   }
-  const data = await response.json();
-  return {
-    ...data,
-    fields: data.fields || [] // اطمینان از وجود fields
-  };
 }
 
 /**
