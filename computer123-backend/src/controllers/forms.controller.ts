@@ -184,9 +184,9 @@ export class FormsController {
         data: {
           name: `${originalForm.name} (کپی)`,
           description: originalForm.description,
-          fieldsData: originalForm.fieldsData,
-          settings: originalForm.settings,
-          styling: originalForm.styling,
+          fieldsData: JSON.stringify(JSON.parse(originalForm.fieldsData || '[]')) as any,
+          settings: JSON.stringify(JSON.parse(originalForm.settings || '{}')) as any,
+          styling: JSON.stringify(JSON.parse(originalForm.styling || '{}')) as any,
           metadata: JSON.stringify({
             createdBy: 'system',
             createdAt: new Date().toISOString(),
