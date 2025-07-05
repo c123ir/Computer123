@@ -57,6 +57,8 @@ export interface FormBuilderActions {
   selectField: (fieldId: string | null) => void;
   /** بروزرسانی فیلد */
   updateField: (fieldId: string, updates: Partial<FormField>) => void;
+  /** مدیریت انتقال فیلد به پنل */
+  handleFieldDrop: (fieldId: string, panelId: string) => void;
   
   // Form Settings
   /** بروزرسانی تنظیمات */
@@ -462,6 +464,17 @@ export const useFormBuilder = (options: UseFormBuilderOptions = {}) => {
     }));
   }, [updateForm]);
 
+  const handleFieldDrop = useCallback((fieldId: string, panelId: string) => {
+    updateForm(prev => ({
+      ...prev,
+      fields: prev.fields.map(field => 
+        field.id === fieldId 
+          ? { ...field, parentId: panelId }
+          : field
+      )
+    }));
+  }, [updateForm]);
+
   // =====================================================
   // Settings Actions
   // =====================================================
@@ -697,6 +710,7 @@ export const useFormBuilder = (options: UseFormBuilderOptions = {}) => {
     reorderFields,
     selectField,
     updateField,
+    handleFieldDrop,
     
     // Settings
     updateSettings,
