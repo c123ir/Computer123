@@ -23,7 +23,7 @@ interface PreviewPanelProps {
   /** callback تغییر فیلد انتخاب شده */
   onFieldSelect?: (fieldId: string) => void;
   /** callback اضافه کردن فیلد جدید - برمی‌گرداند شناسه فیلد جدید */
-  onAddField?: (type: FieldType) => string;
+  onAddField?: (type: FieldType, parentId?: string) => string;
   /** callback حذف فیلد */
   onDeleteField?: (fieldId: string) => void;
   /** callback کپی فیلد */
@@ -87,17 +87,18 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
 
     try {
       const data = JSON.parse(e.dataTransfer.getData('application/json'));
+      console.log('Drop data:', data, 'into panel:', panelId);
       
       if (data.type === 'field') {
         if (data.fieldId) {
           // اگر فیلد موجود را drag کرده‌ایم
+          console.log('Moving existing field', data.fieldId, 'to panel', panelId);
           onFieldDrop?.(data.fieldId, panelId || '');
         } else if (data.fieldType) {
           // اگر فیلد جدید را drag کرده‌ایم
-          const newFieldId = onAddField?.(data.fieldType as FieldType);
-          if (newFieldId && panelId) {
-            onFieldDrop?.(newFieldId, panelId);
-          }
+          console.log('Adding new field of type', data.fieldType, 'to panel', panelId);
+          const newFieldId = onAddField?.(data.fieldType as FieldType, panelId);
+          console.log('Created new field with ID:', newFieldId);
         }
       }
     } catch (error) {
@@ -122,10 +123,13 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
         className="relative group"
         draggable={!readonly}
         onDragStart={(e) => {
-          e.dataTransfer.setData('application/json', JSON.stringify({
+          const data = {
             type: 'field',
-            fieldId: field.id
-          }));
+            fieldId: field.id,
+            fieldType: field.type
+          };
+          console.log('Starting drag with data:', data);
+          e.dataTransfer.setData('application/json', JSON.stringify(data));
         }}
         onDrop={(e) => handleDrop(e)}
         onDragOver={handleDragOver}
@@ -164,6 +168,8 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
     const registry = FieldRegistry.panel;
     if (!registry?.component) return null;
 
+    console.log('Rendering panel', panelId, 'with fields:', panelFields);
+
     const PanelComponent = registry.component;
     return (
       <div key={panel.id} className="mb-4">
@@ -171,7 +177,10 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
           field={panel as FormField & { fieldSettings: { panelSettings: any } }}
           isSelected={selectedField === panel.id}
           onFieldSelect={onFieldSelect}
-          onFieldDrop={(fieldId: string) => onFieldDrop?.(fieldId, panel.id)}
+          onFieldDrop={(fieldId: string) => {
+            console.log('Panel received field drop:', fieldId);
+            onFieldDrop?.(fieldId, panel.id);
+          }}
           readonly={readonly}
         >
           {panelFields.map(renderField)}
