@@ -51,41 +51,30 @@ export class FormService {
   };
 
   /**
-   * دریافت فرم با شناسه
+   * دریافت فرم بر اساس شناسه
    */
   static async getForm(id: string, useCache: boolean = true): Promise<Form | null> {
     try {
       // بررسی cache
       if (useCache) {
-        const cached = await this.cache.get(`form_${id}`);
+        const cached = await this.cache.get();
         if (cached) {
           console.log('📋 Form loaded from cache:', id);
           return cached;
         }
       }
 
-      const response = await fetch(buildApiUrl(`/forms/${id}`), {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error(`خطا در دریافت فرم: ${response.statusText}`);
-      }
-
-      const form = await response.json();
+      const form = await this.db.getForm(id);
       
-      if (useCache) {
+      if (form && useCache) {
         // ذخیره در cache برای 1 ساعت
-        await this.cache.set(`form_${id}`, form);
+        await this.cache.set();
       }
 
       return form;
     } catch (error) {
       console.error('❌ Error getting form:', error);
-      return null;
+      throw error;
     }
   }
 
@@ -256,34 +245,6 @@ export class FormService {
   // =================================
   // Form CRUD Operations
   // =================================
-
-  /**
-   * دریافت فرم بر اساس شناسه
-   */
-  static async getForm(id: string, useCache: boolean = true): Promise<Form | null> {
-    try {
-      // بررسی cache
-      if (useCache) {
-        const cached = await this.cache.get();
-        if (cached) {
-          console.log('📋 Form loaded from cache:', id);
-          return cached;
-        }
-      }
-
-      const form = await this.db.getForm(id);
-      
-      if (form && useCache) {
-        // ذخیره در cache برای 1 ساعت
-        await this.cache.set();
-      }
-
-      return form;
-    } catch (error) {
-      console.error('❌ Error getting form:', error);
-      throw error;
-    }
-  }
 
   /**
    * لیست فرم‌ها با فیلتر و صفحه‌بندی
