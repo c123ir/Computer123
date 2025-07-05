@@ -41,6 +41,8 @@ const FormsList: React.FC<FormsListProps> = ({
   onSelectForm,
   readonly = false
 }) => {
+  console.log('🎯 FormsList rendered:', { viewMode, defaultFilters, readonly });
+
   // =====================================================
   // States
   // =====================================================
@@ -72,6 +74,8 @@ const FormsList: React.FC<FormsListProps> = ({
     limit: 12
   }), [searchTerm, selectedCategory, selectedStatus, sortBy, sortOrder, currentPage]);
 
+  console.log('🔍 Query filters:', filters);
+
   // Fetch forms
   const { 
     data: formsResponse, 
@@ -80,9 +84,14 @@ const FormsList: React.FC<FormsListProps> = ({
     refetch 
   } = useQuery({
     queryKey: ['forms', filters],
-    queryFn: () => formsAPI.getForms(filters),
+    queryFn: () => {
+      console.log('⏳ Fetching forms with filters:', filters);
+      return formsAPI.getForms(filters);
+    },
     placeholderData: (previousData) => previousData
   });
+
+  console.log('📦 Forms response:', formsResponse);
 
   const forms = formsResponse?.data || [];
   const pagination = formsResponse?.pagination;
