@@ -3,9 +3,8 @@
 import React, { useState } from 'react';
 import { Save, X, RotateCcw, Eye, Settings as SettingsIcon } from 'lucide-react';
 import { useFormBuilder, useFormBuilderShortcuts } from '../../hooks';
-import FieldsPanel from './FieldsPanel';
+import SidePanel from './SidePanel';
 import PreviewPanel from './PreviewPanel';
-import SettingsPanel from './SettingsPanel';
 import { FieldType, FormField } from '../../types';
 
 /**
@@ -291,14 +290,6 @@ export const FormBuilder: React.FC<FormBuilderProps> = ({
 
       {/* Main Content */}
       <div className="flex h-[calc(100vh-80px)]">
-        {/* Fields Panel */}
-        <div className="w-80 bg-white dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700 overflow-hidden">
-          <FieldsPanel
-            onFieldSelect={handleFieldSelect}
-            readonly={readonly}
-          />
-        </div>
-
         {/* Preview Panel */}
         <div className="flex-1 bg-gray-100 dark:bg-gray-900 overflow-hidden">
           <PreviewPanel
@@ -315,10 +306,11 @@ export const FormBuilder: React.FC<FormBuilderProps> = ({
           />
         </div>
 
-        {/* Settings Panel */}
-        <div className="w-80 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 overflow-hidden">
-          <SettingsPanel
-            selectedField={selectedField || undefined}
+        {/* Side Panel */}
+        <div className="w-80">
+          <SidePanel
+            selectedField={selectedField}
+            onFieldSelect={handleFieldSelect}
             onFieldUpdate={updateField}
             readonly={readonly}
           />
