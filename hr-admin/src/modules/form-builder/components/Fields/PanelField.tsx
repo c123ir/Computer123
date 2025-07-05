@@ -125,6 +125,7 @@ export const PanelField: React.FC<PanelFieldProps> = ({
 
     try {
       const data = JSON.parse(e.dataTransfer.getData('application/json'));
+      console.log('Panel received drop:', data);
       if (data.type === 'field' && onFieldDrop) {
         onFieldDrop(data.fieldId, field.id);
       }
@@ -197,6 +198,9 @@ export const PanelField: React.FC<PanelFieldProps> = ({
           {!readonly && (
             <div
               className="min-h-[100px] border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg flex items-center justify-center text-gray-500 dark:text-gray-400"
+              onDrop={handleDrop}
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
             >
               فیلدها را اینجا رها کنید
             </div>
