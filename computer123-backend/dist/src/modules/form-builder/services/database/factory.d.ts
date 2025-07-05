@@ -1,5 +1,5 @@
 import { DatabaseService } from './interface';
-export type DatabaseType = 'firebase' | 'postgresql' | 'memory' | 'localStorage';
+export type DatabaseType = 'postgresql';
 export declare class DatabaseServiceFactory {
     private static instance;
     private static currentType;

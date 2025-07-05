@@ -1,5 +1,5 @@
 import { DatabaseService, FormFilters } from './interface';
-import { FormResponse } from '../../types';
+import { FormResponse } from '@prisma/client';
 export declare class PostgreSQLService implements DatabaseService {
     create(collectionName: string, data: any): Promise<string>;
     read(collectionName: string, id: string): Promise<any>;

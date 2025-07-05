@@ -48,5 +48,7 @@ export declare class MenuService {
         roles: string[];
     }>;
     private isChildMenu;
+    getMenus(): Promise<Menu[]>;
+    getMenu(id: string): Promise<Menu | null>;
 }
 //# sourceMappingURL=menu.service.d.ts.map

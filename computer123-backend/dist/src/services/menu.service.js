@@ -166,6 +166,14 @@ class MenuService {
         }
         return false;
     }
+    async getMenus() {
+        return this.prisma.menu.findMany();
+    }
+    async getMenu(id) {
+        return this.prisma.menu.findUnique({
+            where: { id }
+        });
+    }
 }
 exports.MenuService = MenuService;
 //# sourceMappingURL=menu.service.js.map

@@ -1,4 +1,18 @@
 import { AxiosInstance } from 'axios';
+interface Location {
+    href: string;
+    pathname: string;
+    search: string;
+    hash: string;
+    host: string;
+    hostname: string;
+    port: string;
+    protocol: string;
+    origin: string;
+    assign(url: string): void;
+    replace(url: string): void;
+    reload(forcedReload?: boolean): void;
+}
 declare global {
     interface Window {
         location: Location;
