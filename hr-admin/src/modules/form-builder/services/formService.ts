@@ -129,7 +129,11 @@ export class FormService {
           ...form.settings,
           direction: 'rtl',
           theme: 'light',
-          submitButtonText: 'ارسال'
+          submitButtonText: 'ارسال',
+          showProgressBar: false,
+          allowSaveDraft: true,
+          showFieldNumbers: false,
+          formWidth: 'medium'
         },
         styling: {
           ...form.styling,
@@ -170,13 +174,20 @@ export class FormService {
       
       const data = await response.json();
       
-      if (!data.id) {
+      // بررسی ساختار پاسخ
+      if (!data.success) {
+        console.error('Invalid API Response:', data);
+        throw new Error('خطا: پاسخ نامعتبر از سرور');
+      }
+
+      const formId = data.data?.id;
+      if (!formId) {
         console.error('Invalid API Response:', data);
         throw new Error('خطا: شناسه فرم از سرور دریافت نشد');
       }
 
-      console.log('✅ Form created successfully:', data.id);
-      return data.id;
+      console.log('✅ Form created successfully:', formId);
+      return formId;
     } catch (error) {
       console.error('❌ Error creating form:', error);
       throw error;
