@@ -10,13 +10,15 @@ const FormBuilderPage: React.FC<FormBuilderPageProps> = ({ readonly = false }) =
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
+  console.log('🎯 FormBuilderPage rendered:', { id, readonly });
+
   const handleSave = (formId: string) => {
-    console.log('Form saved:', formId);
-    // می‌توانید اینجا notification نمایش دهید
+    console.log('💾 Form saved:', formId);
     navigate('/forms');
   };
 
   const handleCancel = () => {
+    console.log('❌ Form edit cancelled');
     navigate('/forms');
   };
 
