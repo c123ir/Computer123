@@ -1,29 +1,35 @@
 import { Router } from 'express';
-import { MenusController } from '../controllers/menus.controller';
+import { MenuController } from '../controllers/menus.controller';
 import { validateMenu } from '../middleware/validate.middleware';
 
 const router = Router();
-const menusController = new MenusController();
+const menuController = new MenuController();
 
 // دریافت ساختار درختی منوها
-router.get('/tree', menusController.getMenuTree.bind(menusController));
+router.get('/tree', menuController.getMenuTree.bind(menuController));
 
 // دریافت یک منو با زیرمنوهایش
-router.get('/:id', menusController.getMenuById.bind(menusController));
+router.get('/:id', menuController.getMenu.bind(menuController));
 
 // ایجاد منوی جدید
-router.post('/', validateMenu, menusController.createMenu.bind(menusController));
+router.post('/', validateMenu, menuController.createMenu.bind(menuController));
 
 // به‌روزرسانی منو
-router.put('/:id', validateMenu, menusController.updateMenu.bind(menusController));
+router.put('/:id', validateMenu, menuController.updateMenu.bind(menuController));
 
 // حذف منو
-router.delete('/:id', menusController.deleteMenu.bind(menusController));
+router.delete('/:id', menuController.deleteMenu.bind(menuController));
 
 // تغییر ترتیب منوها
-router.post('/reorder', menusController.reorderMenus.bind(menusController));
+router.post('/reorder', menuController.reorderMenus.bind(menuController));
 
 // انتقال منو
-router.post('/:id/move', menusController.moveMenu.bind(menusController));
+router.post('/:id/move', menuController.moveMenu.bind(menuController));
+
+// Get all menus
+router.get('/', menuController.getMenus.bind(menuController));
+
+// Get menu with children
+router.get('/:id/children', menuController.getMenuWithChildren.bind(menuController));
 
 export default router; 
