@@ -2,9 +2,10 @@
 // 🔧 فایل: src/modules/form-builder/types/index.ts
 // =====================================================
 
+import { FormField } from './field.types';
+
 // Field types
 export * from './field.types';
-import { FormField } from './field.types';
 
 // Form types
 export * from './form.types';
