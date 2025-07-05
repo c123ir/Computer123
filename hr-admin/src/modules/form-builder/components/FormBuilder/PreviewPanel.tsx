@@ -80,7 +80,7 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
   );
 
   // handle drop
-  const handleDrop = (e: React.DragEvent) => {
+  const handleDrop = (e: React.DragEvent, panelId?: string) => {
     e.preventDefault();
     
     if (readonly) return;
@@ -88,8 +88,17 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
     try {
       const data = JSON.parse(e.dataTransfer.getData('application/json'));
       
-      if (data.type === 'field' && data.fieldType) {
-        onAddField?.(data.fieldType as FieldType);
+      if (data.type === 'field') {
+        if (data.fieldId) {
+          // اگر فیلد موجود را drag کرده‌ایم
+          onFieldDrop?.(data.fieldId, panelId || '');
+        } else if (data.fieldType) {
+          // اگر فیلد جدید را drag کرده‌ایم
+          const newFieldId = onAddField?.(data.fieldType as FieldType);
+          if (newFieldId && panelId) {
+            onFieldDrop?.(newFieldId, panelId);
+          }
+        }
       }
     } catch (error) {
       console.error('Error handling drop:', error);
@@ -118,6 +127,8 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
             fieldId: field.id
           }));
         }}
+        onDrop={(e) => handleDrop(e)}
+        onDragOver={handleDragOver}
       >
         <Component
           field={field}
@@ -160,10 +171,20 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
           field={panel as FormField & { fieldSettings: { panelSettings: any } }}
           isSelected={selectedField === panel.id}
           onFieldSelect={onFieldSelect}
-          onFieldDrop={onFieldDrop}
+          onFieldDrop={(fieldId) => onFieldDrop?.(fieldId, panel.id)}
           readonly={readonly}
         >
           {panelFields.map(renderField)}
+          {/* Drop Zone */}
+          {!readonly && (
+            <div
+              className="min-h-[100px] border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg flex items-center justify-center text-gray-500 dark:text-gray-400"
+              onDrop={(e) => handleDrop(e, panel.id)}
+              onDragOver={handleDragOver}
+            >
+              فیلدها را اینجا رها کنید
+            </div>
+          )}
         </PanelComponent>
       </div>
     );
