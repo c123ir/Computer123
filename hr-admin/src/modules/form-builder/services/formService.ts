@@ -57,7 +57,8 @@ export class FormService {
     try {
       // بررسی cache
       if (useCache) {
-        const cached = await this.cache.get();
+        const cacheKey = `form_${id}`;
+        const cached = await this.cache.get(cacheKey);
         if (cached) {
           console.log('📋 Form loaded from cache:', id);
           return cached;
@@ -68,7 +69,8 @@ export class FormService {
       
       if (form && useCache) {
         // ذخیره در cache برای 1 ساعت
-        await this.cache.set();
+        const cacheKey = `form_${id}`;
+        await this.cache.set(cacheKey, form);
       }
 
       return form;
