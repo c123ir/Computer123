@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import {
   Settings, Type, Palette, Plus, Minus, 
-  Asterisk, HelpCircle
+  Asterisk, HelpCircle, Trash2
 } from 'lucide-react';
 import { FormField, ValidationRules, FieldStyling, FieldOption } from '../../types';
 
