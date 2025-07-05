@@ -103,9 +103,10 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
 
   // render field
   const renderField = (field: FormField) => {
-    const FieldComponent = FieldRegistry[field.type]?.component;
-    if (!FieldComponent) return null;
+    const registry = FieldRegistry[field.type];
+    if (!registry?.component) return null;
 
+    const Component = registry.component;
     return (
       <div
         key={field.id}
@@ -118,7 +119,7 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
           }));
         }}
       >
-        <FieldComponent
+        <Component
           field={field}
           isSelected={selectedField === field.id}
           onFieldSelect={onFieldSelect}
@@ -150,6 +151,8 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
   const renderPanel = (panelId: string) => {
     const { panel, fields: panelFields } = groupedFields[panelId];
     const PanelComponent = FieldRegistry.panel.component;
+
+    if (!PanelComponent) return null;
 
     return (
       <div key={panel.id} className="mb-4">
