@@ -310,6 +310,74 @@ export interface ValidationResult {
   }>;
 }
 
+/**
+ * فیلد فرم
+ */
+export interface FormField {
+  id: string;
+  type: FieldType;
+  label: string;
+  placeholder?: string;
+  description?: string;
+  required?: boolean;
+  validation: ValidationRules;
+  conditions?: FieldCondition[];
+  options?: FieldOption[];
+  styling?: FieldStyling;
+  metadata?: Record<string, any>;
+}
+
+/**
+ * نوع فیلد
+ */
+export type FieldType = 
+  | 'text'
+  | 'textarea'
+  | 'number'
+  | 'email'
+  | 'tel'
+  | 'url'
+  | 'select'
+  | 'radio'
+  | 'checkbox'
+  | 'date'
+  | 'time'
+  | 'datetime'
+  | 'file'
+  | 'signature'
+  | 'rating'
+  | 'slider';
+
+/**
+ * گزینه‌های فیلد
+ */
+export interface FieldOption {
+  value: string;
+  label: string;
+  description?: string;
+  icon?: string;
+  disabled?: boolean;
+}
+
+/**
+ * شرط نمایش فیلد
+ */
+export interface FieldCondition {
+  dependsOn: string;
+  operator: 'equals' | 'not_equals' | 'contains' | 'greater' | 'less';
+  value: any;
+}
+
+/**
+ * استایل فیلد
+ */
+export interface FieldStyling {
+  width?: string;
+  height?: string;
+  className?: string;
+  customCSS?: string;
+}
+
 // =====================================================
 // 🔧 انواع خطاهای Validation
 // =====================================================
