@@ -578,16 +578,20 @@ export const useFormBuilder = (options: UseFormBuilderOptions = {}) => {
 
   // Load form when formId changes
   useEffect(() => {
+    console.log('🔄 formId changed:', formId);
+    
     if (!formId) {
-      // اگر formId نداریم، یک فرم خالی ایجاد می‌کنیم
+      console.log('📝 Creating new form');
       createNewForm();
       return;
     }
 
     const loadFormById = async () => {
+      console.log('⏳ Loading form:', formId);
       try {
         setState(prev => ({ ...prev, isLoading: true, errors: {} }));
         const loadedForm = await getForm(formId);
+        console.log('✅ Form loaded:', loadedForm);
         
         // اطمینان از وجود تمام فیلدهای ضروری
         const form = {
@@ -619,6 +623,7 @@ export const useFormBuilder = (options: UseFormBuilderOptions = {}) => {
         loadForm(form);
         setState(prev => ({ ...prev, isLoading: false }));
       } catch (error) {
+        console.error('❌ Error loading form:', error);
         const errorMessage = error instanceof Error ? error.message : 'خطا در بارگذاری فرم';
         setState(prev => ({ 
           ...prev, 
