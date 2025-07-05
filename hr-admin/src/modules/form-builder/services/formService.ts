@@ -905,7 +905,8 @@ export class FormService {
       validation: {},
       styling: {
         width: '100%'
-      }
+      },
+      order: 0
     };
 
     // تنظیمات خاص هر نوع فیلد
