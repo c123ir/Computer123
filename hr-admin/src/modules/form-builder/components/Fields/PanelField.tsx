@@ -3,7 +3,7 @@ import { ChevronDown, ChevronUp } from 'lucide-react';
 import { FormField, PanelSettings } from '../../types';
 
 interface PanelFieldProps {
-  field: FormField & { fieldSettings: { panelSettings: PanelSettings } };
+  field: FormField;
   children?: React.ReactNode;
   onFieldSelect?: (fieldId: string) => void;
   onFieldDrop?: (fieldId: string, panelId: string) => void;
