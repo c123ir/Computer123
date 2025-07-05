@@ -41,14 +41,14 @@ const CreateFormModal: React.FC<CreateFormModalProps> = ({
       formWidth: 'medium'
     },
     styling: {
-      direction: 'rtl',
       theme: 'default',
       backgroundColor: '#ffffff',
       textColor: '#000000',
-      borderColor: '#e5e7eb',
+      primaryColor: '#3b82f6',
+      fontFamily: 'Vazirmatn',
+      fontSize: 14,
       borderRadius: 8,
-      padding: 24,
-      margin: 0
+      spacing: 'normal'
     }
   });
 
@@ -79,14 +79,14 @@ const CreateFormModal: React.FC<CreateFormModalProps> = ({
           formWidth: 'medium'
         },
         styling: {
-          direction: 'rtl',
           theme: 'default',
           backgroundColor: '#ffffff',
           textColor: '#000000',
-          borderColor: '#e5e7eb',
+          primaryColor: '#3b82f6',
+          fontFamily: 'Vazirmatn',
+          fontSize: 14,
           borderRadius: 8,
-          padding: 24,
-          margin: 0
+          spacing: 'normal'
         }
       });
       setErrors({});
@@ -226,6 +226,33 @@ const CreateFormModal: React.FC<CreateFormModalProps> = ({
     'آموزش',
     'رویداد'
   ];
+
+  const resetForm = () => {
+    setFormData({
+      name: '',
+      description: '',
+      category: '',
+      tags: [],
+      fields: [],
+      settings: {
+        submitButtonText: 'ارسال',
+        showProgressBar: false,
+        allowSaveDraft: true,
+        showFieldNumbers: false,
+        formWidth: 'medium'
+      },
+      styling: {
+        theme: 'default',
+        backgroundColor: '#ffffff',
+        textColor: '#000000',
+        primaryColor: '#3b82f6',
+        fontFamily: 'Vazirmatn',
+        fontSize: 14,
+        borderRadius: 8,
+        spacing: 'normal'
+      }
+    });
+  };
 
   // =====================================================
   // Render
