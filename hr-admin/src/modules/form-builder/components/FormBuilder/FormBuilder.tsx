@@ -212,7 +212,7 @@ export const FormBuilder: React.FC<FormBuilderProps> = ({
                   <div className="flex items-center space-x-2 space-x-reverse text-sm text-gray-500 dark:text-gray-400 mt-1">
                     <span>{fields.length} فیلد</span>
                     <span>•</span>
-                    <span>وضعیت: {form.metadata.status === 'draft' ? 'پیش‌نویس' : 'منتشر شده'}</span>
+                    <span>وضعیت: {form.metadata?.status === 'draft' ? 'پیش‌نویس' : 'منتشر شده'}</span>
                     {lastSaved && (
                       <>
                         <span>•</span>
