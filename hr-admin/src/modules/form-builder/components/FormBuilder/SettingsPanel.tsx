@@ -6,6 +6,7 @@ import {
   Asterisk, HelpCircle, Trash2
 } from 'lucide-react';
 import { FormField, ValidationRules, FieldStyling, FieldOption } from '../../types';
+import { PanelSettings } from '../Settings/PanelSettings';
 
 /**
  * پنل تنظیمات فیلد انتخاب شده
@@ -21,7 +22,7 @@ interface SettingsPanelProps {
   readonly?: boolean;
 }
 
-type SettingsTab = 'general' | 'validation' | 'styling' | 'advanced';
+type SettingsTab = 'general' | 'validation' | 'styling' | 'advanced' | 'panel';
 
 export const SettingsPanel: React.FC<SettingsPanelProps> = ({
   selectedField,
@@ -65,9 +66,13 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
   // tabs configuration
   const tabs = [
     { id: 'general' as SettingsTab, label: 'عمومی', icon: Type },
-    { id: 'validation' as SettingsTab, label: 'اعتبارسنجی', icon: Asterisk },
-    { id: 'styling' as SettingsTab, label: 'ظاهری', icon: Palette },
-    { id: 'advanced' as SettingsTab, label: 'پیشرفته', icon: Settings },
+    ...(selectedField.type === 'panel' ? [
+      { id: 'panel' as SettingsTab, label: 'تنظیمات پنل', icon: Settings }
+    ] : [
+      { id: 'validation' as SettingsTab, label: 'اعتبارسنجی', icon: Asterisk },
+      { id: 'styling' as SettingsTab, label: 'ظاهری', icon: Palette },
+      { id: 'advanced' as SettingsTab, label: 'پیشرفته', icon: Settings }
+    ])
   ];
 
   return (
@@ -117,7 +122,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
           />
         )}
         
-        {activeTab === 'validation' && (
+        {activeTab === 'validation' && selectedField.type !== 'panel' && (
           <ValidationSettings
             field={selectedField}
             onUpdate={updateField}
@@ -125,7 +130,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
           />
         )}
         
-        {activeTab === 'styling' && (
+        {activeTab === 'styling' && selectedField.type !== 'panel' && (
           <StylingSettings
             field={selectedField}
             onUpdate={updateField}
@@ -133,8 +138,16 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
           />
         )}
         
-        {activeTab === 'advanced' && (
+        {activeTab === 'advanced' && selectedField.type !== 'panel' && (
           <AdvancedSettings
+            field={selectedField}
+            onUpdate={updateField}
+            readonly={readonly}
+          />
+        )}
+
+        {activeTab === 'panel' && selectedField.type === 'panel' && (
+          <PanelSettings
             field={selectedField}
             onUpdate={updateField}
             readonly={readonly}
