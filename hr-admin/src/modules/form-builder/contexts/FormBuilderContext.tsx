@@ -3,8 +3,7 @@
 // =====================================================
 
 import React, { createContext, useContext, useReducer, ReactNode } from 'react';
-import { Form } from './form.model';
-import { FormField } from '../types';
+import { Form, FormField, FormSettings, FormStyling, FormMetadata } from '../types/form.types';
 
 // تعریف تایپ‌های مورد نیاز
 interface FormBuilderState {
