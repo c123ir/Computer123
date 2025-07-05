@@ -32,7 +32,6 @@ const CreateFormModal: React.FC<CreateFormModalProps> = ({
     description: template?.description || '',
     category: template?.category || '',
     tags: template?.tags || [],
-    status: 'draft',
     fields: template?.fields || [],
     settings: template?.settings || {
       submitButtonText: 'ارسال',
@@ -41,15 +40,15 @@ const CreateFormModal: React.FC<CreateFormModalProps> = ({
       showFieldNumbers: false,
       formWidth: 'medium'
     },
-    styling: template?.styling || {
-      theme: 'default',
+    styling: {
+      direction: 'rtl',
+      theme: 'light',
       backgroundColor: '#ffffff',
-      textColor: '#374151',
-      primaryColor: '#3b82f6',
-      fontFamily: 'Vazirmatn',
-      fontSize: 14,
+      textColor: '#000000',
+      borderColor: '#e5e7eb',
       borderRadius: 8,
-      spacing: 'normal'
+      padding: 24,
+      margin: 0
     }
   });
 
@@ -71,7 +70,6 @@ const CreateFormModal: React.FC<CreateFormModalProps> = ({
         description: '',
         category: '',
         tags: [],
-        status: 'draft',
         fields: [],
         settings: {
           submitButtonText: 'ارسال',
@@ -81,14 +79,14 @@ const CreateFormModal: React.FC<CreateFormModalProps> = ({
           formWidth: 'medium'
         },
         styling: {
-          theme: 'default',
+          direction: 'rtl',
+          theme: 'light',
           backgroundColor: '#ffffff',
-          textColor: '#374151',
-          primaryColor: '#3b82f6',
-          fontFamily: 'Vazirmatn',
-          fontSize: 14,
+          textColor: '#000000',
+          borderColor: '#e5e7eb',
           borderRadius: 8,
-          spacing: 'normal'
+          padding: 24,
+          margin: 0
         }
       });
       setErrors({});
