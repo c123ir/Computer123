@@ -3,13 +3,27 @@ import { PanelField } from '../components/Fields/PanelField';
 import { PanelSettings } from '../components/Settings/PanelSettings';
 import { FieldType } from '../types';
 
-// ... existing imports ...
+interface FieldRegistryItem {
+  type: FieldType;
+  icon: any;
+  label: string;
+  description: string;
+  component: React.ComponentType<any>;
+  settingsComponent: React.ComponentType<any>;
+  defaultSettings: any;
+  category: string;
+  isContainer?: boolean;
+  allowChildren?: boolean;
+  maxChildren?: number;
+}
 
-export const FieldRegistry = {
-  // ... existing fields ...
+type FieldRegistryType = {
+  [K in FieldType]: FieldRegistryItem;
+};
 
+export const FieldRegistry: Partial<FieldRegistryType> = {
   panel: {
-    type: 'panel' as FieldType,
+    type: 'panel',
     icon: LayoutDashboard,
     label: 'پنل',
     description: 'پنل با قابلیت تنظیم ستون‌ها',
