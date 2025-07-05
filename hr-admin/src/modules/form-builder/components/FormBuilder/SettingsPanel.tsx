@@ -34,6 +34,14 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
   const [activeTab, setActiveTab] = useState<SettingsTab>('general');
   const [isDirty, setIsDirty] = useState(false);
 
+  // update field helper
+  const updateField = useCallback((updates: Partial<FormField>) => {
+    if (!readonly && selectedField) {
+      setIsDirty(true);
+      onFieldUpdate?.(selectedField.id, updates);
+    }
+  }, [readonly, selectedField, onFieldUpdate]);
+
   // اگر فیلد انتخاب نشده
   if (!selectedField) {
     return (
@@ -65,14 +73,6 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
       </div>
     );
   }
-
-  // update field helper
-  const updateField = useCallback((updates: Partial<FormField>) => {
-    if (!readonly && selectedField) {
-      setIsDirty(true);
-      onFieldUpdate?.(selectedField.id, updates);
-    }
-  }, [readonly, selectedField, onFieldUpdate]);
 
   // tabs configuration
   const tabs = [
