@@ -126,12 +126,13 @@ export class FormService {
         ...form,
         fields: form.fields || [],
         settings: {
+          ...form.settings,
           direction: 'rtl',
           theme: 'light',
-          submitButtonText: 'ارسال',
-          ...form.settings
+          submitButtonText: 'ارسال'
         },
         styling: {
+          ...form.styling,
           theme: 'default',
           backgroundColor: '#ffffff',
           textColor: '#374151',
@@ -139,16 +140,15 @@ export class FormService {
           fontFamily: 'Vazirmatn',
           fontSize: 14,
           borderRadius: 8,
-          spacing: 'normal',
-          ...form.styling
+          spacing: 'normal'
         },
         metadata: {
+          ...form.metadata,
           createdBy: 'current-user',
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
           status: 'draft',
-          version: 1,
-          ...form.metadata
+          version: 1
         }
       };
 
