@@ -5,7 +5,7 @@ import {
   Eye, Smartphone, Tablet, Monitor, RotateCcw, Settings, 
   Trash2, Copy, MoveUp, MoveDown, GripVertical, Upload, PenTool, Star 
 } from 'lucide-react';
-import { FormField, Form, FieldType } from '../../types';
+import { FormField, Form, FieldType, FieldOption } from '../../types';
 
 /**
  * پنل پیش‌نمایش فرم
