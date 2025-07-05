@@ -42,9 +42,9 @@ export declare class MenuService {
         order: number;
         config: import("@prisma/client/runtime/library").JsonValue;
         permissions: string[];
+        parentId: string | null;
         title: string;
         icon: string | null;
-        parentId: string | null;
         roles: string[];
     }>;
     private isChildMenu;
