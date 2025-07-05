@@ -6,6 +6,7 @@ interface PanelFieldProps {
   field: FormField & { fieldSettings: { panelSettings: PanelSettings } };
   children?: React.ReactNode;
   onFieldSelect?: (fieldId: string) => void;
+  onFieldDrop?: (fieldId: string, panelId: string) => void;
   isSelected?: boolean;
   readonly?: boolean;
 }
@@ -14,6 +15,7 @@ export const PanelField: React.FC<PanelFieldProps> = ({
   field,
   children,
   onFieldSelect,
+  onFieldDrop,
   isSelected,
   readonly
 }) => {
@@ -77,6 +79,37 @@ export const PanelField: React.FC<PanelFieldProps> = ({
     }
   };
 
+  // Drag & Drop handlers
+  const handleDragOver = (e: React.DragEvent) => {
+    if (readonly) return;
+    e.preventDefault();
+    e.stopPropagation();
+    e.currentTarget.classList.add('bg-blue-50', 'dark:bg-blue-900/20');
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    if (readonly) return;
+    e.preventDefault();
+    e.stopPropagation();
+    e.currentTarget.classList.remove('bg-blue-50', 'dark:bg-blue-900/20');
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    if (readonly) return;
+    e.preventDefault();
+    e.stopPropagation();
+    e.currentTarget.classList.remove('bg-blue-50', 'dark:bg-blue-900/20');
+
+    try {
+      const data = JSON.parse(e.dataTransfer.getData('application/json'));
+      if (data.type === 'field' && onFieldDrop) {
+        onFieldDrop(data.fieldId, field.id);
+      }
+    } catch (error) {
+      console.error('Error parsing drag data:', error);
+    }
+  };
+
   return (
     <div
       className={`
@@ -100,6 +133,9 @@ export const PanelField: React.FC<PanelFieldProps> = ({
         opacity: panelSettings.backgroundOpacity || 1
       }}
       onClick={handleClick}
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
     >
       {/* Panel Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b">
@@ -134,6 +170,14 @@ export const PanelField: React.FC<PanelFieldProps> = ({
       >
         <div className={`grid ${getColumnsClass(panelSettings.columns)} gap-4`}>
           {children}
+          {/* Drop Zone */}
+          {!readonly && (
+            <div
+              className="min-h-[100px] border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg flex items-center justify-center text-gray-500 dark:text-gray-400"
+            >
+              فیلدها را اینجا رها کنید
+            </div>
+          )}
         </div>
       </div>
     </div>
