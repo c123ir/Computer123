@@ -147,11 +147,13 @@ export const FormBuilder: React.FC<FormBuilderProps> = ({
   }, [formId, fields.length, addField, selectField]);
 
   // Handle field selection from FieldsPanel
-  const handleFieldSelect = (fieldType: FieldType) => {
+  const handleFieldSelect = (fieldType: FieldType): string => {
     if (!readonly) {
       const newFieldId = addField(fieldType);
       selectField(newFieldId);
+      return newFieldId;
     }
+    return '';
   };
 
   // Handle field drop into panel
