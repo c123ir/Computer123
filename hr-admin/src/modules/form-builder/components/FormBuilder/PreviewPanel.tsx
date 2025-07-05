@@ -128,15 +128,11 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
 
     const Component = registry.component;
     return (
-      <motion.div
+      <div
         key={field.id}
-        layout
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -20 }}
         className="relative group"
         draggable={!readonly}
-        onDragStart={(e) => {
+        onDragStart={(e: React.DragEvent<HTMLDivElement>) => {
           const data = {
             type: 'field',
             fieldId: field.id,
@@ -146,18 +142,24 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
           e.dataTransfer.setData('application/json', JSON.stringify(data));
           e.currentTarget.classList.add('dragging');
         }}
-        onDragEnd={(e) => {
+        onDragEnd={(e: React.DragEvent<HTMLDivElement>) => {
           e.currentTarget.classList.remove('dragging');
         }}
         onDrop={(e) => handleDrop(e)}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
       >
-        <div className={`relative rounded-lg overflow-hidden transition-all duration-300 ${
-          selectedField === field.id 
-            ? 'ring-2 ring-blue-500 shadow-lg' 
-            : 'hover:shadow-md'
-        }`}>
+        <motion.div
+          layout
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
+          className={`relative rounded-lg overflow-hidden transition-all duration-300 ${
+            selectedField === field.id 
+              ? 'ring-2 ring-blue-500 shadow-lg' 
+              : 'hover:shadow-md'
+          }`}
+        >
           <Component
             field={field}
             isSelected={selectedField === field.id}
@@ -201,8 +203,8 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
               </div>
             </div>
           )}
-        </div>
-      </motion.div>
+        </motion.div>
+      </div>
     );
   }, [selectedField, readonly, onDeleteField, onDuplicateField, onMoveField, handleDrop, handleDragOver, handleDragLeave]);
 
