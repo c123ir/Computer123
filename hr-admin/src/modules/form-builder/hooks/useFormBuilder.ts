@@ -9,6 +9,7 @@ import {
   FormStyling,
   FormMetadata 
 } from '../types';
+import { getForm } from '../services/form.service';
 
 export interface FormBuilderState {
   /** فرم فعلی */
@@ -88,6 +89,8 @@ export interface FormBuilderActions {
 }
 
 export interface UseFormBuilderOptions {
+  /** شناسه فرم برای ویرایش */
+  formId?: string;
   /** فرم اولیه */
   initialForm?: Form;
   /** فعال‌سازی auto-save */
@@ -107,6 +110,7 @@ export interface UseFormBuilderOptions {
  */
 export const useFormBuilder = (options: UseFormBuilderOptions = {}) => {
   const {
+    formId,
     initialForm,
     autoSave = false,
     autoSaveInterval = 30000, // 30 seconds
@@ -595,6 +599,41 @@ export const useFormBuilder = (options: UseFormBuilderOptions = {}) => {
       }
     };
   }, []);
+
+  // Load form when formId changes
+  useEffect(() => {
+    const loadFormById = async () => {
+      if (!formId) return;
+
+      setState(prev => ({ ...prev, isLoading: true }));
+
+      try {
+        const form = await getForm(formId);
+        if (form) {
+          setState(prev => ({
+            ...prev,
+            form,
+            isLoading: false,
+            history: [form],
+            historyIndex: 0
+          }));
+          lastSavedFormRef.current = form;
+        } else {
+          throw new Error('Form not found');
+        }
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Failed to load form';
+        setState(prev => ({
+          ...prev,
+          isLoading: false,
+          errors: { ...prev.errors, load: errorMessage }
+        }));
+        onError?.(errorMessage);
+      }
+    };
+
+    loadFormById();
+  }, [formId, onError]);
 
   // =====================================================
   // Return
