@@ -132,6 +132,22 @@ export interface FieldSettings {
 }
 
 /**
+ * اعتبارسنجی سفارشی
+ */
+export interface CustomValidator {
+  /** شناسه validator */
+  id: string;
+  /** نام */
+  name: string;
+  /** function اعتبارسنجی */
+  validator: (value: any, field: FormField, form: any) => boolean | string;
+  /** پیام خطا */
+  errorMessage: string;
+  /** اولویت اجرا */
+  priority?: number;
+}
+
+/**
  * فیلد فرم - نسخه کامل
  */
 export interface FormField {
