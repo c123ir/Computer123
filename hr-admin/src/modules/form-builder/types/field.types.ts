@@ -227,4 +227,8 @@ export interface FormField {
   fieldSettings?: FieldSettings;
   /** متادیتا */
   metadata?: Record<string, any>;
+  /** شناسه پنل والد */
+  parentId?: string;
+  /** ترتیب نمایش */
+  order: number;
 }
