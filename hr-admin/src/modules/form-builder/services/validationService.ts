@@ -6,6 +6,7 @@ import {
     ValidationResult,
     ValidationErrorType,
     CustomValidator,
+    FieldCondition,
     FieldType
   } from '../types';
   
@@ -27,49 +28,102 @@ import {
       value: any, 
       allFormData?: Record<string, any>
     ): ValidationResult {
-      const errors: any[] = [];
+      const errors: Array<{
+        type: ValidationErrorType;
+        message: string;
+        field: string;
+      }> = [];
   
-      // بررسی اجباری بودن
-      if (field.required && this.isEmpty(value)) {
+      // اعتبارسنجی required
+      if (field.validation.required && !value) {
         errors.push({
-          type: 'required' as ValidationErrorType,
-          message: `${field.label} اجباری است`,
+          type: 'required',
+          message: 'این فیلد الزامی است',
           field: field.id
         });
-        
-        // اگر فیلد خالی و اجباری است، سایر بررسی‌ها لازم نیست
-        return {
-          isValid: false,
-          errors
-        };
       }
   
-      // اگر فیلد خالی و اجباری نیست، معتبر است
-      if (this.isEmpty(value)) {
-        return {
-          isValid: true,
-          errors: []
-        };
+      // اعتبارسنجی minLength
+      if (field.validation.minLength && value?.length < field.validation.minLength) {
+        errors.push({
+          type: 'minLength',
+          message: `حداقل ${field.validation.minLength} کاراکتر وارد کنید`,
+          field: field.id
+        });
       }
   
-      // اعتبارسنجی بر اساس نوع فیلد
-      const typeValidation = this.validateByType(field.type, value);
-      errors.push(...typeValidation.errors);
+      // اعتبارسنجی maxLength
+      if (field.validation.maxLength && value?.length > field.validation.maxLength) {
+        errors.push({
+          type: 'maxLength',
+          message: `حداکثر ${field.validation.maxLength} کاراکتر مجاز است`,
+          field: field.id
+        });
+      }
   
-      // اعتبارسنجی قوانین عمومی
-      const rulesValidation = this.validateRules(field.validation, value, field.label);
-      errors.push(...rulesValidation.errors);
+      // اعتبارسنجی pattern
+      if (field.validation.pattern && value) {
+        const regex = new RegExp(field.validation.pattern);
+        if (!regex.test(value)) {
+          errors.push({
+            type: 'pattern',
+            message: field.validation.patternMessage || 'فرمت وارد شده صحیح نیست',
+            field: field.id
+          });
+        }
+      }
   
-      // اعتبارسنجی سفارشی
-      if ((field as any).customValidators) {
-        const customValidation = this.validateCustom((field as any).customValidators, value, field, allFormData);
-        errors.push(...customValidation.errors);
+      // اعتبارسنجی min/max برای اعداد
+      if (field.type === 'number') {
+        const numValue = Number(value);
+        if (!isNaN(numValue)) {
+          if (field.validation.min !== undefined && numValue < field.validation.min) {
+            errors.push({
+              type: 'min',
+              message: `حداقل مقدار مجاز ${field.validation.min} است`,
+              field: field.id
+            });
+          }
+          if (field.validation.max !== undefined && numValue > field.validation.max) {
+            errors.push({
+              type: 'max',
+              message: `حداکثر مقدار مجاز ${field.validation.max} است`,
+              field: field.id
+            });
+          }
+        }
+      }
+  
+      // اعتبارسنجی فایل
+      if (field.type === 'file' && value) {
+        // بررسی نوع فایل
+        if (field.validation.fileTypes && field.validation.fileTypes.length > 0) {
+          const fileType = value.type;
+          if (!field.validation.fileTypes.includes(fileType)) {
+            errors.push({
+              type: 'fileType',
+              message: `نوع فایل مجاز نیست. انواع مجاز: ${field.validation.fileTypes.join(', ')}`,
+              field: field.id
+            });
+          }
+        }
+  
+        // بررسی حجم فایل
+        if (field.validation.maxFileSize && value.size > field.validation.maxFileSize) {
+          errors.push({
+            type: 'fileSize',
+            message: `حجم فایل نباید بیشتر از ${field.validation.maxFileSize / 1024 / 1024} مگابایت باشد`,
+            field: field.id
+          });
+        }
       }
   
       // اعتبارسنجی شرطی
       if (field.conditions && allFormData) {
-        const conditionalValidation = this.validateConditional(field, allFormData);
-        errors.push(...conditionalValidation.errors);
+        const isVisible = this.isFieldVisible(field, allFormData);
+        if (!isVisible) {
+          return { isValid: true, errors: [] };
+        }
       }
   
       return {
@@ -840,7 +894,7 @@ import {
         return true;
       }
   
-      return field.conditions.every(condition => {
+      return field.conditions.every((condition: FieldCondition) => {
         const dependentValue = formData[condition.dependsOn];
         
         switch (condition.operator) {
@@ -849,11 +903,11 @@ import {
           case 'not_equals':
             return dependentValue !== condition.value;
           case 'contains':
-            return String(dependentValue).includes(String(condition.value));
+            return dependentValue?.includes(condition.value);
           case 'greater':
-            return Number(dependentValue) > Number(condition.value);
+            return dependentValue > condition.value;
           case 'less':
-            return Number(dependentValue) < Number(condition.value);
+            return dependentValue < condition.value;
           default:
             return true;
         }
