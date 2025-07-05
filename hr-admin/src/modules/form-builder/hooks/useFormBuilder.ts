@@ -10,6 +10,7 @@ import {
   FormMetadata 
 } from '../types';
 import { FormService } from '../services/formService';
+import { DEFAULT_FORM_SETTINGS, DEFAULT_FORM_STYLING } from '../constants/defaults';
 
 export interface FormBuilderState {
   /** فرم فعلی */
