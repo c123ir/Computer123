@@ -181,6 +181,11 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
       readOnly: field.readonly
     };
 
+    const getOptionProps = (option: FieldOption) => ({
+      ...commonProps,
+      disabled: field.disabled || option.disabled
+    });
+
     return (
       <div className="space-y-2">
         {/* Label */}
@@ -240,8 +245,7 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
                         <input
                           type="radio"
                           value={option.value}
-                          disabled={option.disabled}
-                          {...commonProps}
+                          {...getOptionProps(option)}
                         />
                         <span>{option.label}</span>
                       </label>
@@ -257,8 +261,7 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
                         <input
                           type="checkbox"
                           value={option.value}
-                          disabled={option.disabled}
-                          {...commonProps}
+                          {...getOptionProps(option)}
                         />
                         <span>{option.label}</span>
                       </label>
