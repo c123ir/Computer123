@@ -1,35 +1,18 @@
-import React, { useState } from 'react';
-import { FormsList, FormBuilder } from '../../modules/form-builder/components';
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import { FormsList } from '../../modules/form-builder/components';
 import type { Form } from '../../modules/form-builder/types';
 
 const Forms: React.FC = () => {
-  const [selectedForm, setSelectedForm] = useState<Form | null>(null);
-  const [isEditing, setIsEditing] = useState(false);
+  const navigate = useNavigate();
 
-  // اگر فرمی برای ویرایش انتخاب شده
-  if (isEditing && selectedForm) {
-    return (
-      <FormBuilder
-        formId={selectedForm.id}
-        onSave={() => {
-          setIsEditing(false);
-          setSelectedForm(null);
-        }}
-        onCancel={() => {
-          setIsEditing(false);
-          setSelectedForm(null);
-        }}
-      />
-    );
-  }
+  const handleSelectForm = (form: Form) => {
+    navigate(`/forms/${form.id}/edit`);
+  };
 
-  // نمایش لیست فرم‌ها
   return (
     <FormsList
-      onSelectForm={(form: Form) => {
-        setSelectedForm(form);
-        setIsEditing(true);
-      }}
+      onSelectForm={handleSelectForm}
     />
   );
 };
