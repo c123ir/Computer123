@@ -57,6 +57,7 @@ export const FormBuilder: React.FC<FormBuilderProps> = ({
     undo,
     redo
   } = useFormBuilder({
+    formId,
     autoSave: true,
     autoSaveInterval: 30000,
     onSave: async (savedForm) => {
