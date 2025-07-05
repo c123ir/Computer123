@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { prisma } from '../config/database';
 import { Logger } from '../utils/logger';
 import { Prisma } from '@prisma/client';
+import { Form, FormField, FormSettings, FormStyling, FormMetadata } from '../types/form.types';
 
 export class FormsController {
   // Get all forms
@@ -50,7 +51,7 @@ export class FormsController {
   }
 
   // Create new form
-  async createForm(req: Request, res: Response) {
+  async createForm(req: Request<any, any, Form>, res: Response) {
     try {
       const formData = req.body;
       
@@ -58,15 +59,21 @@ export class FormsController {
         data: {
           name: formData.name,
           description: formData.description || '',
-          fieldsData: formData.fields || [],
-          settings: formData.settings || {},
-          styling: formData.styling || {},
-          metadata: formData.metadata || {},
+          fieldsData: formData.fields as unknown as Prisma.JsonValue,
+          settings: formData.settings as unknown as Prisma.JsonValue,
+          styling: formData.styling as unknown as Prisma.JsonValue,
+          metadata: {
+            createdBy: 'system',
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+            status: 'DRAFT',
+            version: 1
+          } as unknown as Prisma.JsonValue,
           status: 'DRAFT',
           createdBy: 'system', // TODO: Get from auth
           category: formData.category,
           tags: formData.tags || []
-        } as Prisma.FormCreateInput
+        }
       });
 
       res.status(201).json({
@@ -83,25 +90,27 @@ export class FormsController {
   }
 
   // Update form
-  async updateForm(req: Request, res: Response) {
+  async updateForm(req: Request<{ id: string }, any, Partial<Form>>, res: Response) {
     try {
       const { id } = req.params;
       const formData = req.body;
 
+      const updateData: Prisma.FormUpdateInput = {
+        ...(formData.name && { name: formData.name }),
+        ...(formData.description && { description: formData.description }),
+        ...(formData.fields && { fieldsData: formData.fields as unknown as Prisma.JsonValue }),
+        ...(formData.settings && { settings: formData.settings as unknown as Prisma.JsonValue }),
+        ...(formData.styling && { styling: formData.styling as unknown as Prisma.JsonValue }),
+        ...(formData.metadata && { metadata: formData.metadata as unknown as Prisma.JsonValue }),
+        ...(formData.status && { status: formData.status }),
+        updatedBy: 'system', // TODO: Get from auth
+        ...(formData.category && { category: formData.category }),
+        ...(formData.tags && { tags: formData.tags })
+      };
+
       const form = await prisma.form.update({
         where: { id },
-        data: {
-          name: formData.name,
-          description: formData.description,
-          fieldsData: formData.fields,
-          settings: formData.settings,
-          styling: formData.styling,
-          metadata: formData.metadata,
-          status: formData.status,
-          updatedBy: 'system', // TODO: Get from auth
-          category: formData.category,
-          tags: formData.tags
-        } as Prisma.FormUpdateInput
+        data: updateData
       });
 
       res.json({
@@ -161,14 +170,17 @@ export class FormsController {
           settings: originalForm.settings,
           styling: originalForm.styling,
           metadata: {
-            ...originalForm.metadata as Record<string, unknown>,
+            createdBy: 'system',
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+            status: 'DRAFT',
             version: 1
-          },
+          } as unknown as Prisma.JsonValue,
           status: 'DRAFT',
           createdBy: 'system', // TODO: Get from auth
           category: originalForm.category,
           tags: originalForm.tags
-        } as Prisma.FormCreateInput
+        }
       });
 
       res.status(201).json({
@@ -185,7 +197,7 @@ export class FormsController {
   }
 
   // Update form status
-  async updateFormStatus(req: Request, res: Response) {
+  async updateFormStatus(req: Request<{ id: string }, any, { status: FormStatus }>, res: Response) {
     try {
       const { id } = req.params;
       const { status } = req.body;
