@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
 import { Prisma } from '@prisma/client';
-import { Logger } from '../utils/logger';
 
 export interface AppError extends Error {
   statusCode?: number;
@@ -45,7 +44,7 @@ export const errorHandler = (
 
   // Log error in development
   if (process.env.NODE_ENV === 'development') {
-    Logger.error('Error:', {
+    console.error('Error:', {
       message: error.message,
       stack: error.stack,
       url: req.url,
