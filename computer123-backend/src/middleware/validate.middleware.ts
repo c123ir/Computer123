@@ -40,7 +40,7 @@ export const validateForm = (req: Request, res: Response, next: NextFunction) =>
     });
   }
 
-  next();
+  return next();
 };
 
 // اعتبارسنجی منو
@@ -102,7 +102,7 @@ export const validateMenu = (req: Request, res: Response, next: NextFunction) =>
     });
   }
 
-  next();
+  return next();
 };
 
 // اعتبارسنجی تغییر ترتیب منوها
@@ -123,7 +123,7 @@ export const validateMenuReorder = (req: Request, res: Response, next: NextFunct
     });
   }
 
-  next();
+  return next();
 };
 
 // اعتبارسنجی انتقال منو
@@ -137,5 +137,5 @@ export const validateMenuMove = (req: Request, res: Response, next: NextFunction
     });
   }
 
-  next();
+  return next();
 }; 
