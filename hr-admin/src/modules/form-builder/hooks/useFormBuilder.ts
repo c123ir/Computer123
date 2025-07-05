@@ -155,6 +155,22 @@ export const useFormBuilder = (options: UseFormBuilderOptions = {}) => {
    */
   function createEmptyForm(initial?: Partial<Form>): Form {
     const now = new Date().toISOString();
+    const defaultMetadata = {
+      createdBy: 'current-user', // TODO: Get from context
+      createdAt: now,
+      updatedAt: now,
+      status: 'draft',
+      version: 1,
+      formType: 'standard',
+      language: 'fa',
+      isPublic: false,
+      isTemplate: false,
+      isArchived: false,
+      lastPublishedAt: null,
+      lastArchivedAt: null,
+      viewCount: 0,
+      submissionCount: 0
+    };
     
     return {
       id: '',
@@ -183,11 +199,7 @@ export const useFormBuilder = (options: UseFormBuilderOptions = {}) => {
         ...initial?.styling
       },
       metadata: {
-        createdBy: 'current-user', // TODO: Get from context
-        createdAt: now,
-        updatedAt: now,
-        status: 'draft',
-        version: 1,
+        ...defaultMetadata,
         ...initial?.metadata
       },
       status: initial?.status || 'draft',
