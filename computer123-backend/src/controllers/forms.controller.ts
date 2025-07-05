@@ -5,13 +5,31 @@ import { Prisma, FormStatus } from '@prisma/client';
 import { Form } from '../types/form.types';
 
 export class FormsController {
+  // Convert database form to API form
+  private convertToApiForm(dbForm: any): Form {
+    return {
+      id: dbForm.id,
+      name: dbForm.name,
+      description: dbForm.description,
+      fields: JSON.parse(dbForm.fieldsData || '[]'),
+      settings: JSON.parse(dbForm.settings || '{}'),
+      styling: JSON.parse(dbForm.styling || '{}'),
+      metadata: JSON.parse(dbForm.metadata || '{}'),
+      status: dbForm.status,
+      category: dbForm.category,
+      tags: dbForm.tags,
+      createdAt: dbForm.createdAt,
+      updatedAt: dbForm.updatedAt
+    };
+  }
+
   // Get all forms
   async getForms(req: Request, res: Response) {
     try {
       const forms = await prisma.form.findMany();
       return res.json({
         success: true,
-        data: forms
+        data: forms.map(form => this.convertToApiForm(form))
       });
     } catch (error) {
       Logger.error('Error getting forms:', error);
@@ -39,7 +57,7 @@ export class FormsController {
 
       return res.json({
         success: true,
-        data: form
+        data: this.convertToApiForm(form)
       });
     } catch (error) {
       Logger.error('Error getting form by ID:', error);
@@ -78,7 +96,7 @@ export class FormsController {
 
       return res.status(201).json({
         success: true,
-        data: form
+        data: this.convertToApiForm(form)
       });
     } catch (error) {
       Logger.error('Error creating form:', error);
@@ -115,7 +133,7 @@ export class FormsController {
 
       return res.json({
         success: true,
-        data: form
+        data: this.convertToApiForm(form)
       });
     } catch (error) {
       Logger.error('Error updating form:', error);
@@ -166,9 +184,9 @@ export class FormsController {
         data: {
           name: `${originalForm.name} (کپی)`,
           description: originalForm.description,
-          fieldsData: JSON.stringify(originalForm.fieldsData) as any,
-          settings: JSON.stringify(originalForm.settings) as any,
-          styling: JSON.stringify(originalForm.styling) as any,
+          fieldsData: originalForm.fieldsData,
+          settings: originalForm.settings,
+          styling: originalForm.styling,
           metadata: JSON.stringify({
             createdBy: 'system',
             createdAt: new Date().toISOString(),
@@ -185,7 +203,7 @@ export class FormsController {
 
       return res.status(201).json({
         success: true,
-        data: clonedForm
+        data: this.convertToApiForm(clonedForm)
       });
     } catch (error) {
       Logger.error('Error cloning form:', error);
@@ -209,7 +227,7 @@ export class FormsController {
 
       return res.json({
         success: true,
-        data: form
+        data: this.convertToApiForm(form)
       });
     } catch (error) {
       Logger.error('Error updating form status:', error);
