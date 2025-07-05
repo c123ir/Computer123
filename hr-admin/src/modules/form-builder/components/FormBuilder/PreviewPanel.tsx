@@ -171,7 +171,7 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
           field={panel as FormField & { fieldSettings: { panelSettings: any } }}
           isSelected={selectedField === panel.id}
           onFieldSelect={onFieldSelect}
-          onFieldDrop={(fieldId) => onFieldDrop?.(fieldId, panel.id)}
+          onFieldDrop={(fieldId: string) => onFieldDrop?.(fieldId, panel.id)}
           readonly={readonly}
         >
           {panelFields.map(renderField)}
