@@ -22,8 +22,8 @@ interface PreviewPanelProps {
   selectedField?: string;
   /** callback تغییر فیلد انتخاب شده */
   onFieldSelect?: (fieldId: string) => void;
-  /** callback اضافه کردن فیلد جدید */
-  onAddField?: (type: FieldType) => void;
+  /** callback اضافه کردن فیلد جدید - برمی‌گرداند شناسه فیلد جدید */
+  onAddField?: (type: FieldType) => string;
   /** callback حذف فیلد */
   onDeleteField?: (fieldId: string) => void;
   /** callback کپی فیلد */
