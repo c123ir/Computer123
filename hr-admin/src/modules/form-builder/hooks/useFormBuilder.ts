@@ -736,32 +736,6 @@ export const useFormBuilder = (options: UseFormBuilderOptions = {}) => {
  */
 function getDefaultFieldSettings(type: FieldType): FormField['fieldSettings'] {
   switch (type) {
-    case 'text':
-    case 'email':
-    case 'tel':
-    case 'url':
-      return {
-        minLength: 0,
-        maxLength: 255
-      };
-    case 'textarea':
-      return {
-        rows: 4,
-        minLength: 0,
-        maxLength: 1000
-      };
-    case 'number':
-      return {
-        min: undefined,
-        max: undefined,
-        step: 1
-      };
-    case 'select':
-    case 'radio':
-    case 'checkbox':
-      return {
-        layout: 'vertical'
-      };
     case 'panel':
       return {
         panelSettings: {
@@ -777,6 +751,35 @@ function getDefaultFieldSettings(type: FieldType): FormField['fieldSettings'] {
           borderRadius: 8,
           backgroundOpacity: 1
         }
+      };
+    case 'select':
+    case 'radio':
+    case 'checkbox':
+      return {
+        multiple: false,
+        searchable: false,
+        layout: 'vertical'
+      };
+    case 'number':
+      return {
+        min: 0,
+        max: 100,
+        step: 1
+      };
+    case 'textarea':
+      return {
+        rows: 4
+      };
+    case 'date':
+      return {
+        minDate: undefined,
+        maxDate: undefined
+      };
+    case 'file':
+      return {
+        multiple: false,
+        maxFileSize: 5 * 1024 * 1024, // 5MB
+        fileTypes: ['image/*', 'application/pdf']
       };
     default:
       return {};
