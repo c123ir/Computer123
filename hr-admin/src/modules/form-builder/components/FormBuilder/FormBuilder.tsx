@@ -36,39 +36,42 @@ export const FormBuilder: React.FC<FormBuilderProps> = ({
     try {
       // اگر فرم جدید است
       if (!form.id) {
+        const defaultSettings = {
+          direction: 'rtl',
+          theme: 'light',
+          submitButtonText: 'ارسال',
+          showProgressBar: false,
+          allowSaveDraft: true,
+          showFieldNumbers: false,
+          formWidth: 'medium'
+        };
+
+        const defaultStyling = {
+          theme: 'default',
+          backgroundColor: '#ffffff',
+          textColor: '#374151',
+          primaryColor: '#3b82f6',
+          fontFamily: 'Vazirmatn',
+          fontSize: 14,
+          borderRadius: 8,
+          spacing: 'normal'
+        };
+
+        const defaultMetadata = {
+          createdBy: 'current-user',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          status: 'draft',
+          version: 1
+        };
+
         const createDto: CreateFormDto = {
           name: form.name || 'فرم جدید',
           description: form.description || '',
           fields: form.fields || [],
-          settings: {
-            direction: 'rtl',
-            theme: 'light',
-            submitButtonText: 'ارسال',
-            showProgressBar: false,
-            allowSaveDraft: true,
-            showFieldNumbers: false,
-            formWidth: 'medium',
-            ...form.settings
-          },
-          styling: {
-            theme: 'default',
-            backgroundColor: '#ffffff',
-            textColor: '#374151',
-            primaryColor: '#3b82f6',
-            fontFamily: 'Vazirmatn',
-            fontSize: 14,
-            borderRadius: 8,
-            spacing: 'normal',
-            ...form.styling
-          },
-          metadata: {
-            createdBy: 'current-user',
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-            status: 'draft',
-            version: 1,
-            ...form.metadata
-          }
+          settings: { ...defaultSettings, ...form.settings },
+          styling: { ...defaultStyling, ...form.styling },
+          metadata: { ...defaultMetadata, ...form.metadata }
         };
         const newFormId = await FormService.createForm(createDto);
         onSave?.(newFormId);
