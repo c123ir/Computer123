@@ -222,25 +222,7 @@ class FormsAPIService {
  * Hook برای دسترسی به API فرم‌ها
  */
 export const useFormsAPI = () => {
-  const formsAPI: FormsAPI = {
-    getForms: useCallback(async (filters?: FormFilters): Promise<PaginatedResponse<Form>> => {
-      const result = await FormService.searchForms(
-        filters?.search || '', 
-        filters,
-        { page: filters?.page || 1, limit: filters?.limit || 10 }
-      );
-      return {
-        success: true,
-        data: result.data,
-        pagination: {
-          page: filters?.page || 1,
-          limit: filters?.limit || 10,
-          total: result.pagination.totalItems,
-          totalPages: result.pagination.totalPages
-        }
-      };
-    }, []),
-
+  const formsAPI = {
     getForm: useCallback(async (id: string): Promise<Form> => {
       const form = await FormService.getForm(id);
       if (!form) throw new Error('Form not found');
@@ -255,8 +237,7 @@ export const useFormsAPI = () => {
     }, []),
 
     updateForm: useCallback(async (id: string, data: UpdateFormDto): Promise<Form> => {
-      await FormService.updateForm(id, data);
-      const form = await FormService.getForm(id);
+      const form = await FormService.updateForm(id, data);
       if (!form) throw new Error('Updated form not found');
       return form;
     }, []),
@@ -265,63 +246,21 @@ export const useFormsAPI = () => {
       await FormService.deleteForm(id);
     }, []),
 
-    duplicateForm: useCallback(async (id: string): Promise<Form> => {
-      const newFormId = await FormService.duplicateForm(id);
-      const form = await FormService.getForm(newFormId);
-      if (!form) throw new Error('Duplicated form not found');
+    cloneForm: useCallback(async (id: string): Promise<Form> => {
+      const newId = await FormService.cloneForm(id);
+      const form = await FormService.getForm(newId);
+      if (!form) throw new Error('Cloned form not found');
       return form;
     }, []),
 
     updateFormStatus: useCallback(async (id: string, status: Form['status']): Promise<Form> => {
-      await FormService.updateForm(id, { status });
-      const form = await FormService.getForm(id);
-      if (!form) throw new Error('Updated form not found');
+      const form = await FormService.updateFormStatus(id, status);
+      if (!form) throw new Error('Form not found after status update');
       return form;
     }, []),
 
-    getFormResponses: useCallback(async (formId: string, filters?: FormFilters): Promise<PaginatedResponse<FormResponse>> => {
-      const result = await FormService.getFormResponses(formId, filters, { page: filters?.page || 1, limit: filters?.limit || 10 });
-      return {
-        success: true,
-        data: result.data,
-        pagination: {
-          page: filters?.page || 1,
-          limit: filters?.limit || 10,
-          total: result.pagination.totalItems,
-          totalPages: result.pagination.totalPages
-        }
-      };
-    }, []),
-
-    getStats: useCallback(async (): Promise<DatabaseStats> => {
-      const stats = await FormService.getFormStats('all');
-      return {
-        totalForms: stats?.totalForms || 0,
-        totalResponses: stats?.totalResponses || 0,
-        activeForms: stats?.activeForms || 0,
-        databaseSize: stats?.databaseSize || 0,
-        performance: {
-          averageQueryTime: stats?.performance?.averageQueryTime || 0,
-          todayQueries: stats?.performance?.todayQueries || 0,
-          recentErrors: stats?.performance?.recentErrors || 0
-        }
-      };
-    }, []),
-
-    healthCheck: useCallback(async (): Promise<HealthCheckResult> => {
-      // FormService doesn't have a healthCheck method, so return a mock response
-  return {
-        status: 'healthy',
-        timestamp: new Date().toISOString(),
-        responseTime: 0,
-        checks: [
-          {
-            name: 'Database',
-            status: 'healthy',
-            message: 'Database is operational'
-          }
-        ]
-      };
+    getForms: useCallback(async (): Promise<Form[]> => {
+      return await FormService.getForms();
     }, [])
   };
 
