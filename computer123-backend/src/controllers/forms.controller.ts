@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import { prisma } from '../config/database';
 import { Logger } from '../utils/logger';
 import { Prisma, FormStatus } from '@prisma/client';
-import { Form, FormField, FormSettings, FormStyling, FormMetadata } from '../types/form.types';
+import { Form } from '../types/form.types';
 
 export class FormsController {
   // Get all forms
@@ -59,16 +59,16 @@ export class FormsController {
         data: {
           name: formData.name,
           description: formData.description || '',
-          fieldsData: formData.fields || [],
-          settings: formData.settings || {},
-          styling: formData.styling || {},
-          metadata: {
+          fieldsData: JSON.stringify(formData.fields || []) as any,
+          settings: JSON.stringify(formData.settings || {}) as any,
+          styling: JSON.stringify(formData.styling || {}) as any,
+          metadata: JSON.stringify({
             createdBy: 'system',
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
             status: 'DRAFT',
             version: 1
-          },
+          }) as any,
           status: 'DRAFT',
           createdBy: 'system', // TODO: Get from auth
           category: formData.category,
@@ -95,13 +95,13 @@ export class FormsController {
       const { id } = req.params;
       const formData = req.body;
 
-      const updateData = {
+      const updateData: Prisma.FormUpdateInput = {
         ...(formData.name && { name: formData.name }),
         ...(formData.description && { description: formData.description }),
-        ...(formData.fields && { fieldsData: formData.fields }),
-        ...(formData.settings && { settings: formData.settings }),
-        ...(formData.styling && { styling: formData.styling }),
-        ...(formData.metadata && { metadata: formData.metadata }),
+        ...(formData.fields && { fieldsData: JSON.stringify(formData.fields) as any }),
+        ...(formData.settings && { settings: JSON.stringify(formData.settings) as any }),
+        ...(formData.styling && { styling: JSON.stringify(formData.styling) as any }),
+        ...(formData.metadata && { metadata: JSON.stringify(formData.metadata) as any }),
         ...(formData.status && { status: formData.status }),
         updatedBy: 'system', // TODO: Get from auth
         ...(formData.category && { category: formData.category }),
@@ -169,13 +169,13 @@ export class FormsController {
           fieldsData: originalForm.fieldsData,
           settings: originalForm.settings,
           styling: originalForm.styling,
-          metadata: {
+          metadata: JSON.stringify({
             createdBy: 'system',
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
             status: 'DRAFT',
             version: 1
-          },
+          }) as any,
           status: 'DRAFT',
           createdBy: 'system', // TODO: Get from auth
           category: originalForm.category,
