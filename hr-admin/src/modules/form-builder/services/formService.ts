@@ -638,8 +638,12 @@ export class FormService {
         field: 'fields'
       });
     } else {
-      const fieldValidation = ValidationService.validateBatch(formData.fields, {}, { validateHidden: false });
-      errors.push(...fieldValidation.errors);
+      const fieldResults = ValidationService.validateForm(formData.fields, formData);
+      Object.values(fieldResults).forEach(result => {
+        if (!result.isValid) {
+          errors.push(...result.errors);
+        }
+      });
     }
 
     return {
@@ -652,14 +656,46 @@ export class FormService {
    * اعتبارسنجی فیلدها
    */
   private static validateFields(fields: FormField[]): ValidationResult {
-    return ValidationService.validateBatch(fields, {}, { validateHidden: false });
+    const results = ValidationService.validateForm(fields, {});
+    const errors: Array<{
+      type: ValidationErrorType;
+      message: string;
+      field: string;
+    }> = [];
+
+    Object.values(results).forEach(result => {
+      if (!result.isValid) {
+        errors.push(...result.errors);
+      }
+    });
+
+    return {
+      isValid: errors.length === 0,
+      errors
+    };
   }
 
   /**
    * اعتبارسنجی پاسخ فرم
    */
   private static validateFormResponse(form: Form, answers: Record<string, any>): ValidationResult {
-    return ValidationService.validateBatch(form.fields, answers, { validateHidden: true });
+    const results = ValidationService.validateForm(form.fields, answers);
+    const errors: Array<{
+      type: ValidationErrorType;
+      message: string;
+      field: string;
+    }> = [];
+
+    Object.values(results).forEach(result => {
+      if (!result.isValid) {
+        errors.push(...result.errors);
+      }
+    });
+
+    return {
+      isValid: errors.length === 0,
+      errors
+    };
   }
 
   // =================================
