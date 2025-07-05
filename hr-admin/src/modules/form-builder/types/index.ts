@@ -13,14 +13,7 @@ export type {
 } from './form.types';
 
 // Field types
-export type { 
-  FormField, 
-  FieldType, 
-  FieldOption, 
-  ValidationRules, 
-  FieldStyling,
-  CustomValidator
-} from './field.types';
+export * from './field.types';
 
 // Database types - specific exports to avoid conflicts
 export type { 
