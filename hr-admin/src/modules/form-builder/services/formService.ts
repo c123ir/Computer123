@@ -67,7 +67,31 @@ export class FormService {
         }
       }
 
-      const form = await this.db.getForm(id);
+      const response = await fetch(buildApiUrl(`/forms/${id}`));
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null);
+        const errorMessage = errorData?.message || response.statusText;
+        console.error('API Error:', errorData);
+        throw new Error(`خطا در دریافت فرم: ${errorMessage}`);
+      }
+      
+      const data = await response.json();
+      
+      // بررسی ساختار پاسخ
+      if (!data.success) {
+        console.error('Invalid API Response:', data);
+        throw new Error('خطا: پاسخ نامعتبر از سرور');
+      }
+
+      const form = {
+        ...data.data,
+        fields: data.data.fields || [],
+        settings: {
+          ...data.data.settings,
+          updatedAt: new Date().toISOString()
+        }
+      };
       
       if (form && useCache) {
         // ذخیره در cache برای 1 ساعت
