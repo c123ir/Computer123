@@ -3,7 +3,8 @@
 import React, { useState } from 'react';
 import {
   Type, AlignLeft, Hash, Mail, Phone, Link, ChevronDown, Circle, Square,
-  Calendar, Clock, CalendarClock, Upload, PenTool, Star, Sliders, Search, List, CheckSquare, Globe
+  Calendar, Clock, CalendarClock, Upload, PenTool, Star, Sliders, Search, List, CheckSquare, Globe,
+  LayoutDashboard, Layout
 } from 'lucide-react';
 import { FieldType } from '../../types';
 
@@ -37,6 +38,9 @@ export const FieldsPanel: React.FC<FieldsPanelProps> = ({
 
   // تعریف فیلدهای موجود
   const fieldTypes = [
+    // فیلدهای چیدمان
+    { type: 'panel' as FieldType, label: 'پنل', icon: LayoutDashboard, description: 'پنل با قابلیت تنظیم ستون‌ها', category: 'layout' },
+    
     // فیلدهای پایه
     { type: 'text' as FieldType, label: 'متن کوتاه', icon: Type, description: 'متن یک خطی', category: 'basic' },
     { type: 'textarea' as FieldType, label: 'متن بلند', icon: AlignLeft, description: 'متن چند خطی', category: 'basic' },
@@ -67,6 +71,7 @@ export const FieldsPanel: React.FC<FieldsPanelProps> = ({
   // دسته‌بندی‌ها
   const categories = [
     { id: 'all', label: 'همه فیلدها', count: fieldTypes.length },
+    { id: 'layout', label: 'چیدمان', count: fieldTypes.filter(f => f.category === 'layout').length },
     { id: 'basic', label: 'پایه', count: fieldTypes.filter(f => f.category === 'basic').length },
     { id: 'choice', label: 'انتخابی', count: fieldTypes.filter(f => f.category === 'choice').length },
     { id: 'datetime', label: 'تاریخ و زمان', count: fieldTypes.filter(f => f.category === 'datetime').length },
