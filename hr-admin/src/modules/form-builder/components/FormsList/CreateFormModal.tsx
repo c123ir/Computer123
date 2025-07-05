@@ -5,7 +5,7 @@ import { useMutation } from '@tanstack/react-query';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import { useFormsAPI } from '../../hooks/useFormsAPI';
 import { CreateFormDto, FormField, FieldType } from '../../types';
-import { formService } from '../../services/formService';
+import { FormService } from '../../services/formService';
 
 interface CreateFormModalProps {
   /** آیا مودال باز است */
@@ -198,7 +198,7 @@ export const CreateFormModal: React.FC<CreateFormModalProps> = ({
   const handleSubmit = async () => {
     try {
       setIsSubmitting(true);
-      const response = await formService.createForm({
+      const response = await FormService.createForm({
         name: formData.name!,
         description: formData.description,
         fields: defaultFields,
