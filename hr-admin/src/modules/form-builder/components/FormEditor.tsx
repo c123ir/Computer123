@@ -13,6 +13,8 @@ const defaultForm: Form = {
   description: '',
   fields: [],
   settings: {
+    direction: 'rtl',
+    theme: 'light',
     submitButtonText: 'ارسال',
     showProgressBar: true,
     allowSaveDraft: true,
