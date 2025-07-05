@@ -140,11 +140,12 @@ export const FormBuilder: React.FC<FormBuilderProps> = ({
 
   // ایجاد پنل پیش‌فرض برای فرم جدید
   useEffect(() => {
-    if (!formId && fields.length === 0) {
+    if (!formId && !form.id && fields.length === 0) {
+      console.log('Creating default panel for new form');
       const defaultPanelId = addField('panel');
       selectField(defaultPanelId);
     }
-  }, [formId, fields.length, addField, selectField]);
+  }, [formId, form.id]);
 
   // Handle field selection from FieldsPanel
   const handleFieldSelect = (fieldType: FieldType, parentId?: string): string => {
