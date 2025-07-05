@@ -1,6 +1,6 @@
 // src/modules/form-builder/components/FormBuilder/FormBuilder.tsx
 
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Save, X, RotateCcw, Eye, Settings as SettingsIcon } from 'lucide-react';
 import { useFormBuilder, useFormBuilderShortcuts } from '../../hooks';
 import SidePanel from './SidePanel';
@@ -29,6 +29,15 @@ export const FormBuilder: React.FC<FormBuilderProps> = ({
   readonly = false
 }) => {
   const [showResetConfirm, setShowResetConfirm] = useState(false);
+  
+  // Memoize callbacks
+  const handleFormSave = useCallback(async (savedForm) => {
+    onSave?.(savedForm.id);
+  }, [onSave]);
+
+  const handleFormError = useCallback((error) => {
+    console.error('Form builder error:', error);
+  }, []);
   
   // استفاده از hook اصلی
   const {
@@ -59,12 +68,8 @@ export const FormBuilder: React.FC<FormBuilderProps> = ({
     formId,
     autoSave: true,
     autoSaveInterval: 30000,
-    onSave: async (savedForm) => {
-      onSave?.(savedForm.id);
-    },
-    onError: (error) => {
-      console.error('Form builder error:', error);
-    }
+    onSave: handleFormSave,
+    onError: handleFormError
   });
 
   // Keyboard shortcuts
