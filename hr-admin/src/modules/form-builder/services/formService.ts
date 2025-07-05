@@ -265,11 +265,10 @@ export class FormService {
     useCache: boolean = true
   ): Promise<PaginatedResult<Form>> {
     try {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const cacheKey = `forms_${JSON.stringify({ filters, pagination })}`;
       
       if (useCache) {
-        const cached = await this.cache.get();
+        const cached = await this.cache.get(cacheKey);
         if (cached) {
           console.log('📋 Forms list loaded from cache');
           return cached;
@@ -280,7 +279,7 @@ export class FormService {
       
       if (useCache) {
         // ذخیره در cache برای 10 دقیقه
-        await this.cache.set();
+        await this.cache.set(cacheKey, result);
       }
 
       return result;
@@ -405,11 +404,10 @@ export class FormService {
     useCache: boolean = true
   ): Promise<PaginatedResult<FormResponse>> {
     try {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const cacheKey = `responses_${formId}_${JSON.stringify({ filters, pagination })}`;
       
       if (useCache) {
-        const cached = await this.cache.get();
+        const cached = await this.cache.get(cacheKey);
         if (cached) {
           console.log('📋 Responses loaded from cache');
           return cached;
@@ -420,7 +418,7 @@ export class FormService {
       
       if (useCache) {
         // ذخیره در cache برای 5 دقیقه
-        await this.cache.set();
+        await this.cache.set(cacheKey, result);
       }
 
       return result;
@@ -457,10 +455,9 @@ export class FormService {
    */
   static async getTemplates(category?: string): Promise<FormTemplate[]> {
     try {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const cacheKey = `templates_${category || 'all'}`;
       
-      const cached = await this.cache.get();
+      const cached = await this.cache.get(cacheKey);
       if (cached) {
         return cached;
       }
@@ -468,7 +465,7 @@ export class FormService {
       const templates = await this.db.getTemplates(category);
       
       // ذخیره در cache برای 1 ساعت
-      await this.cache.set();
+      await this.cache.set(cacheKey, templates);
       
       return templates;
     } catch (error) {
@@ -598,10 +595,9 @@ export class FormService {
    */
   static async getFormStats(formId: string, useCache: boolean = true): Promise<any> {
     try {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const cacheKey = `stats_${formId}`;
       
-      const cached = await this.cache.get();
+      const cached = await this.cache.get(cacheKey);
       if (cached) {
         return cached;
       }
@@ -609,7 +605,7 @@ export class FormService {
       const stats = await this.db.getFormStats(formId);
       
       // ذخیره در cache برای 15 دقیقه
-      await this.cache.set();
+      await this.cache.set(cacheKey, stats);
       
       return stats;
     } catch (error) {
