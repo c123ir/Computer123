@@ -11,6 +11,21 @@ interface PanelFieldProps {
   readonly?: boolean;
 }
 
+// مقادیر پیش‌فرض برای تنظیمات پنل
+const defaultPanelSettings: PanelSettings = {
+  title: 'پنل جدید',
+  columns: 1,
+  collapsible: true,
+  defaultCollapsed: false,
+  padding: 'md',
+  margin: 'md',
+  shadow: 'md',
+  backgroundColor: '#ffffff',
+  borderColor: '#e5e7eb',
+  borderRadius: 8,
+  backgroundOpacity: 1
+};
+
 export const PanelField: React.FC<PanelFieldProps> = ({
   field,
   children,
@@ -19,7 +34,12 @@ export const PanelField: React.FC<PanelFieldProps> = ({
   isSelected,
   readonly
 }) => {
-  const { panelSettings } = field.fieldSettings;
+  // ترکیب تنظیمات پیش‌فرض با تنظیمات دریافتی
+  const panelSettings = {
+    ...defaultPanelSettings,
+    ...(field.fieldSettings?.panelSettings || {})
+  };
+  
   const [isCollapsed, setIsCollapsed] = useState(panelSettings.defaultCollapsed);
 
   // تبدیل تعداد ستون به کلاس tailwind
