@@ -8,16 +8,20 @@ import type { FormField } from './field.types';
  * تنظیمات فرم
  */
 export interface FormSettings {
+  /** جهت فرم */
+  direction: 'rtl' | 'ltr';
+  /** تم فرم */
+  theme: 'light' | 'dark';
   /** متن دکمه ارسال */
   submitButtonText: string;
   /** نمایش progress bar */
-  showProgressBar: boolean;
+  showProgressBar?: boolean;
   /** امکان ذخیره draft */
-  allowSaveDraft: boolean;
+  allowSaveDraft?: boolean;
   /** نمایش شماره فیلدها */
-  showFieldNumbers: boolean;
+  showFieldNumbers?: boolean;
   /** عرض فرم */
-  formWidth: 'small' | 'medium' | 'large' | 'full';
+  formWidth?: 'small' | 'medium' | 'large' | 'full';
   /** redirect پس از ارسال */
   redirectAfterSubmit?: string;
   /** پیام تشکر */
