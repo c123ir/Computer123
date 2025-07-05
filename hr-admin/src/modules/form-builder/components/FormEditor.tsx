@@ -59,8 +59,9 @@ export const FormEditor: React.FC<FormEditorProps> = ({ form: initialForm, onSav
       readonly: false,
       validation: {},
       styling: {
-        width: '100%',
+        width: '100%'
       },
+      order: form.fields.length
     };
 
     setForm(prev => ({
