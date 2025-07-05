@@ -2,6 +2,8 @@
 // 🔧 فایل: src/modules/form-builder/types/database.types.ts
 // =====================================================
 
+import { Form, CreateFormDto, UpdateFormDto } from './form.types';
+
 /**
  * نوع پایگاه داده
  */
@@ -247,54 +249,6 @@ export interface HealthCheckResult {
 }
 
 /**
- * DTO برای ایجاد فرم
- */
-export interface CreateFormDto {
-  name: string;
-  description?: string;
-  fields: any[];
-  settings: any;
-  styling: any;
-  status?: 'draft' | 'published' | 'archived' | 'paused';
-  category?: string;
-  tags?: string[];
-  metadata?: any;
-}
-
-/**
- * DTO برای بروزرسانی فرم
- */
-export interface UpdateFormDto {
-  name?: string;
-  description?: string;
-  fields?: any[];
-  settings?: any;
-  styling?: any;
-  status?: 'draft' | 'published' | 'archived' | 'paused';
-  category?: string;
-  tags?: string[];
-  metadata?: any;
-  updatedAt?: string;
-}
-
-// =====================================================
-// 🔧 انواع خطاهای Validation
-// =====================================================
-
-export type ValidationErrorType = 
-  | 'required'
-  | 'minLength'
-  | 'maxLength'
-  | 'pattern'
-  | 'min'
-  | 'max'
-  | 'email'
-  | 'url'
-  | 'fileType'
-  | 'fileSize'
-  | 'custom';
-
-/**
  * نتیجه اعتبارسنجی
  */
 export interface ValidationResult {
@@ -313,5 +267,22 @@ export interface ValidationResult {
     field: string;
   }>;
 }
+
+// =====================================================
+// 🔧 انواع خطاهای Validation
+// =====================================================
+
+export type ValidationErrorType = 
+  | 'required'
+  | 'minLength'
+  | 'maxLength'
+  | 'pattern'
+  | 'min'
+  | 'max'
+  | 'email'
+  | 'url'
+  | 'fileType'
+  | 'fileSize'
+  | 'custom';
 
 // Note: Form type will be imported where needed to avoid circular dependencies
