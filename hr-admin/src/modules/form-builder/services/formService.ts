@@ -90,6 +90,35 @@ export class FormService {
   }
 
   /**
+   * دریافت فرم از cache
+   */
+  private static async getFormFromCache(id: string): Promise<Form | null> {
+    try {
+      const cacheKey = `form_${id}`;
+      const cached = await this.cache.get(cacheKey);
+      if (cached) {
+        return cached;
+      }
+      return null;
+    } catch (error) {
+      console.error('❌ Error reading from cache:', error);
+      return null;
+    }
+  }
+
+  /**
+   * ذخیره فرم در cache
+   */
+  private static async saveFormToCache(id: string, form: Form): Promise<void> {
+    try {
+      const cacheKey = `form_${id}`;
+      await this.cache.set(cacheKey, form);
+    } catch (error) {
+      console.error('❌ Error saving to cache:', error);
+    }
+  }
+
+  /**
    * ایجاد فرم جدید
    */
   static async createForm(form: CreateFormDto): Promise<string> {
