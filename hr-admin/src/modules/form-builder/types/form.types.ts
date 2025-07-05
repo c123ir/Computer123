@@ -3,7 +3,6 @@
 // =====================================================
 
 import { FormField } from './field.types';
-import { Form } from './form.model';
 
 /**
  * تنظیمات فرم
@@ -183,12 +182,12 @@ export interface FormTemplate {
 export interface CreateFormDto {
   name: string;
   description?: string;
-  fields: Form['fields'];
-  settings: Form['settings'];
-  styling: Form['styling'];
+  fields: FormField[];
+  settings: FormSettings;
+  styling: FormStyling;
   category?: string;
   tags?: string[];
-  metadata?: Partial<Form['metadata']>;
+  metadata?: Partial<FormMetadata>;
 }
 
 /**
@@ -197,12 +196,10 @@ export interface CreateFormDto {
 export interface UpdateFormDto {
   name?: string;
   description?: string;
-  fields?: Form['fields'];
-  settings?: Partial<Form['settings']>;
-  styling?: Partial<Form['styling']>;
+  fields?: FormField[];
+  settings?: Partial<FormSettings>;
+  styling?: Partial<FormStyling>;
   category?: string;
   tags?: string[];
-  metadata?: Partial<Form['metadata']>;
+  metadata?: Partial<FormMetadata>;
 }
-
-export type { Form } from './form.model';
