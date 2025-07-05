@@ -226,6 +226,15 @@ model FormField {
   validation  Json?     // Validation rules
   permissions String[]  // Field level permissions
   
+  // Panel specific fields
+  isPanel     Boolean   @default(false) @map("is_panel")
+  parentId    String?   @map("parent_id")
+  parent      FormField? @relation("PanelFields", fields: [parentId], references: [id])
+  children    FormField[] @relation("PanelFields")
+  
+  // Panel settings
+  panelConfig Json?     @map("panel_config") // تنظیمات مخصوص پنل
+  
   // Relations
   form        Form      @relation(fields: [formId], references: [id], onDelete: Cascade)
   
@@ -235,6 +244,8 @@ model FormField {
   
   @@index([formId])
   @@index([type])
+  @@index([parentId])
+  @@index([isPanel])
   @@map("form_fields")
 }
 
