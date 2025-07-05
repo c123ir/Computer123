@@ -25,34 +25,51 @@ import { buildApiUrl } from '../../../utils/api';
 export class FormService {
   private static db: DatabaseService = DatabaseFactory.createService({ type: 'postgresql' });
   private static cache = {
-    get: () => Promise.resolve(null),
-    set: () => Promise.resolve(),
-    delete: () => Promise.resolve(),
-    clear: () => Promise.resolve()
+    get: async () => null,
+    set: async () => {},
+    delete: async () => {}
   };
 
   /**
    * دریافت فرم با شناسه
    */
-  static async getForm(id: string): Promise<Form> {
+  static async getForm(id: string, useCache: boolean = false): Promise<Form | null> {
     console.log('🔍 Fetching form:', id);
     console.log('🌐 URL:', buildApiUrl(`/forms/${id}`));
     
     try {
+      // بررسی cache
+      if (useCache) {
+        const cached = await this.cache.get();
+        if (cached) {
+          console.log('📋 Form loaded from cache:', id);
+          return cached;
+        }
+      }
+
       const response = await fetch(buildApiUrl(`/forms/${id}`));
       console.log('📡 Response status:', response.status);
       
       if (!response.ok) {
+        if (response.status === 404) {
+          return null;
+        }
         throw new Error(`خطا در دریافت فرم: ${response.statusText}`);
       }
       
       const data = await response.json();
       console.log('📦 Response data:', data);
       
-      return {
+      const form = {
         ...data,
-        fields: data.fields || [] // اطمینان از وجود fields
+        fields: data.fields || []
       };
+
+      if (useCache) {
+        await this.cache.set();
+      }
+
+      return form;
     } catch (error) {
       console.error('❌ Error fetching form:', error);
       throw error;
@@ -62,7 +79,7 @@ export class FormService {
   /**
    * ایجاد فرم جدید
    */
-  static async createForm(form: Partial<Form>): Promise<Form> {
+  static async createForm(form: CreateFormDto): Promise<string> {
     try {
       const response = await fetch(buildApiUrl('/forms/create'), {
         method: 'POST',
@@ -77,10 +94,7 @@ export class FormService {
       }
       
       const data = await response.json();
-      return {
-        ...data,
-        fields: data.fields || []
-      };
+      return data.id;
     } catch (error) {
       console.error('❌ Error creating form:', error);
       throw error;
@@ -90,7 +104,7 @@ export class FormService {
   /**
    * بروزرسانی فرم
    */
-  static async updateForm(id: string, form: Partial<Form>): Promise<Form> {
+  static async updateForm(id: string, form: UpdateFormDto): Promise<Form | null> {
     try {
       const response = await fetch(buildApiUrl(`/forms/${id}`), {
         method: 'PUT',
@@ -136,7 +150,7 @@ export class FormService {
   /**
    * کپی فرم
    */
-  static async cloneForm(id: string): Promise<Form> {
+  static async cloneForm(id: string): Promise<string> {
     try {
       const response = await fetch(buildApiUrl(`/forms/${id}/clone`), {
         method: 'POST'
@@ -147,10 +161,7 @@ export class FormService {
       }
       
       const data = await response.json();
-      return {
-        ...data,
-        fields: data.fields || []
-      };
+      return data.id;
     } catch (error) {
       console.error('❌ Error cloning form:', error);
       throw error;
@@ -160,25 +171,18 @@ export class FormService {
   /**
    * تغییر وضعیت فرم
    */
-  static async updateFormStatus(id: string, status: Form['status']): Promise<Form> {
+  static async updateFormStatus(id: string, status: Form['status']): Promise<Form | null> {
     try {
-      const response = await fetch(buildApiUrl(`/forms/${id}/status`), {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ status })
-      });
-      
-      if (!response.ok) {
-        throw new Error(`خطا در تغییر وضعیت فرم: ${response.statusText}`);
-      }
-      
-      const data = await response.json();
-      return {
-        ...data,
-        fields: data.fields || []
+      const now = new Date().toISOString();
+      const metadata = {
+        status,
+        updatedAt: now,
+        createdAt: now,
+        createdBy: 'system',
+        version: 1
       };
+
+      return await this.updateForm(id, { metadata });
     } catch (error) {
       console.error('❌ Error updating form status:', error);
       throw error;
