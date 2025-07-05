@@ -533,7 +533,7 @@ export const useFormBuilder = (options: UseFormBuilderOptions = {}) => {
     const errors: Record<string, string> = {};
 
     // بررسی نام فرم
-    if (!state.form.name.trim()) {
+    if (!state.form.name || !state.form.name.trim()) {
       errors.name = 'نام فرم الزامی است';
     }
 
@@ -548,6 +548,13 @@ export const useFormBuilder = (options: UseFormBuilderOptions = {}) => {
     if (duplicateIds.length > 0) {
       errors.duplicateFields = 'شناسه فیلدهای تکراری یافت شد';
     }
+
+    // بررسی برچسب فیلدها
+    state.form.fields.forEach(field => {
+      if (!field.label || !field.label.trim()) {
+        errors[`field_${field.id}_label`] = 'برچسب فیلد الزامی است';
+      }
+    });
 
     setState(prev => ({ ...prev, errors }));
     return Object.keys(errors).length === 0;
