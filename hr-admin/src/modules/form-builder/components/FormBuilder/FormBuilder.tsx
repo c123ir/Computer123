@@ -164,6 +164,14 @@ export const FormBuilder: React.FC<FormBuilderProps> = ({
       name: `field_${nanoid(6)}`,
       order: form.fields.length + 1,
       required: false,
+      disabled: false,
+      readonly: false,
+      validation: {
+        required: false
+      },
+      styling: {
+        width: '100%'
+      },
       parentId,
       fieldSettings: type === 'panel' ? {
         panelSettings: {
