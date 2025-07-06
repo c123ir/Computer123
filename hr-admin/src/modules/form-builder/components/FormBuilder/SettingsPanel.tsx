@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { FormField, ValidationRules, FieldStyling, PanelSettings } from '../../types';
 import { motion, AnimatePresence } from 'framer-motion';
+import { PanelSettings as ImportedPanelSettings } from '../Settings/PanelSettings';
 
 /**
  * پنل تنظیمات فیلد انتخاب شده
@@ -161,7 +162,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
             >
-              <PanelSettings
+              <ImportedPanelSettings
                 field={selectedField}
                 onUpdate={updateField}
                 readonly={readonly}
@@ -884,167 +885,6 @@ const AdvancedSettings: React.FC<{
             <span className="text-gray-600 dark:text-gray-400">Screen Reader</span>
             <span className="text-green-600 dark:text-green-400">✓</span>
           </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const PanelSettings: React.FC<{
-  field: FormField;
-  onUpdate: (updates: Partial<FormField>) => void;
-  readonly: boolean;
-}> = ({ field, onUpdate, readonly }) => {
-  const panelSettings = field.fieldSettings?.panelSettings || {};
-
-  const updatePanelSettings = (updates: Partial<PanelSettings>) => {
-    onUpdate({
-      fieldSettings: {
-        ...field.fieldSettings,
-        panelSettings: {
-          ...panelSettings,
-          ...updates
-        }
-      }
-    });
-  };
-
-  return (
-    <div className="space-y-6">
-      {/* Title */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-          عنوان پنل
-        </label>
-        <input
-          type="text"
-          value={panelSettings.title || ''}
-          onChange={(e) => updatePanelSettings({ title: e.target.value })}
-          disabled={readonly}
-          className="w-full px-3 py-2 border border-gray-200 dark:border-gray-600 rounded-lg 
-                   bg-white dark:bg-gray-800
-                   text-gray-900 dark:text-white 
-                   placeholder-gray-500 dark:placeholder-gray-400
-                   focus:ring-2 focus:ring-blue-500 focus:border-transparent
-                   disabled:opacity-60 disabled:cursor-not-allowed
-                   transition-all duration-200"
-          placeholder="عنوان پنل را وارد کنید"
-        />
-      </div>
-
-      {/* Columns */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-          تعداد ستون‌ها
-        </label>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => updatePanelSettings({ columns: Math.max(1, (panelSettings.columns || 1) - 1) })}
-            disabled={readonly || (panelSettings.columns || 1) <= 1}
-            className="p-1.5 text-gray-600 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 
-                     bg-gray-100 dark:bg-gray-700 rounded-lg transition-colors
-                     disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <Minus className="w-4 h-4" />
-          </button>
-          <span className="w-8 text-center text-gray-900 dark:text-white font-medium">
-            {panelSettings.columns || 1}
-          </span>
-          <button
-            onClick={() => updatePanelSettings({ columns: Math.min(4, (panelSettings.columns || 1) + 1) })}
-            disabled={readonly || (panelSettings.columns || 1) >= 4}
-            className="p-1.5 text-gray-600 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 
-                     bg-gray-100 dark:bg-gray-700 rounded-lg transition-colors
-                     disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <Plus className="w-4 h-4" />
-          </button>
-        </div>
-      </div>
-
-      {/* Collapsible */}
-      <div className="flex items-center">
-        <input
-          type="checkbox"
-          id="collapsible"
-          checked={panelSettings.collapsible}
-          onChange={(e) => updatePanelSettings({ collapsible: e.target.checked })}
-          disabled={readonly}
-          className="w-4 h-4 text-blue-600 border-gray-300 rounded
-                   focus:ring-blue-500 dark:focus:ring-blue-600 
-                   dark:ring-offset-gray-800 dark:bg-gray-700 
-                   dark:border-gray-600"
-        />
-        <label htmlFor="collapsible" className="ml-2 text-sm font-medium text-gray-700 dark:text-gray-300">
-          قابلیت جمع شدن
-        </label>
-      </div>
-
-      {/* Default Collapsed */}
-      {panelSettings.collapsible && (
-        <div className="flex items-center">
-          <input
-            type="checkbox"
-            id="defaultCollapsed"
-            checked={panelSettings.defaultCollapsed}
-            onChange={(e) => updatePanelSettings({ defaultCollapsed: e.target.checked })}
-            disabled={readonly}
-            className="w-4 h-4 text-blue-600 border-gray-300 rounded
-                     focus:ring-blue-500 dark:focus:ring-blue-600 
-                     dark:ring-offset-gray-800 dark:bg-gray-700 
-                     dark:border-gray-600"
-          />
-          <label htmlFor="defaultCollapsed" className="ml-2 text-sm font-medium text-gray-700 dark:text-gray-300">
-            به صورت پیش‌فرض جمع شده باشد
-          </label>
-        </div>
-      )}
-
-      {/* Background Color */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-          رنگ پس‌زمینه
-        </label>
-        <input
-          type="color"
-          value={panelSettings.backgroundColor || '#ffffff'}
-          onChange={(e) => updatePanelSettings({ backgroundColor: e.target.value })}
-          disabled={readonly}
-          className="w-full h-10 rounded-lg cursor-pointer"
-        />
-      </div>
-
-      {/* Border Color */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-          رنگ حاشیه
-        </label>
-        <input
-          type="color"
-          value={panelSettings.borderColor || '#e5e7eb'}
-          onChange={(e) => updatePanelSettings({ borderColor: e.target.value })}
-          disabled={readonly}
-          className="w-full h-10 rounded-lg cursor-pointer"
-        />
-      </div>
-
-      {/* Border Radius */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-          گردی گوشه‌ها
-        </label>
-        <input
-          type="range"
-          min="0"
-          max="20"
-          value={panelSettings.borderRadius || 8}
-          onChange={(e) => updatePanelSettings({ borderRadius: parseInt(e.target.value) })}
-          disabled={readonly}
-          className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer
-                   dark:bg-gray-700"
-        />
-        <div className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-          {panelSettings.borderRadius || 8}px
         </div>
       </div>
     </div>
