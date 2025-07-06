@@ -45,9 +45,9 @@ export type {
   UpdateFormDto
 } from './form.types';
 
-export * from './field.types';
 export * from './form.types';
 export * from './form.model';
+export * from './field.types';
 
 // نوع فیلدهای موجود
 export type FieldType = 
