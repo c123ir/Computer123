@@ -14,6 +14,14 @@ export interface FormSettings {
   theme: 'light' | 'dark';
   /** متن دکمه ارسال */
   submitButtonText: string;
+  /** متن دکمه ریست */
+  resetButtonText?: string;
+  /** نمایش دکمه ریست */
+  showResetButton: boolean;
+  /** لایه بندی فرم */
+  layout: 'vertical' | 'horizontal';
+  /** فاصله گذاری */
+  spacing: 'sm' | 'md' | 'lg';
   /** نمایش progress bar */
   showProgressBar?: boolean;
   /** امکان ذخیره draft */
@@ -43,22 +51,26 @@ export interface FormSettings {
  * تنظیمات ظاهری فرم
  */
 export interface FormStyling {
-  /** تم کلی */
-  theme: 'default' | 'modern' | 'dark' | 'minimal';
   /** رنگ پس‌زمینه */
-  backgroundColor: string;
+  backgroundColor?: string;
   /** رنگ متن */
-  textColor: string;
-  /** رنگ اصلی */
-  primaryColor: string;
-  /** فونت */
-  fontFamily: string;
-  /** اندازه فونت */
-  fontSize: number;
+  textColor?: string;
+  /** رنگ خط */
+  borderColor?: string;
   /** شعاع گوشه‌ها */
-  borderRadius: number;
-  /** فاصله‌گذاری */
-  spacing: 'compact' | 'normal' | 'relaxed';
+  borderRadius?: number;
+  /** پیش‌نمایش */
+  padding?: 'sm' | 'md' | 'lg';
+  /** فاصله گذاری */
+  margin?: 'sm' | 'md' | 'lg';
+  /** اثر ظل */
+  shadow?: 'none' | 'sm' | 'md' | 'lg';
+  /** عرض فرم */
+  width?: string;
+  /** عرض حداکثر فرم */
+  maxWidth?: string;
+  /** سفارشی CSS */
+  customCSS?: string;
 }
 
 /**
@@ -98,6 +110,8 @@ export interface Form {
   id: string;
   /** نام فرم */
   name: string;
+  /** عنوان فرم */
+  title: string;
   /** توضیح */
   description?: string;
   /** فیلدهای فرم */
@@ -107,17 +121,19 @@ export interface Form {
   /** ظاهر */
   styling: FormStyling;
   /** متادیتا */
-  metadata: FormMetadata;
+  metadata?: Record<string, any>;
+  /** تاریخ ایجاد */
+  createdAt?: Date;
+  /** تاریخ بروزرسانی */
+  updatedAt?: Date;
+  /** نسخه */
+  version?: number;
   /** وضعیت */
-  status: 'draft' | 'published' | 'archived' | 'paused';
+  status?: 'draft' | 'published' | 'archived';
   /** دسته‌بندی */
   category?: string;
   /** برچسب‌ها */
   tags?: string[];
-  /** تاریخ ایجاد */
-  createdAt: string;
-  /** تاریخ بروزرسانی */
-  updatedAt: string;
 }
 
 /**
