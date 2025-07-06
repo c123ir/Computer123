@@ -118,12 +118,8 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
     if (!Component) return null;
 
     return (
-      <motion.div
+      <div
         key={field.id}
-        layout
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -20 }}
         className={`
           relative group
           bg-white dark:bg-gray-800
@@ -190,7 +186,7 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
             </button>
           </div>
         )}
-      </motion.div>
+      </div>
     );
   }, [selectedField, readonly, onFieldSelect, onDeleteField, onDuplicateField, onMoveField]);
 
@@ -198,12 +194,8 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
     const { panel, fields: panelFields } = groupedFields[panelId];
     
     return (
-      <motion.div
+      <div
         key={panel.id}
-        layout
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -20 }}
         className="mb-6"
       >
         <PanelField
@@ -215,7 +207,7 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
         >
           {panelFields.map(renderField)}
         </PanelField>
-      </motion.div>
+      </div>
     );
   }, [groupedFields, selectedField, readonly, onFieldSelect, onFieldDrop, renderField]);
 
