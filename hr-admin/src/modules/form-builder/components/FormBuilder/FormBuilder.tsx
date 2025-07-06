@@ -388,7 +388,6 @@ export const FormBuilder: React.FC<FormBuilderProps> = ({
           onDeleteField={handleDeleteField}
           onDuplicateField={handleDuplicateField}
           onMoveField={handleMoveField}
-          onFieldDrop={handleFieldDrop}
           readonly={readonly}
         />
         <SettingsPanel
