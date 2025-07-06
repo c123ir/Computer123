@@ -10,6 +10,7 @@ import { FormField, Form, FieldType } from '../../types';
 import { FieldRegistry } from '../../registry/FieldRegistry';
 import { motion, AnimatePresence } from 'framer-motion';
 import { PanelField } from '../Fields/PanelField';
+import { useDrop } from 'react-dnd';
 
 /**
  * پنل پیش‌نمایش فرم
@@ -39,6 +40,10 @@ interface PreviewPanelProps {
   readonly?: boolean;
   /** callback انتقال فیلد بین پنلها */
   onFieldDrop?: (fieldId: string, panelId: string) => void;
+  /** callback تغییر فیلد */
+  onFieldUpdate: (fieldId: string, updates: Partial<FormField>) => void;
+  /** callback حذف فیلد */
+  onFieldDelete: (fieldId: string) => void;
 }
 
 type ViewportMode = 'desktop' | 'tablet' | 'mobile';
@@ -54,7 +59,9 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
   onMoveField,
   onReorderFields,
   readonly,
-  onFieldDrop
+  onFieldDrop,
+  onFieldUpdate,
+  onFieldDelete
 }) => {
   const [viewportMode, setViewportMode] = useState<ViewportMode>('desktop');
   const [isDraggingOver, setIsDraggingOver] = useState(false);
@@ -218,6 +225,17 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
     );
   }, [groupedFields, selectedField, readonly, onFieldSelect, onFieldDrop, renderField]);
 
+  const [{ isOver }, drop] = useDrop(() => ({
+    accept: 'FIELD',
+    drop: (item: { type: FieldType }) => {
+      // Handle the dropped field
+      console.log('Dropped field:', item.type);
+    },
+    collect: (monitor) => ({
+      isOver: monitor.isOver()
+    })
+  }));
+
   return (
     <div className="h-full flex flex-col bg-gray-50 dark:bg-gray-900">
       {/* Toolbar */}
@@ -263,6 +281,7 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
             {/* Main Drop Zone */}
             {!readonly && (
               <div
+                ref={drop}
                 className={`
                   mt-6
                   min-h-[120px]
@@ -270,23 +289,17 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
                   rounded-lg
                   transition-all duration-200
                   flex flex-col items-center justify-center gap-2
-                  ${isDraggingOver 
-                    ? 'border-blue-400 bg-blue-50 dark:border-blue-500 dark:bg-blue-900/20' 
-                    : 'border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600'
-                  }
+                  ${isOver ? 'border-blue-400 bg-blue-50 dark:border-blue-500 dark:bg-blue-900/20' : 'border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600'}
                 `}
-                onDrop={(e) => handleDrop(e)}
-                onDragOver={handleDragOver}
-                onDragLeave={handleDragLeave}
               >
                 <div className={`
                   p-3 rounded-full
-                  ${isDraggingOver ? 'bg-blue-100 dark:bg-blue-900/30' : 'bg-gray-100 dark:bg-gray-800'}
+                  ${isOver ? 'bg-blue-100 dark:bg-blue-900/30' : 'bg-gray-100 dark:bg-gray-800'}
                 `}>
-                  <Plus className={`w-6 h-6 ${isDraggingOver ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400'}`} />
+                  <Plus className={`w-6 h-6 ${isOver ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400'}`} />
                 </div>
                 <div className="text-center">
-                  <p className={`text-sm font-medium ${isDraggingOver ? 'text-blue-700 dark:text-blue-400' : 'text-gray-600 dark:text-gray-400'}`}>
+                  <p className={`text-sm font-medium ${isOver ? 'text-blue-700 dark:text-blue-400' : 'text-gray-600 dark:text-gray-400'}`}>
                     فیلدها را اینجا رها کنید
                   </p>
                   <p className="text-xs text-gray-500 dark:text-gray-500">
