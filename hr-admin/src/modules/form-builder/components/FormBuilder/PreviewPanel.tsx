@@ -1,6 +1,6 @@
 // src/modules/form-builder/components/FormBuilder/PreviewPanel.tsx
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import { 
   Eye, Smartphone, Tablet, Monitor, RotateCcw, Settings, 
   Trash2, Copy, MoveUp, MoveDown, GripVertical, Upload, PenTool, Star,
@@ -66,6 +66,7 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
 }) => {
   const [viewportMode, setViewportMode] = useState<ViewportMode>('desktop');
   const [isDraggingOver, setIsDraggingOver] = useState(false);
+  const dropRef = useRef<HTMLDivElement>(null);
 
   // تنظیمات viewport
   const viewportConfig = {
@@ -226,7 +227,7 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
     );
   }, [groupedFields, selectedField, readonly, onFieldSelect, onFieldDrop, renderField]);
 
-  const [{ isOver }, drop] = useDrop(() => ({
+  const [{ isOver }, drop] = useDrop({
     accept: 'FIELD',
     drop: (item: { type: FieldType }) => {
       onAddField(item.type, undefined);
@@ -234,7 +235,9 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
     collect: (monitor) => ({
       isOver: monitor.isOver()
     })
-  }));
+  });
+
+  drop(dropRef);
 
   return (
     <div className="h-full flex flex-col bg-gray-50 dark:bg-gray-900">
@@ -281,7 +284,7 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
             {/* Main Drop Zone */}
             {!readonly && (
               <div
-                ref={drop}
+                ref={dropRef}
                 className={`
                   mt-6
                   min-h-[120px]
