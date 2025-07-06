@@ -1,6 +1,6 @@
 // src/modules/form-builder/components/FormBuilder/FieldsPanel.tsx
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { 
   LayoutDashboard, Type, AlignLeft, Hash, Mail, Phone, Globe,
   List, Circle, CheckSquare, Calendar, Clock, Upload, PenTool,
@@ -168,6 +168,7 @@ interface DraggableFieldProps {
 }
 
 const DraggableField: React.FC<DraggableFieldProps> = ({ field, onAddField, readonly }) => {
+  const ref = useRef<HTMLDivElement>(null);
   const [{ isDragging }, drag] = useDrag(() => ({
     type: 'FIELD',
     item: { type: field.type },
@@ -177,9 +178,12 @@ const DraggableField: React.FC<DraggableFieldProps> = ({ field, onAddField, read
     canDrag: !readonly
   }));
 
+  // Apply the drag ref to our element
+  drag(ref);
+
   return (
     <div
-      ref={drag}
+      ref={ref}
       className={`
         flex items-center gap-3 p-3 rounded-lg
         bg-gray-50 dark:bg-gray-700
