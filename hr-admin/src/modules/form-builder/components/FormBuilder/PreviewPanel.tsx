@@ -135,7 +135,7 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
         `}
         onClick={() => onFieldSelect?.(field.id)}
         draggable={!readonly}
-        onDragStart={(e) => {
+        onDragStart={(e: React.DragEvent<HTMLDivElement>) => {
           e.dataTransfer.setData('fieldId', field.id);
           e.dataTransfer.setData('fieldType', field.type);
         }}
