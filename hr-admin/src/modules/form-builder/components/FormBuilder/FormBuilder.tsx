@@ -83,7 +83,11 @@ export const FormBuilder: React.FC<FormBuilderProps> = ({
           metadata: { ...defaultMetadata, ...form.metadata }
         };
         const newFormId = await FormService.createForm(createDto);
-        onSave?.(newFormId);
+        const newForm = {
+          ...form,
+          id: newFormId
+        };
+        onSave?.(newForm);
         return;
       }
       
@@ -101,7 +105,7 @@ export const FormBuilder: React.FC<FormBuilderProps> = ({
       };
       const updatedForm = await FormService.updateForm(form.id, updateDto);
       if (updatedForm) {
-        onSave?.(form.id);
+        onSave?.(form);
       }
     } catch (error) {
       console.error('Error saving form:', error);
