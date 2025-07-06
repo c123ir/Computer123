@@ -148,6 +148,7 @@ export interface FormSettings {
   showProgressBar?: boolean;
   showFieldNumbers?: boolean;
   formWidth?: 'small' | 'medium' | 'large' | 'full';
+  allowSaveDraft?: boolean;
 }
 
 // استایل فرم
