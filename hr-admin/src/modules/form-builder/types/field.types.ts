@@ -22,7 +22,7 @@ export type FieldType =
   | 'signature'     // امضا
   | 'rating'        // امتیازدهی
   | 'slider'        // اسلایدر
-  | 'panel';       // اضافه کردن نوع پنل
+  | 'panel';        // پنل
 
 /**
  * گزینه‌های فیلد (برای select, radio, checkbox)
