@@ -392,10 +392,11 @@ export const FormBuilder: React.FC<FormBuilderProps> = ({
           readonly={readonly}
         />
         <SettingsPanel
-          form={form}
-          onUpdate={handleFieldUpdate}
+          selectedField={selectedField}
+          onUpdate={updateField}
           onSave={handleSave}
           onCancel={handleCancel}
+          readonly={readonly}
         />
       </div>
     </DndProvider>
