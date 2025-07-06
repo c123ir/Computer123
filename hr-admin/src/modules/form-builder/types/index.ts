@@ -45,9 +45,14 @@ export type {
   UpdateFormDto
 } from './form.types';
 
-export * from './form.types';
-export * from './form.model';
+// Re-export all types from field.types
 export * from './field.types';
+
+// Re-export all types from form.types
+export * from './form.types';
+
+// Re-export all types from database.types
+export * from './database.types';
 
 // نوع فیلدهای موجود
 export type FieldType = 
@@ -91,21 +96,6 @@ export interface FieldStyling {
   description?: string;
   className?: string;
   hidden?: boolean;
-}
-
-// تنظیمات پنل
-export interface PanelSettings {
-  title: string;
-  columns: 1 | 2 | 3 | 4;
-  collapsible: boolean;
-  defaultCollapsed: boolean;
-  padding: 'sm' | 'md' | 'lg';
-  margin: 'sm' | 'md' | 'lg';
-  shadow: 'none' | 'sm' | 'md' | 'lg';
-  backgroundColor: string;
-  borderColor: string;
-  borderRadius: number;
-  backgroundOpacity: number;
 }
 
 // تنظیمات فیلد
