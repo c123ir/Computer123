@@ -54,70 +54,116 @@ export * from './form.types';
 // Re-export all types from database.types
 export * from './database.types';
 
-// نوع فیلدهای موجود
+// انواع فیلدهای موجود
 export type FieldType = 
-  | 'panel'
-  | 'text'
-  | 'textarea'
-  | 'number'
-  | 'email'
-  | 'tel'
-  | 'url'
-  | 'select'
-  | 'radio'
-  | 'checkbox'
-  | 'date'
-  | 'time'
-  | 'file'
-  | 'signature'
-  | 'rating'
-  | 'slider';
+  | 'text'          // متن ساده
+  | 'textarea'      // متن چندخطی
+  | 'number'        // عدد
+  | 'email'         // ایمیل
+  | 'tel'           // شماره تلفن
+  | 'url'           // آدرس وبسایت
+  | 'select'        // انتخاب از لیست
+  | 'radio'         // انتخاب یکی از چند
+  | 'checkbox'      // چک باکس
+  | 'date'          // تاریخ
+  | 'time'          // زمان
+  | 'datetime'      // تاریخ و زمان
+  | 'file'          // آپلود فایل
+  | 'signature'     // امضا
+  | 'rating'        // امتیازدهی
+  | 'slider'        // اسلایدر
+  | 'panel';        // پنل
 
-// تنظیمات اعتبارسنجی
+// گزینه‌های فیلد
+export interface FieldOption {
+  id: string;
+  label: string;
+  value: string;
+  selected?: boolean;
+  disabled?: boolean;
+  description?: string;
+  icon?: string;
+}
+
+// قوانین اعتبارسنجی
 export interface ValidationRules {
   required?: boolean;
   minLength?: number;
   maxLength?: number;
   pattern?: string;
+  patternMessage?: string;
   min?: number;
   max?: number;
-  email?: boolean;
-  url?: boolean;
-  tel?: boolean;
-  customMessage?: string;
+  fileTypes?: string[];
+  maxFileSize?: number;
+  customValidators?: CustomValidator[];
 }
 
-// تنظیمات ظاهری
+// تنظیمات ظاهری فیلد
 export interface FieldStyling {
-  width?: 'full' | '1/2' | '1/3' | '1/4';
-  labelPosition?: 'top' | 'left' | 'right';
-  labelWidth?: string;
-  placeholder?: string;
-  description?: string;
+  width: string;
+  height?: string;
   className?: string;
-  hidden?: boolean;
+  backgroundColor?: string;
+  textColor?: string;
+  borderColor?: string;
+  borderStyle?: 'solid' | 'dashed' | 'dotted' | 'none';
+  borderWidth?: number;
+  borderRadius?: number;
+  padding?: number;
+  margin?: number;
+  customCSS?: string;
 }
 
-// تنظیمات فیلد
+// شرایط نمایش فیلد
+export interface FieldCondition {
+  dependsOn: string;
+  operator: 'equals' | 'not_equals' | 'contains' | 'greater' | 'less';
+  value: any;
+  action: 'show' | 'hide' | 'require' | 'disable';
+}
+
+// تنظیمات پنل
+export interface PanelSettings {
+  title: string;
+  columns: 1 | 2 | 3 | 4 | 5 | 6;
+  icon?: string;
+  collapsible: boolean;
+  defaultCollapsed: boolean;
+  backgroundColor?: string;
+  borderColor?: string;
+  borderRadius?: number;
+  shadow?: 'none' | 'sm' | 'md' | 'lg';
+  padding?: 'sm' | 'md' | 'lg';
+  margin?: 'sm' | 'md' | 'lg';
+  backgroundImage?: string;
+  backgroundPosition?: 'center' | 'top' | 'bottom' | 'left' | 'right';
+  backgroundSize?: 'cover' | 'contain' | 'auto';
+  backgroundOpacity?: number;
+}
+
+// تنظیمات خاص هر نوع فیلد
 export interface FieldSettings {
+  multiple?: boolean;
+  maxRating?: number;
+  min?: number;
+  max?: number;
+  step?: number;
+  rows?: number;
+  searchable?: boolean;
+  minDate?: string;
+  maxDate?: string;
   panelSettings?: PanelSettings;
-  validation?: ValidationRules;
-  styling?: FieldStyling;
-  options?: FieldOption[];
-  defaultValue?: any;
-  placeholder?: string;
-  description?: string;
-  required?: boolean;
-  readOnly?: boolean;
-  disabled?: boolean;
-  hidden?: boolean;
+  [key: string]: any;
 }
 
-// گزینه‌های فیلدهای انتخابی
-export interface FieldOption {
-  label: string;
-  value: string | number;
-  disabled?: boolean;
+// اعتبارسنج سفارشی
+export interface CustomValidator {
+  id: string;
+  name: string;
+  validator: (value: any, field: FormField, formData: Record<string, any>) => boolean | string;
+  errorMessage: string;
+  priority?: number;
 }
 
 // فیلد فرم
@@ -125,27 +171,88 @@ export interface FormField {
   id: string;
   type: FieldType;
   label: string;
-  name: string;
+  description?: string;
+  placeholder?: string;
+  helpText?: string;
+  defaultValue?: any;
+  required: boolean;
+  disabled: boolean;
+  readonly: boolean;
+  validation: ValidationRules;
+  conditions?: FieldCondition[];
+  options?: FieldOption[];
+  styling: FieldStyling;
+  fieldSettings?: FieldSettings;
+  metadata?: Record<string, any>;
   parentId?: string;
   order: number;
-  required?: boolean;
-  description?: string;
-  fieldSettings?: FieldSettings;
+}
+
+// تنظیمات فرم
+export interface FormSettings {
+  submitButtonText: string;
+  resetButtonText?: string;
+  showResetButton: boolean;
+  layout: 'vertical' | 'horizontal';
+  spacing: 'sm' | 'md' | 'lg';
+  theme: 'light' | 'dark';
+  direction: 'rtl' | 'ltr';
+  showProgressBar?: boolean;
+  allowSaveDraft?: boolean;
+  showFieldNumbers?: boolean;
+  formWidth?: 'small' | 'medium' | 'large' | 'full';
+}
+
+// استایل فرم
+export interface FormStyling {
+  backgroundColor?: string;
+  textColor?: string;
+  borderColor?: string;
+  borderRadius?: number;
+  padding?: 'sm' | 'md' | 'lg';
+  margin?: 'sm' | 'md' | 'lg';
+  shadow?: 'none' | 'sm' | 'md' | 'lg';
+  width?: string;
+  maxWidth?: string;
+  customCSS?: string;
 }
 
 // فرم
 export interface Form {
   id: string;
+  name: string;
   title: string;
   description?: string;
   fields: FormField[];
-  settings?: {
-    submitButtonText?: string;
-    resetButtonText?: string;
-    showResetButton?: boolean;
-    layout?: 'vertical' | 'horizontal';
-    spacing?: 'sm' | 'md' | 'lg';
-  };
-  createdAt: string;
-  updatedAt: string;
+  settings: FormSettings;
+  styling: FormStyling;
+  metadata?: Record<string, any>;
+  createdAt?: Date;
+  updatedAt?: Date;
+  version?: number;
+  status?: 'draft' | 'published' | 'archived';
+  category?: string;
+  tags?: string[];
+}
+
+// DTO برای ایجاد فرم
+export interface CreateFormDto {
+  name: string;
+  title: string;
+  description?: string;
+  settings?: Partial<FormSettings>;
+  styling?: Partial<FormStyling>;
+  metadata?: Record<string, any>;
+}
+
+// DTO برای بروزرسانی فرم
+export interface UpdateFormDto {
+  name?: string;
+  title?: string;
+  description?: string;
+  fields?: FormField[];
+  settings?: Partial<FormSettings>;
+  styling?: Partial<FormStyling>;
+  metadata?: Record<string, any>;
+  status?: 'draft' | 'published' | 'archived';
 }
