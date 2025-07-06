@@ -4,10 +4,11 @@ import React, { useState } from 'react';
 import { 
   LayoutDashboard, Type, AlignLeft, Hash, Mail, Phone, Globe,
   List, Circle, CheckSquare, Calendar, Clock, Upload, PenTool,
-  Star, Sliders, Search, X
+  Star, Sliders, Search, X, Plus, Trash2
 } from 'lucide-react';
 import { FieldType } from '../../types';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useDrag } from 'react-dnd';
 
 /**
  * پنل فیلدهای قابل استفاده در فرم‌ساز
@@ -30,12 +31,14 @@ interface FieldsPanelProps {
   readonly?: boolean;
   /** وضعیت loading */
   isLoading?: boolean;
+  onAddField: (type: FieldType) => void;
 }
 
 export const FieldsPanel: React.FC<FieldsPanelProps> = ({
   onFieldSelect,
   readonly = false,
-  isLoading = false
+  isLoading = false,
+  onAddField
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
@@ -143,71 +146,69 @@ export const FieldsPanel: React.FC<FieldsPanelProps> = ({
 
       {/* Fields List */}
       <div className="flex-1 overflow-y-auto p-4">
-        <div className="grid grid-cols-2 gap-4">
-          <AnimatePresence>
-            {filteredFields.map(field => {
-              const Icon = field.icon;
-              return (
-                <motion.div
-                  key={field.type}
-                  layout
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.9 }}
-                  className={`
-                    relative group
-                    bg-white dark:bg-gray-800
-                    border border-gray-200 dark:border-gray-700
-                    rounded-lg
-                    transition-all duration-200
-                    ${!readonly ? 'hover:border-blue-300 dark:hover:border-blue-500 cursor-grab active:cursor-grabbing' : ''}
-                    ${field.isPro ? 'opacity-50' : ''}
-                  `}
-                  draggable={!readonly}
-                  onDragStart={(e: React.DragEvent<HTMLDivElement>) => {
-                    e.dataTransfer.setData('fieldType', field.type);
-                    e.currentTarget.classList.add('opacity-50');
-                  }}
-                  onDragEnd={(e) => {
-                    e.currentTarget.classList.remove('opacity-50');
-                  }}
-                  onClick={() => !readonly && onFieldSelect(field.type)}
-                >
-                  <div className="p-4">
-                    <div className="flex items-center gap-3 mb-2">
-                      <div className={`
-                        p-2 rounded-lg
-                        ${field.category === 'layout' ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/50 dark:text-purple-400' :
-                          field.category === 'basic' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-400' :
-                          field.category === 'choice' ? 'bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-400' :
-                          field.category === 'datetime' ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/50 dark:text-orange-400' :
-                          'bg-gray-100 text-gray-700 dark:bg-gray-900/50 dark:text-gray-400'}
-                      `}>
-                        <Icon className="w-5 h-5" />
-                      </div>
-                      <div>
-                        <h3 className="font-medium text-gray-900 dark:text-white">
-                          {field.label}
-                        </h3>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">
-                          {field.description}
-                        </p>
-                      </div>
-                    </div>
-
-                    {field.isPro && (
-                      <span className="absolute top-2 left-2 px-1.5 py-0.5 bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-400 text-xs font-medium rounded">
-                        PRO
-                      </span>
-                    )}
-                  </div>
-                </motion.div>
-              );
-            })}
-          </AnimatePresence>
+        <div className="space-y-2">
+          {filteredFields.map((field) => (
+            <DraggableField
+              key={field.type}
+              field={field}
+              onAddField={onAddField}
+              readonly={readonly}
+            />
+          ))}
         </div>
       </div>
     </div>
+  );
+};
+
+interface DraggableFieldProps {
+  field: FieldPaletteItem;
+  onAddField: (type: FieldType) => void;
+  readonly: boolean;
+}
+
+const DraggableField: React.FC<DraggableFieldProps> = ({ field, onAddField, readonly }) => {
+  const [{ isDragging }, drag] = useDrag(() => ({
+    type: 'FIELD',
+    item: { type: field.type },
+    collect: (monitor) => ({
+      isDragging: monitor.isDragging()
+    }),
+    canDrag: !readonly
+  }));
+
+  return (
+    <motion.div
+      ref={drag}
+      className={`
+        flex items-center gap-3 p-3 rounded-lg cursor-move
+        bg-gray-50 dark:bg-gray-700
+        hover:bg-gray-100 dark:hover:bg-gray-600
+        border border-gray-200 dark:border-gray-600
+        ${isDragging ? 'opacity-50' : 'opacity-100'}
+        ${readonly ? 'cursor-not-allowed opacity-60' : ''}
+      `}
+      whileHover={{ scale: 1.02 }}
+      whileTap={{ scale: 0.98 }}
+    >
+      <div className="text-gray-500 dark:text-gray-400">
+        <field.icon className="w-5 h-5" />
+      </div>
+      <span className="flex-1 text-sm text-gray-700 dark:text-gray-300">
+        {field.label}
+      </span>
+      {!readonly && (
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onAddField(field.type);
+          }}
+          className="p-1 text-gray-400 hover:text-blue-500 transition-colors"
+        >
+          <Plus className="w-4 h-4" />
+        </button>
+      )}
+    </motion.div>
   );
 };
 
