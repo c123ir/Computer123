@@ -6,7 +6,7 @@ import {
   Asterisk, HelpCircle, Trash2, ChevronRight,
   Save, X, Check, AlertCircle, Columns, Layout
 } from 'lucide-react';
-import { FormField, ValidationRules, FieldStyling, PanelSettings } from '../../types';
+import { FormField, ValidationRules, FieldStyling, PanelSettings, FieldOption } from '../../types';
 import { motion, AnimatePresence } from 'framer-motion';
 import { PanelSettings as ImportedPanelSettings } from '../Settings/PanelSettings';
 
@@ -887,6 +887,100 @@ const AdvancedSettings: React.FC<{
           </div>
         </div>
       </div>
+    </div>
+  );
+};
+
+const OptionsSettings: React.FC<{
+  field: FormField & { options?: FieldOption[] };
+  onUpdate: (updates: Partial<FormField & { options?: FieldOption[] }>) => void;
+  readonly: boolean;
+}> = ({ field, onUpdate, readonly }) => {
+  const addOption = () => {
+    const newOption: FieldOption = {
+      id: `option_${Date.now()}`,
+      label: `گزینه ${(field.options?.length || 0) + 1}`,
+      value: `option_${Date.now()}`
+    };
+    
+    onUpdate({
+      options: [...(field.options || []), newOption]
+    });
+  };
+
+  const updateOption = (index: number, updates: Partial<FieldOption>) => {
+    const newOptions = [...(field.options || [])];
+    newOptions[index] = { ...newOptions[index], ...updates };
+    onUpdate({ options: newOptions });
+  };
+
+  const removeOption = (index: number) => {
+    const newOptions = [...(field.options || [])];
+    newOptions.splice(index, 1);
+    onUpdate({ options: newOptions });
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Options (for select, radio, checkbox) */}
+      {['select', 'radio', 'checkbox'].includes(field.type) && (
+        <div>
+          <div className="flex items-center justify-between mb-4">
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              گزینه‌ها
+            </label>
+            {!readonly && (
+              <button
+                onClick={addOption}
+                className="inline-flex items-center gap-1 px-2 py-1 text-sm text-blue-600 hover:text-blue-700 transition-colors"
+              >
+                <Plus className="w-4 h-4" />
+                افزودن گزینه
+              </button>
+            )}
+          </div>
+
+          <div className="space-y-3">
+            <AnimatePresence>
+              {(field.options || []).map((option, index) => (
+                <motion.div
+                  key={option.id}
+                  layout
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="flex items-center gap-3"
+                >
+                  <div className="flex-1">
+                    <input
+                      type="text"
+                      value={option.label}
+                      onChange={(e) => updateOption(index, { label: e.target.value })}
+                      disabled={readonly}
+                      className="w-full px-3 py-2 border border-gray-200 dark:border-gray-600 rounded-lg 
+                               bg-white dark:bg-gray-800
+                               text-gray-900 dark:text-white 
+                               placeholder-gray-500 dark:placeholder-gray-400
+                               focus:ring-2 focus:ring-blue-500 focus:border-transparent
+                               disabled:opacity-60 disabled:cursor-not-allowed
+                               transition-all duration-200"
+                      placeholder={`گزینه ${index + 1}`}
+                    />
+                  </div>
+                  {!readonly && (
+                    <button
+                      onClick={() => removeOption(index)}
+                      className="p-2 text-gray-400 hover:text-red-500 transition-colors rounded-lg hover:bg-red-50"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  )}
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
