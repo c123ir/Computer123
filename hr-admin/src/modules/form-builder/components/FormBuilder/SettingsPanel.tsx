@@ -18,6 +18,8 @@ import { PanelSettings as ImportedPanelSettings } from '../Settings/PanelSetting
 interface SettingsPanelProps {
   /** فیلد انتخاب شده */
   selectedField: string | undefined;
+  /** فیلد برای ویرایش */
+  field: FormField;
   /** callback تغییر تنظیمات فیلد */
   onUpdate: (fieldId: string, updates: Partial<FormField>) => void;
   /** حالت فقط خواندنی */
@@ -28,6 +30,7 @@ interface SettingsPanelProps {
 
 export const SettingsPanel: React.FC<SettingsPanelProps> = ({
   selectedField,
+  field,
   onUpdate,
   readonly = false,
   onSave,
@@ -105,7 +108,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
         {activeTab === 'field' && (
           <div>
             <GeneralSettings
-              field={selectedField as FormField}
+              field={field}
               onUpdate={updateField}
               readonly={readonly}
             />
@@ -114,7 +117,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
         {activeTab === 'validation' && (
           <div>
             <ValidationSettings
-              field={selectedField as FormField}
+              field={field}
               onUpdate={updateField}
               readonly={readonly}
             />
@@ -123,7 +126,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
         {activeTab === 'style' && (
           <div>
             <StylingSettings
-              field={selectedField as FormField}
+              field={field}
               onUpdate={updateField}
               readonly={readonly}
             />
