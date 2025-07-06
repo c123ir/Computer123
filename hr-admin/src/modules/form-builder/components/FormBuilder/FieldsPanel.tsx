@@ -193,6 +193,7 @@ const DraggableField: React.FC<DraggableFieldProps> = ({ field, onAddField, read
         ${isDragging ? 'opacity-50' : 'opacity-100'}
         ${readonly ? 'cursor-not-allowed opacity-60' : 'cursor-move'}
       `}
+      onClick={() => !readonly && onAddField(field.type)}
     >
       <div className="text-gray-500 dark:text-gray-400">
         <field.icon className="w-5 h-5" />
@@ -200,17 +201,6 @@ const DraggableField: React.FC<DraggableFieldProps> = ({ field, onAddField, read
       <span className="flex-1 text-sm text-gray-700 dark:text-gray-300">
         {field.label}
       </span>
-      {!readonly && (
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onAddField(field.type);
-          }}
-          className="p-1 text-gray-400 hover:text-blue-500 transition-colors"
-        >
-          <Plus className="w-4 h-4" />
-        </button>
-      )}
     </div>
   );
 };
