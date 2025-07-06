@@ -53,6 +53,11 @@ const defaultStyling: FormStyling = {
   shadow: 'sm'
 };
 
+const defaultMetadata = {
+  status: 'draft',
+  version: 1
+};
+
 export const FormBuilder: React.FC<FormBuilderProps> = ({
   formId,
   onSave,
@@ -68,39 +73,6 @@ export const FormBuilder: React.FC<FormBuilderProps> = ({
     try {
       // اگر فرم جدید است
       if (!form.id) {
-        const defaultSettings: FormSettings = {
-          direction: 'rtl',
-          theme: 'light',
-          submitButtonText: 'ارسال',
-          resetButtonText: 'پاک کردن',
-          showResetButton: false,
-          layout: 'vertical',
-          spacing: 'md',
-          showProgressBar: false,
-          allowSaveDraft: true,
-          showFieldNumbers: false,
-          formWidth: 'medium'
-        };
-
-        const defaultStyling = {
-          theme: 'default',
-          backgroundColor: '#ffffff',
-          textColor: '#374151',
-          primaryColor: '#3b82f6',
-          fontFamily: 'Vazirmatn',
-          fontSize: 14,
-          borderRadius: 8,
-          spacing: 'normal'
-        };
-
-        const defaultMetadata = {
-          createdBy: 'current-user',
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-          status: 'draft' as const,
-          version: 1
-        };
-
         const createDto: CreateFormDto = {
           name: form.name || 'فرم جدید',
           title: form.title || 'فرم جدید',
@@ -188,7 +160,7 @@ export const FormBuilder: React.FC<FormBuilderProps> = ({
     const newField: FormField = {
       id: nanoid(),
       type,
-      label: 'فیلد جدید',
+      label: `فیلد ${type}`,
       name: `field_${nanoid(6)}`,
       order: form.fields.length + 1,
       required: false,
