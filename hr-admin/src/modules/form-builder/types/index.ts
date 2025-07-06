@@ -257,3 +257,41 @@ export interface UpdateFormDto {
   metadata?: Record<string, any>;
   status?: 'draft' | 'published' | 'archived';
 }
+
+// انواع پایگاه داده
+export type DatabaseType = 'postgresql' | 'firebase';
+
+// تنظیمات پایگاه داده
+export interface DatabaseConfig {
+  type: DatabaseType;
+  host?: string;
+  port?: number;
+  username?: string;
+  password?: string;
+  database?: string;
+  apiKey?: string;
+  projectId?: string;
+}
+
+// فیلترهای جستجوی فرم
+export interface FormFilters {
+  search?: string;
+  status?: 'draft' | 'published' | 'archived';
+  category?: string;
+  tags?: string[];
+  startDate?: Date;
+  endDate?: Date;
+  page?: number;
+  limit?: number;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
+}
+
+// پاسخ API فرم
+export interface FormResponse {
+  data: Form[];
+  total: number;
+  page: number;
+  limit: number;
+  hasMore: boolean;
+}
