@@ -146,7 +146,6 @@ export interface FormSettings {
   theme: 'light' | 'dark';
   direction: 'rtl' | 'ltr';
   showProgressBar?: boolean;
-  allowSaveDraft?: boolean;
   showFieldNumbers?: boolean;
   formWidth?: 'small' | 'medium' | 'large' | 'full';
 }
@@ -175,15 +174,15 @@ export interface Form {
   settings: FormSettings;
   styling: FormStyling;
   metadata?: Record<string, any>;
-  createdAt?: Date;
-  updatedAt?: Date;
+  createdAt: Date;
+  updatedAt: Date;
   version?: number;
-  status?: 'draft' | 'published' | 'archived';
+  status?: 'draft' | 'published' | 'archived' | 'paused';
   category?: string;
   tags?: string[];
 }
 
-// DTO برای ایجاد فرم
+// DTO ایجاد فرم
 export interface CreateFormDto {
   name: string;
   title: string;
@@ -192,9 +191,11 @@ export interface CreateFormDto {
   settings?: Partial<FormSettings>;
   styling?: Partial<FormStyling>;
   metadata?: Record<string, any>;
+  status?: 'draft' | 'published' | 'archived' | 'paused';
+  tags?: string[];
 }
 
-// DTO برای بروزرسانی فرم
+// DTO بروزرسانی فرم
 export interface UpdateFormDto {
   name?: string;
   title?: string;
@@ -203,28 +204,47 @@ export interface UpdateFormDto {
   settings?: Partial<FormSettings>;
   styling?: Partial<FormStyling>;
   metadata?: Record<string, any>;
-  status?: 'draft' | 'published' | 'archived';
+  status?: 'draft' | 'published' | 'archived' | 'paused';
+  tags?: string[];
 }
 
-// انواع پایگاه داده
-export type DatabaseType = 'postgresql' | 'firebase';
-
-// تنظیمات پایگاه داده
-export interface DatabaseConfig {
-  type: DatabaseType;
-  host?: string;
-  port?: number;
-  username?: string;
-  password?: string;
-  database?: string;
-  apiKey?: string;
-  projectId?: string;
+// الگوی فرم
+export interface FormTemplate {
+  id: string;
+  name: string;
+  description?: string;
+  fields: FormField[];
+  settings: FormSettings;
+  styling: FormStyling;
+  category?: string;
+  tags?: string[];
 }
 
-// فیلترهای جستجوی فرم
+// تنظیمات صفحه‌بندی
+export interface PaginationOptions {
+  page: number;
+  limit: number;
+}
+
+// نتیجه صفحه‌بندی شده
+export interface PaginatedResult<T> {
+  data: T[];
+  total: number;
+  page: number;
+  limit: number;
+  hasMore: boolean;
+}
+
+// گزینه‌های مرتب‌سازی
+export interface SortOptions {
+  field: string;
+  order: 'asc' | 'desc';
+}
+
+// فیلترهای فرم
 export interface FormFilters {
   search?: string;
-  status?: 'draft' | 'published' | 'archived';
+  status?: 'draft' | 'published' | 'archived' | 'paused';
   category?: string;
   tags?: string[];
   startDate?: Date;
@@ -235,7 +255,114 @@ export interface FormFilters {
   sortOrder?: 'asc' | 'desc';
 }
 
-// پاسخ API فرم
+// آمار دیتابیس
+export interface DatabaseStats {
+  totalForms: number;
+  totalFields: number;
+  totalResponses: number;
+  avgFieldsPerForm: number;
+  avgResponsesPerForm: number;
+  storage: {
+    used: number;
+    total: number;
+    unit: 'MB' | 'GB';
+  };
+}
+
+// گزینه‌های خروجی
+export interface ExportOptions {
+  format: 'json' | 'csv' | 'excel';
+  includeMetadata?: boolean;
+  dateRange?: {
+    start: Date;
+    end: Date;
+  };
+}
+
+// گزینه‌های ورودی
+export interface ImportOptions {
+  format: 'json' | 'csv' | 'excel';
+  overwrite?: boolean;
+  validateData?: boolean;
+}
+
+// نتیجه عملیات دسته‌ای
+export interface BatchResult {
+  success: boolean;
+  total: number;
+  processed: number;
+  failed: number;
+  errors?: Array<{
+    item: any;
+    error: string;
+  }>;
+}
+
+// نتیجه اعتبارسنجی
+export interface ValidationResult {
+  isValid: boolean;
+  errors: ValidationError[];
+}
+
+// خطای اعتبارسنجی
+export interface ValidationError {
+  field: string;
+  type: ValidationErrorType;
+  message: string;
+}
+
+// نوع خطای اعتبارسنجی
+export type ValidationErrorType = 
+  | 'required'
+  | 'minLength'
+  | 'maxLength'
+  | 'pattern'
+  | 'min'
+  | 'max'
+  | 'fileType'
+  | 'fileSize'
+  | 'custom';
+
+// نتیجه بررسی سلامت
+export interface HealthCheckResult {
+  status: 'healthy' | 'unhealthy';
+  database: {
+    status: 'connected' | 'disconnected';
+    latency: number;
+  };
+  storage: {
+    status: 'available' | 'unavailable';
+    freeSpace: number;
+  };
+  cache: {
+    status: 'active' | 'inactive';
+    hitRate: number;
+  };
+  timestamp: Date;
+}
+
+// پاسخ API
+export interface ApiResponse<T> {
+  success: boolean;
+  data?: T;
+  error?: {
+    code: string;
+    message: string;
+    details?: any;
+  };
+}
+
+// پاسخ صفحه‌بندی شده
+export interface PaginatedResponse<T> extends ApiResponse<T[]> {
+  pagination: {
+    total: number;
+    page: number;
+    limit: number;
+    hasMore: boolean;
+  };
+}
+
+// پاسخ فرم
 export interface FormResponse {
   data: Form[];
   total: number;
