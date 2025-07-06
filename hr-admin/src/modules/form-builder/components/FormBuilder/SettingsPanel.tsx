@@ -19,9 +19,11 @@ interface SettingsPanelProps {
   /** فیلد انتخاب شده */
   selectedField?: FormField;
   /** callback تغییر تنظیمات فیلد */
-  onFieldUpdate?: (fieldId: string, updates: Partial<FormField>) => void;
+  onFieldUpdate: (fieldId: string, updates: Partial<FormField>) => void;
   /** حالت فقط خواندنی */
   readonly?: boolean;
+  onSave: () => Promise<void>;
+  onCancel: () => void;
 }
 
 type SettingsTab = 'general' | 'validation' | 'styling' | 'panel' | 'advanced';
@@ -29,7 +31,9 @@ type SettingsTab = 'general' | 'validation' | 'styling' | 'panel' | 'advanced';
 export const SettingsPanel: React.FC<SettingsPanelProps> = ({
   selectedField,
   onFieldUpdate,
-  readonly = false
+  readonly = false,
+  onSave,
+  onCancel
 }) => {
   const [activeTab, setActiveTab] = useState<SettingsTab>('general');
   const [isDirty, setIsDirty] = useState(false);
@@ -38,7 +42,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
   const updateField = useCallback((updates: Partial<FormField>) => {
     if (!readonly && selectedField) {
       setIsDirty(true);
-      onFieldUpdate?.(selectedField.id, updates);
+      onFieldUpdate(selectedField.id, updates);
     }
   }, [readonly, selectedField, onFieldUpdate]);
 
@@ -98,14 +102,14 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
           {isDirty && !readonly && (
             <div className="flex items-center gap-2">
               <button
-                onClick={() => setIsDirty(false)}
+                onClick={onCancel}
                 className="p-1.5 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 rounded-lg transition-colors"
                 title="انصراف"
               >
                 <X className="w-4 h-4" />
               </button>
               <button
-                onClick={() => setIsDirty(false)}
+                onClick={onSave}
                 className="p-1.5 bg-blue-100 text-blue-700 hover:bg-blue-200 dark:bg-blue-900/50 dark:text-blue-400 dark:hover:bg-blue-900/70 rounded-lg transition-colors"
                 title="ذخیره تغییرات"
               >
