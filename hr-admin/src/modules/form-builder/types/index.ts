@@ -240,6 +240,7 @@ export interface CreateFormDto {
   name: string;
   title: string;
   description?: string;
+  fields?: FormField[];
   settings?: Partial<FormSettings>;
   styling?: Partial<FormStyling>;
   metadata?: Record<string, any>;
