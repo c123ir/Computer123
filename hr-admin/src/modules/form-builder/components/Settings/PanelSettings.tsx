@@ -296,6 +296,4 @@ export const PanelSettings: React.FC<PanelSettingsProps> = ({ field, onUpdate, r
       </div>
     </div>
   );
-};
-
-export default PanelSettings; 
+}; 
