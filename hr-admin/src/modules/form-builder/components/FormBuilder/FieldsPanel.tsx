@@ -1,184 +1,51 @@
 // src/modules/form-builder/components/FormBuilder/FieldsPanel.tsx
 
-import React, { useState, useRef } from 'react';
-import { 
-  LayoutDashboard, Type, AlignLeft, Hash, Mail, Phone, Globe,
-  List, Circle, CheckSquare, Calendar, Clock, Upload, PenTool,
-  Star, Sliders, Search, X, Plus, Trash2
-} from 'lucide-react';
-import { FieldType } from '../../types';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useRef } from 'react';
 import { useDrag } from 'react-dnd';
+import { FieldType } from '../../types';
+import {
+  Type,
+  AlignLeft,
+  Hash,
+  List,
+  CheckSquare,
+  Circle,
+  Calendar,
+  Clock,
+  Upload,
+  Edit,
+  Star,
+  Sliders,
+  LayoutDashboard
+} from 'lucide-react';
 
 /**
  * پنل فیلدهای قابل استفاده در فرم‌ساز
  * شامل دسته‌بندی فیلدها و قابلیت جستجو
  */
 
-interface FieldPaletteItem {
-  type: FieldType;
-  label: string;
-  icon: React.ComponentType<any>;
-  description: string;
-  category: string;
-  isPro?: boolean;
-}
-
 interface FieldsPanelProps {
-  /** callback هنگام انتخاب فیلد */
-  onFieldSelect: (type: FieldType, parentId?: string) => void;
-  /** حالت فقط خواندنی */
-  readonly?: boolean;
-  /** وضعیت loading */
-  isLoading?: boolean;
   onAddField: (type: FieldType) => void;
+  readonly?: boolean;
 }
-
-export const FieldsPanel: React.FC<FieldsPanelProps> = ({
-  onFieldSelect,
-  readonly = false,
-  isLoading = false,
-  onAddField
-}) => {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
-
-  // تعریف فیلدهای موجود
-  const fieldTypes = [
-    // فیلدهای چیدمان
-    { type: 'panel' as FieldType, label: 'پنل', icon: LayoutDashboard, description: 'پنل با قابلیت تنظیم ستون‌ها', category: 'layout' },
-    
-    // فیلدهای پایه
-    { type: 'text' as FieldType, label: 'متن کوتاه', icon: Type, description: 'متن یک خطی', category: 'basic' },
-    { type: 'textarea' as FieldType, label: 'متن بلند', icon: AlignLeft, description: 'متن چند خطی', category: 'basic' },
-    { type: 'number' as FieldType, label: 'عدد', icon: Hash, description: 'ورودی عددی', category: 'basic' },
-    
-    // فیلدهای تماس
-    { type: 'email' as FieldType, label: 'ایمیل', icon: Mail, description: 'آدرس ایمیل', category: 'contact' },
-    { type: 'tel' as FieldType, label: 'تلفن', icon: Phone, description: 'شماره تلفن', category: 'contact' },
-    { type: 'url' as FieldType, label: 'وب‌سایت', icon: Globe, description: 'آدرس وب‌سایت', category: 'contact' },
-    
-    // فیلدهای انتخابی
-    { type: 'select' as FieldType, label: 'لیست کشویی', icon: List, description: 'انتخاب از لیست', category: 'choice' },
-    { type: 'radio' as FieldType, label: 'رادیو', icon: Circle, description: 'انتخاب یکی از چند', category: 'choice' },
-    { type: 'checkbox' as FieldType, label: 'چک‌باکس', icon: CheckSquare, description: 'انتخاب چند گزینه', category: 'choice' },
-    
-    // فیلدهای تاریخ و زمان
-    { type: 'date' as FieldType, label: 'تاریخ', icon: Calendar, description: 'انتخاب تاریخ', category: 'datetime' },
-    { type: 'time' as FieldType, label: 'زمان', icon: Clock, description: 'انتخاب زمان', category: 'datetime' },
-    
-    // فیلدهای پیشرفته
-    { type: 'file' as FieldType, label: 'آپلود فایل', icon: Upload, description: 'آپلود فایل', category: 'advanced', isPro: true },
-    { type: 'signature' as FieldType, label: 'امضا', icon: PenTool, description: 'امضای دیجیتال', category: 'advanced', isPro: true },
-    { type: 'rating' as FieldType, label: 'امتیازدهی', icon: Star, description: 'امتیاز با ستاره', category: 'advanced', isPro: true },
-    { type: 'slider' as FieldType, label: 'اسلایدر', icon: Sliders, description: 'انتخاب مقدار با اسلایدر', category: 'advanced', isPro: true },
-  ];
-
-  // دسته‌بندی‌ها
-  const categories = [
-    { id: 'all', label: 'همه فیلدها', count: fieldTypes.length },
-    { id: 'layout', label: 'چیدمان', count: fieldTypes.filter(f => f.category === 'layout').length },
-    { id: 'basic', label: 'پایه', count: fieldTypes.filter(f => f.category === 'basic').length },
-    { id: 'choice', label: 'انتخابی', count: fieldTypes.filter(f => f.category === 'choice').length },
-    { id: 'datetime', label: 'تاریخ و زمان', count: fieldTypes.filter(f => f.category === 'datetime').length },
-    { id: 'advanced', label: 'پیشرفته', count: fieldTypes.filter(f => f.category === 'advanced').length },
-  ];
-
-  // فیلتر فیلدها
-  const filteredFields = fieldTypes.filter(field => {
-    const matchesSearch = field.label.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         field.description.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = selectedCategory === 'all' || field.category === selectedCategory;
-    return matchesSearch && matchesCategory;
-  });
-
-  return (
-    <div className="h-full flex flex-col bg-white dark:bg-gray-800">
-      {/* Header */}
-      <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-        {/* Search */}
-        <div className="relative">
-          <input
-            type="text"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="جستجوی فیلد..."
-            className="w-full pl-10 pr-4 py-2 bg-gray-50 dark:bg-gray-700 
-                     border border-gray-200 dark:border-gray-600 
-                     rounded-lg text-gray-900 dark:text-white
-                     placeholder-gray-500 dark:placeholder-gray-400
-                     focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          />
-          <Search className="absolute right-3 top-2.5 w-5 h-5 text-gray-400" />
-          {searchTerm && (
-            <button
-              onClick={() => setSearchTerm('')}
-              className="absolute left-3 top-2.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-            >
-              <X className="w-5 h-5" />
-            </button>
-          )}
-        </div>
-
-        {/* Categories */}
-        <div className="flex flex-wrap gap-2 mt-4">
-          {categories.map(category => (
-            <button
-              key={category.id}
-              onClick={() => setSelectedCategory(category.id)}
-              className={`
-                px-3 py-1.5 rounded-lg text-sm font-medium
-                transition-colors duration-200
-                ${selectedCategory === category.id
-                  ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-400'
-                  : 'text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700'
-                }
-              `}
-            >
-              {category.label}
-              <span className="ml-2 text-xs bg-white dark:bg-gray-900 text-gray-500 dark:text-gray-400 px-1.5 py-0.5 rounded">
-                {category.count}
-              </span>
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Fields List */}
-      <div className="flex-1 overflow-y-auto p-4">
-        <div className="space-y-2">
-          {filteredFields.map((field) => (
-            <DraggableField
-              key={field.type}
-              field={field}
-              onAddField={onAddField}
-              readonly={readonly}
-            />
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-};
 
 interface DraggableFieldProps {
-  field: FieldPaletteItem;
+  field: { type: FieldType; label: string; icon: React.ReactNode };
   onAddField: (type: FieldType) => void;
   readonly: boolean;
 }
 
 const DraggableField: React.FC<DraggableFieldProps> = ({ field, onAddField, readonly }) => {
   const ref = useRef<HTMLDivElement>(null);
-  const [{ isDragging }, drag] = useDrag(() => ({
+  const [{ isDragging }, drag] = useDrag({
     type: 'FIELD',
     item: { type: field.type },
     collect: (monitor) => ({
       isDragging: monitor.isDragging()
     }),
     canDrag: !readonly
-  }));
+  });
 
-  // Apply the drag ref to our element
   drag(ref);
 
   return (
@@ -195,12 +62,46 @@ const DraggableField: React.FC<DraggableFieldProps> = ({ field, onAddField, read
       `}
       onClick={() => !readonly && onAddField(field.type)}
     >
-      <div className="text-gray-500 dark:text-gray-400">
-        <field.icon className="w-5 h-5" />
-      </div>
-      <span className="flex-1 text-sm text-gray-700 dark:text-gray-300">
+      {field.icon}
+      <span className="text-sm text-gray-700 dark:text-gray-300">
         {field.label}
       </span>
+    </div>
+  );
+};
+
+const FieldsPanel: React.FC<FieldsPanelProps> = ({ onAddField, readonly = false }) => {
+  const fields: { type: FieldType; label: string; icon: React.ReactNode }[] = [
+    { type: 'text', label: 'متن تک خطی', icon: <Type className="w-4 h-4" /> },
+    { type: 'textarea', label: 'متن چند خطی', icon: <AlignLeft className="w-4 h-4" /> },
+    { type: 'number', label: 'عدد', icon: <Hash className="w-4 h-4" /> },
+    { type: 'select', label: 'انتخاب از لیست', icon: <List className="w-4 h-4" /> },
+    { type: 'checkbox', label: 'چک باکس', icon: <CheckSquare className="w-4 h-4" /> },
+    { type: 'radio', label: 'انتخاب یکی از چند', icon: <Circle className="w-4 h-4" /> },
+    { type: 'date', label: 'تاریخ', icon: <Calendar className="w-4 h-4" /> },
+    { type: 'time', label: 'زمان', icon: <Clock className="w-4 h-4" /> },
+    { type: 'file', label: 'آپلود فایل', icon: <Upload className="w-4 h-4" /> },
+    { type: 'signature', label: 'امضا', icon: <Edit className="w-4 h-4" /> },
+    { type: 'rating', label: 'امتیازدهی', icon: <Star className="w-4 h-4" /> },
+    { type: 'slider', label: 'اسلایدر', icon: <Sliders className="w-4 h-4" /> },
+    { type: 'panel', label: 'پنل', icon: <LayoutDashboard className="w-4 h-4" /> }
+  ];
+
+  return (
+    <div className="w-64 bg-white dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700 p-4">
+      <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+        فیلدهای فرم
+      </h2>
+      <div className="space-y-2">
+        {fields.map(field => (
+          <DraggableField
+            key={field.type}
+            field={field}
+            onAddField={onAddField}
+            readonly={readonly}
+          />
+        ))}
+      </div>
     </div>
   );
 };
