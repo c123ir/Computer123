@@ -119,6 +119,7 @@ export interface FormField {
   id: string;
   type: FieldType;
   label: string;
+  name: string;
   description?: string;
   placeholder?: string;
   helpText?: string;
