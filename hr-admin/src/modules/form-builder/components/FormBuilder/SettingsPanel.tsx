@@ -17,7 +17,7 @@ import { PanelSettings as ImportedPanelSettings } from '../Settings/PanelSetting
 
 interface SettingsPanelProps {
   /** فیلد انتخاب شده */
-  selectedField: string | null;
+  selectedField: string | undefined;
   /** callback تغییر تنظیمات فیلد */
   onUpdate: (fieldId: string, updates: Partial<FormField>) => void;
   /** حالت فقط خواندنی */
