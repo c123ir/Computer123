@@ -164,7 +164,7 @@ export const FieldsPanel: React.FC<FieldsPanelProps> = ({
                     ${field.isPro ? 'opacity-50' : ''}
                   `}
                   draggable={!readonly}
-                  onDragStart={(e) => {
+                  onDragStart={(e: React.DragEvent<HTMLDivElement>) => {
                     e.dataTransfer.setData('fieldType', field.type);
                     e.currentTarget.classList.add('opacity-50');
                   }}
