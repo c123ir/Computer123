@@ -18,6 +18,8 @@ import SettingsPanel from './SettingsPanel';
  */
 
 interface FormBuilderProps {
+  /** فرم برای ویرایش */
+  form: Form;
   /** شناسه فرم برای ویرایش (اختیاری) */
   formId?: string;
   /** callback پس از ذخیره فرم */
@@ -59,6 +61,7 @@ const defaultMetadata = {
 };
 
 export const FormBuilder: React.FC<FormBuilderProps> = ({
+  form,
   formId,
   onSave,
   onCancel,
@@ -119,7 +122,6 @@ export const FormBuilder: React.FC<FormBuilderProps> = ({
   
   // استفاده از hook اصلی
   const {
-    form,
     fields,
     isLoading,
     isSaving,
