@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { ChevronDown, ChevronUp } from 'lucide-react';
+import React, { useState, useCallback } from 'react';
+import { ChevronDown, ChevronLeft } from 'lucide-react';
 import { FormField, PanelSettings } from '../../types';
 
 interface PanelFieldProps {
@@ -34,59 +34,13 @@ export const PanelField: React.FC<PanelFieldProps> = ({
   isSelected,
   readonly
 }) => {
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isDraggingOver, setIsDraggingOver] = useState(false);
+
   // ترکیب تنظیمات پیش‌فرض با تنظیمات دریافتی
   const panelSettings = {
     ...defaultPanelSettings,
     ...(field.fieldSettings?.panelSettings || {})
-  };
-
-  console.log('PanelField - field:', field);
-  console.log('PanelField - panelSettings:', panelSettings);
-  
-  const [isCollapsed, setIsCollapsed] = useState(panelSettings.defaultCollapsed);
-
-  // تبدیل تعداد ستون به کلاس tailwind
-  const getColumnsClass = (columns: number) => {
-    const map: Record<number, string> = {
-      1: 'grid-cols-1',
-      2: 'grid-cols-2',
-      3: 'grid-cols-3',
-      4: 'grid-cols-4',
-      5: 'grid-cols-5',
-      6: 'grid-cols-6'
-    };
-    return map[columns] || 'grid-cols-1';
-  };
-
-  // تبدیل سایز padding به کلاس tailwind
-  const getPaddingClass = (size?: 'sm' | 'md' | 'lg') => {
-    const map: Record<string, string> = {
-      sm: 'p-2',
-      md: 'p-4',
-      lg: 'p-6'
-    };
-    return map[size || 'md'];
-  };
-
-  // تبدیل سایز margin به کلاس tailwind
-  const getMarginClass = (size?: 'sm' | 'md' | 'lg') => {
-    const map: Record<string, string> = {
-      sm: 'm-2',
-      md: 'm-4',
-      lg: 'm-6'
-    };
-    return map[size || 'md'];
-  };
-
-  // تبدیل سایز shadow به کلاس tailwind
-  const getShadowClass = (shadow?: 'none' | 'sm' | 'md' | 'lg') => {
-    const map: Record<string, string> = {
-      none: 'shadow-none',
-      sm: 'shadow-sm',
-      md: 'shadow',
-      lg: 'shadow-lg'
-    };
-    return map[shadow || 'none'];
   };
 
   const handleClick = () => {
@@ -95,114 +49,139 @@ export const PanelField: React.FC<PanelFieldProps> = ({
     }
   };
 
-  const handleToggle = (e: React.MouseEvent) => {
+  const handleToggleCollapse = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (panelSettings.collapsible) {
       setIsCollapsed(!isCollapsed);
     }
   };
 
-  // Drag & Drop handlers
-  const handleDragOver = (e: React.DragEvent) => {
-    if (readonly) return;
+  const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    e.currentTarget.classList.add('bg-blue-50', 'dark:bg-blue-900/20');
-  };
+    setIsDraggingOver(true);
+  }, []);
 
-  const handleDragLeave = (e: React.DragEvent) => {
-    if (readonly) return;
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    e.currentTarget.classList.remove('bg-blue-50', 'dark:bg-blue-900/20');
-  };
+    setIsDraggingOver(false);
+  }, []);
 
-  const handleDrop = (e: React.DragEvent) => {
-    if (readonly) return;
+  const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    e.currentTarget.classList.remove('bg-blue-50', 'dark:bg-blue-900/20');
+    setIsDraggingOver(false);
 
-    try {
-      const data = JSON.parse(e.dataTransfer.getData('application/json'));
-      console.log('Panel received drop:', data);
-      if (data.type === 'field' && onFieldDrop) {
-        onFieldDrop(data.fieldId, field.id);
-      }
-    } catch (error) {
-      console.error('Error parsing drag data:', error);
+    const fieldId = e.dataTransfer.getData('fieldId');
+    const fieldType = e.dataTransfer.getData('fieldType');
+
+    if (fieldId && onFieldDrop) {
+      onFieldDrop(fieldId, field.id);
+    } else if (fieldType && onFieldDrop) {
+      // اگر فیلد جدید است، از نوع فیلد استفاده می‌کنیم
+      onFieldDrop(fieldType, field.id);
     }
+  }, [field.id, onFieldDrop]);
+
+  // تبدیل تعداد ستون به کلاس tailwind
+  const getColumnsClass = (columns: number) => {
+    const map: Record<number, string> = {
+      1: 'grid-cols-1',
+      2: 'grid-cols-2',
+      3: 'grid-cols-3',
+      4: 'grid-cols-4'
+    };
+    return map[columns] || 'grid-cols-1';
   };
 
   return (
-    <div
+    <div 
       className={`
-        relative
-        ${getMarginClass(panelSettings.margin)}
-        ${getShadowClass(panelSettings.shadow)}
-        ${isSelected ? 'ring-2 ring-blue-500' : ''}
+        bg-white dark:bg-gray-800
+        border border-gray-200 dark:border-gray-700
         rounded-lg
-        transition-all
-        duration-200
-        cursor-pointer
-        hover:shadow-lg
+        transition-all duration-200
+        ${isSelected ? 'ring-2 ring-blue-500 dark:ring-blue-400' : ''}
+        ${!readonly ? 'hover:border-blue-300 dark:hover:border-blue-500 cursor-pointer' : ''}
       `}
-      style={{
-        backgroundColor: panelSettings.backgroundColor || '#ffffff',
-        borderColor: panelSettings.borderColor,
-        borderRadius: panelSettings.borderRadius ? `${panelSettings.borderRadius}px` : '0.5rem',
-        backgroundImage: panelSettings.backgroundImage ? `url(${panelSettings.backgroundImage})` : undefined,
-        backgroundPosition: panelSettings.backgroundPosition || 'center',
-        backgroundSize: panelSettings.backgroundSize || 'cover',
-        opacity: panelSettings.backgroundOpacity || 1
-      }}
       onClick={handleClick}
-      onDragOver={handleDragOver}
-      onDragLeave={handleDragLeave}
-      onDrop={handleDrop}
+      style={{
+        backgroundColor: panelSettings.backgroundColor,
+        borderColor: panelSettings.borderColor,
+        borderRadius: panelSettings.borderRadius + 'px',
+      }}
     >
       {/* Panel Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b">
-        <div className="flex items-center space-x-2 space-x-reverse">
-          {panelSettings.icon && (
-            <span className="text-gray-500">{panelSettings.icon}</span>
-          )}
-          <h3 className="text-lg font-semibold">{panelSettings.title}</h3>
-        </div>
-        {panelSettings.collapsible && (
+      <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+        <div className="flex items-center gap-2">
           <button
-            onClick={handleToggle}
-            className="p-1 hover:bg-gray-100 rounded-full transition-colors"
+            onClick={handleToggleCollapse}
+            className={`
+              p-1 rounded-md
+              text-gray-500 dark:text-gray-400
+              hover:bg-gray-100 dark:hover:bg-gray-700
+              transition-colors
+              ${!panelSettings.collapsible ? 'invisible' : ''}
+            `}
           >
-            {isCollapsed ? (
-              <ChevronDown className="w-5 h-5" />
-            ) : (
-              <ChevronUp className="w-5 h-5" />
-            )}
+            {isCollapsed ? <ChevronLeft className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
           </button>
-        )}
+          <h3 className="font-medium text-gray-900 dark:text-white">
+            {panelSettings.title || 'پنل جدید'}
+          </h3>
+        </div>
       </div>
 
       {/* Panel Content */}
-      <div
-        className={`
-          ${getPaddingClass(panelSettings.padding)}
-          ${isCollapsed ? 'hidden' : 'block'}
-          transition-all
-          duration-200
-        `}
-      >
-        <div className={`grid ${getColumnsClass(panelSettings.columns)} gap-4`}>
+      <div className={`${isCollapsed ? 'hidden' : 'block'}`}>
+        <div className={`grid ${getColumnsClass(panelSettings.columns)} gap-4 p-4`}>
           {children}
+          
           {/* Drop Zone */}
           {!readonly && (
             <div
-              className="min-h-[100px] border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg flex items-center justify-center text-gray-500 dark:text-gray-400"
+              className={`
+                min-h-[120px]
+                border-2 border-dashed
+                rounded-lg
+                transition-all duration-200
+                flex flex-col items-center justify-center gap-2
+                ${isDraggingOver 
+                  ? 'border-blue-400 bg-blue-50 dark:border-blue-500 dark:bg-blue-900/20' 
+                  : 'border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600'
+                }
+              `}
               onDrop={handleDrop}
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
             >
-              فیلدها را اینجا رها کنید
+              <div className={`
+                p-3 rounded-full
+                ${isDraggingOver ? 'bg-blue-100 dark:bg-blue-900/30' : 'bg-gray-100 dark:bg-gray-800'}
+              `}>
+                <svg
+                  className={`w-6 h-6 ${isDraggingOver ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400'}`}
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 4v16m8-8H4"
+                  />
+                </svg>
+              </div>
+              <div className="text-center">
+                <p className={`text-sm font-medium ${isDraggingOver ? 'text-blue-700 dark:text-blue-400' : 'text-gray-600 dark:text-gray-400'}`}>
+                  فیلدها را اینجا رها کنید
+                </p>
+                <p className="text-xs text-gray-500 dark:text-gray-500">
+                  یا از پنل سمت راست انتخاب کنید
+                </p>
+              </div>
             </div>
           )}
         </div>
