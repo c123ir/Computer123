@@ -178,18 +178,17 @@ const DraggableField: React.FC<DraggableFieldProps> = ({ field, onAddField, read
   }));
 
   return (
-    <motion.div
+    <div
       ref={drag}
       className={`
-        flex items-center gap-3 p-3 rounded-lg cursor-move
+        flex items-center gap-3 p-3 rounded-lg
         bg-gray-50 dark:bg-gray-700
         hover:bg-gray-100 dark:hover:bg-gray-600
         border border-gray-200 dark:border-gray-600
+        transition-all duration-200
         ${isDragging ? 'opacity-50' : 'opacity-100'}
-        ${readonly ? 'cursor-not-allowed opacity-60' : ''}
+        ${readonly ? 'cursor-not-allowed opacity-60' : 'cursor-move'}
       `}
-      whileHover={{ scale: 1.02 }}
-      whileTap={{ scale: 0.98 }}
     >
       <div className="text-gray-500 dark:text-gray-400">
         <field.icon className="w-5 h-5" />
@@ -208,7 +207,7 @@ const DraggableField: React.FC<DraggableFieldProps> = ({ field, onAddField, read
           <Plus className="w-4 h-4" />
         </button>
       )}
-    </motion.div>
+    </div>
   );
 };
 
