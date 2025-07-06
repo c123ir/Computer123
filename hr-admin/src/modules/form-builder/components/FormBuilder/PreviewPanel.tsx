@@ -11,6 +11,7 @@ import { FieldRegistry } from '../../registry/FieldRegistry';
 import { motion, AnimatePresence } from 'framer-motion';
 import { PanelField } from '../Fields/PanelField';
 import { useDrop } from 'react-dnd';
+import { nanoid } from 'nanoid';
 
 /**
  * پنل پیش‌نمایش فرم
@@ -228,8 +229,7 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
   const [{ isOver }, drop] = useDrop(() => ({
     accept: 'FIELD',
     drop: (item: { type: FieldType }) => {
-      // Handle the dropped field
-      console.log('Dropped field:', item.type);
+      onAddField(item.type, undefined);
     },
     collect: (monitor) => ({
       isOver: monitor.isOver()
