@@ -85,6 +85,8 @@ export const PanelField: React.FC<PanelFieldProps> = ({
         borderRadius: panelSettings.borderRadius,
       }}
       onClick={() => onFieldSelect?.(field.id)}
+      onDragOver={handleDragOver}
+      onDrop={handleDrop}
     >
       {/* Panel Header */}
       <div className={`
