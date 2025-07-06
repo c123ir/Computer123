@@ -21,7 +21,7 @@ interface FormBuilderProps {
   /** شناسه فرم برای ویرایش (اختیاری) */
   formId?: string;
   /** callback پس از ذخیره فرم */
-  onSave?: (formId: string) => void;
+  onSave?: (form: Form) => Promise<void>;
   /** callback پس از لغو */
   onCancel?: () => void;
   /** حالت فقط خواندنی */
