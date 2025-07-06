@@ -393,6 +393,7 @@ export const FormBuilder: React.FC<FormBuilderProps> = ({
         />
         <SettingsPanel
           selectedField={selectedField}
+          field={fields.find(f => f.id === selectedField) || fields[0]}
           onUpdate={updateField}
           onSave={handleSave}
           onCancel={handleCancel}
