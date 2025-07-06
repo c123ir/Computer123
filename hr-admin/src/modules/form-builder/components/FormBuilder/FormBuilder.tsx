@@ -103,6 +103,7 @@ export const FormBuilder: React.FC<FormBuilderProps> = ({
 
         const createDto: CreateFormDto = {
           name: form.name || 'فرم جدید',
+          title: form.title || 'فرم جدید',
           description: form.description || '',
           fields: form.fields || [],
           settings: { ...defaultSettings, ...form.settings },
