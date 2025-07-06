@@ -7,6 +7,7 @@ import { FormService } from '../../services/formService';
 import SidePanel from './SidePanel';
 import PreviewPanel from './PreviewPanel';
 import { FieldType, FormField, Form, CreateFormDto, UpdateFormDto, FormSettings } from '../../types';
+import { nanoid } from 'nanoid';
 
 /**
  * کامپوننت اصلی Form Builder
@@ -30,6 +31,7 @@ export const FormBuilder: React.FC<FormBuilderProps> = ({
   readonly = false
 }) => {
   const [showResetConfirm, setShowResetConfirm] = useState(false);
+  const [selectedField, setSelectedField] = useState<string | undefined>();
   
   // Memoize callbacks
   const handleFormSave = useCallback(async (form: Form) => {
@@ -108,7 +110,6 @@ export const FormBuilder: React.FC<FormBuilderProps> = ({
   const {
     form,
     fields,
-    selectedField,
     isLoading,
     isSaving,
     isAutoSaving,
@@ -147,48 +148,161 @@ export const FormBuilder: React.FC<FormBuilderProps> = ({
     }
   }, [formId, form.id]);
 
-  // Handle field selection from FieldsPanel
-  const handleFieldSelect = (fieldType: FieldType, parentId?: string): string => {
-    if (!readonly) {
-      const newFieldId = addField(fieldType);
-      if (parentId) {
-        handleFieldDrop(newFieldId, parentId);
-      }
-      selectField(newFieldId);
-      return newFieldId;
-    }
-    return '';
-  };
+  // اضافه کردن فیلد جدید
+  const handleAddField = useCallback((type: FieldType, parentId?: string): string => {
+    const newField: FormField = {
+      id: nanoid(),
+      type,
+      label: 'فیلد جدید',
+      name: `field_${nanoid(6)}`,
+      order: form.fields.length + 1,
+      required: false,
+      parentId,
+      fieldSettings: type === 'panel' ? {
+        panelSettings: {
+          title: 'پنل جدید',
+          columns: 1,
+          collapsible: true,
+          defaultCollapsed: false,
+          padding: 'md',
+          margin: 'md',
+          shadow: 'md',
+          backgroundColor: '#ffffff',
+          borderColor: '#e5e7eb',
+          borderRadius: 8,
+          backgroundOpacity: 1
+        }
+      } : undefined
+    };
 
-  // Handle field drop into panel
-  const handleFieldDropInPanel = (fieldId: string, panelId: string) => {
+    const updatedForm = {
+      ...form,
+      fields: [...form.fields, newField]
+    };
+
+    addField(type, parentId);
+    setSelectedField(newField.id);
+    return newField.id;
+  }, [form, addField, setSelectedField]);
+
+  // حذف فیلد
+  const handleDeleteField = useCallback((fieldId: string) => {
+    const updatedFields = form.fields.filter(field => {
+      // حذف فیلد و تمام فیلدهای داخل آن (اگر پنل باشد)
+      if (field.id === fieldId || field.parentId === fieldId) {
+        return false;
+      }
+      return true;
+    });
+
+    const updatedForm = {
+      ...form,
+      fields: updatedFields
+    };
+
+    removeField(fieldId);
+    if (selectedField === fieldId) {
+      setSelectedField(undefined);
+    }
+  }, [form, removeField, selectedField]);
+
+  // کپی فیلد
+  const handleDuplicateField = useCallback((fieldId: string) => {
+    const field = form.fields.find(f => f.id === fieldId);
+    if (!field) return;
+
+    const newField: FormField = {
+      ...field,
+      id: nanoid(),
+      name: `${field.name}_copy`,
+      label: `${field.label} (کپی)`,
+      order: form.fields.length + 1
+    };
+
+    const updatedForm = {
+      ...form,
+      fields: [...form.fields, newField]
+    };
+
+    duplicateField(fieldId);
+    setSelectedField(newField.id);
+  }, [form, duplicateField, selectedField]);
+
+  // جابجایی فیلد
+  const handleMoveField = useCallback((fieldId: string, direction: 'up' | 'down') => {
+    const fieldIndex = form.fields.findIndex(f => f.id === fieldId);
+    if (fieldIndex === -1) return;
+
+    const field = form.fields[fieldIndex];
+    const siblingFields = form.fields.filter(f => f.parentId === field.parentId);
+    const siblingIndex = siblingFields.findIndex(f => f.id === fieldId);
+
+    if (direction === 'up' && siblingIndex > 0) {
+      const prevField = siblingFields[siblingIndex - 1];
+      const updatedFields = form.fields.map(f => {
+        if (f.id === fieldId) {
+          return { ...f, order: prevField.order };
+        }
+        if (f.id === prevField.id) {
+          return { ...f, order: field.order };
+        }
+        return f;
+      });
+
+      const updatedForm = {
+        ...form,
+        fields: updatedFields.sort((a, b) => a.order - b.order)
+      };
+
+      moveField(fieldId, updatedFields.findIndex(f => f.id === fieldId));
+    } else if (direction === 'down' && siblingIndex < siblingFields.length - 1) {
+      const nextField = siblingFields[siblingIndex + 1];
+      const updatedFields = form.fields.map(f => {
+        if (f.id === fieldId) {
+          return { ...f, order: nextField.order };
+        }
+        if (f.id === nextField.id) {
+          return { ...f, order: field.order };
+        }
+        return f;
+      });
+
+      const updatedForm = {
+        ...form,
+        fields: updatedFields.sort((a, b) => a.order - b.order)
+      };
+
+      moveField(fieldId, updatedFields.findIndex(f => f.id === fieldId));
+    }
+  }, [form, moveField]);
+
+  // بروزرسانی فیلد
+  const handleFieldUpdate = useCallback((fieldId: string, updates: Partial<FormField>) => {
+    const updatedFields = form.fields.map(field => {
+      if (field.id === fieldId) {
+        return {
+          ...field,
+          ...updates
+        };
+      }
+      return field;
+    });
+
+    const updatedForm = {
+      ...form,
+      fields: updatedFields
+    };
+
+    updateField(fieldId, updates);
+  }, [form, updateField]);
+
+  // رها کردن فیلد در پنل
+  const handleFieldDropInPanel = useCallback((fieldId: string, panelId: string) => {
     if (!readonly) {
       console.log('Dropping field', fieldId, 'into panel', panelId);
       handleFieldDrop(fieldId, panelId);
     }
-  };
-
-  // Handle move field - wrapper to convert direction to index
-  const handleMoveField = (fieldId: string, direction: 'up' | 'down') => {
-    const currentIndex = fields.findIndex(f => f.id === fieldId);
-    if (currentIndex === -1) return;
-    
-    const newIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
-    if (newIndex >= 0 && newIndex < fields.length) {
-      moveField(fieldId, newIndex);
-    }
-  };
-
-  // Handle reorder fields - wrapper to convert string array to FormField array
-  const handleReorderFields = (fieldIds: string[]) => {
-    const reorderedFields = fieldIds
-      .map(id => fields.find(f => f.id === id))
-      .filter((field): field is FormField => field !== undefined);
-    
-    if (reorderedFields.length === fields.length) {
-      reorderFields(reorderedFields);
-    }
-  };
+  }, [handleFieldDrop, readonly]);
 
   // Handle save
   const handleSave = async () => {
@@ -363,14 +477,14 @@ export const FormBuilder: React.FC<FormBuilderProps> = ({
           <PreviewPanel
             form={form}
             fields={fields}
-            selectedField={selectedField?.id}
-            onFieldSelect={selectField}
+            selectedField={selectedField}
+            onFieldSelect={setSelectedField}
             onFieldDrop={handleFieldDropInPanel}
-            onAddField={handleFieldSelect}
-            onDeleteField={removeField}
-            onDuplicateField={duplicateField}
+            onAddField={handleAddField}
+            onDeleteField={handleDeleteField}
+            onDuplicateField={handleDuplicateField}
             onMoveField={handleMoveField}
-            onReorderFields={handleReorderFields}
+            onFieldDrop={handleFieldDropInPanel}
             readonly={readonly}
           />
         </div>
@@ -379,8 +493,8 @@ export const FormBuilder: React.FC<FormBuilderProps> = ({
         <div className="w-80">
           <SidePanel
             selectedField={selectedField || undefined}
-            onFieldSelect={handleFieldSelect}
-            onFieldUpdate={updateField}
+            onFieldSelect={handleAddField}
+            onFieldUpdate={handleFieldUpdate}
             readonly={readonly}
           />
         </div>
