@@ -66,7 +66,7 @@ export const FormBuilder: React.FC<FormBuilderProps> = ({
   initialForm
 }) => {
   const [showResetConfirm, setShowResetConfirm] = useState(false);
-  const [selectedField, setSelectedField] = useState<string | undefined>();
+  const [selectedField, setSelectedField] = useState<string | null>(null);
   
   // Memoize callbacks
   const handleFormSave = useCallback(async (form: Form) => {
@@ -217,7 +217,7 @@ export const FormBuilder: React.FC<FormBuilderProps> = ({
 
     removeField(fieldId);
     if (selectedField === fieldId) {
-      setSelectedField(undefined);
+      setSelectedField(null);
     }
   }, [form, removeField, selectedField]);
 
